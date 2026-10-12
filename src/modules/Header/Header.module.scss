@@ -1,0 +1,16 @@
+@use "../../scss/variables.scss" as v;
+@use "sass:math";
+
+$menu-height: 80px;
+
+.Header {
+  padding-inline: 40px;
+
+  display: flex;
+  height: 80px;
+  justify-content: space-between;
+  align-items: center;
+  background-color: v.$header-background-color;
+
+  border-radius: math.div($menu-height, 2);
+}

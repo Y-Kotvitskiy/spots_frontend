@@ -1,0 +1,45 @@
+@forward "fonts";
+@forward "variables";
+
+@use "variables" as v;
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: Mont, sans-serif;
+  font-weight: 300;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+a,
+dl,
+ul,
+ol,
+button,
+picture {
+  padding: 0;
+  margin: 0;
+}
+
+menu,
+nav,
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: v.$body-background-color;
+}
