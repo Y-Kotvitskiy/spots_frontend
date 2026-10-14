@@ -1,7 +1,7 @@
 import styles from "./Header.module.scss";
-import Logo from "../../shared/Logo";
 import Navigation from "./Navigation/Navigation";
 import { NavLink } from "react-router-dom";
+import Logo from "../shared/Logo";
 
 const Header = () => (
   <header className={styles.Header}>

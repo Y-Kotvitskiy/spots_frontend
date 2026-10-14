@@ -9,5 +9,9 @@
 
   &__item {
     @extend %display-menu;
+
+    &_active {
+      text-decoration: underline;
+    }
   }
 }

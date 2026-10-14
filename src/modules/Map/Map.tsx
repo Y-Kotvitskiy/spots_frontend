@@ -1,4 +1,4 @@
-import styles from "./Logo.module.scss";
+import styles from "./Map.module.scss";
 
 const Map = () => {
   return (
