@@ -1,12 +1,23 @@
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Formik, Form, Field } from "formik";
+import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 import cn from "classnames";
+import { AxiosError } from "axios";
 
 import styles from "./Login.module.scss";
 import { useAuth } from "@/components/AuthContext";
-import { AxiosError } from "axios";
 import { usePageError } from "@/modules/hooks.ts";
 import { validateEmail, validatePassword } from "@/modules/utils.ts";
+import FormField from "../FormField";
+
+interface FormValues {
+  email: string;
+  password: string;
+}
+
+type LoginErrors = AxiosError<{
+  errors?: { email?: string; password?: string };
+  message: string;
+}>;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,133 +26,142 @@ const Login = () => {
   const [error, setError] = usePageError("");
   const { login, isChecked, currentUser } = useAuth();
 
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+
+    validate: (values): FormikErrors<FormValues> | void => {
+      const { email, password } = values;
+
+      const errors: { email?: string; password?: string } = {};
+
+      const emailError = !email ? "Can`t be empty" : validateEmail(email);
+
+      if (emailError) {
+        errors.email = emailError;
+      }
+
+      const trimmedPassword = password.trim();
+
+      const passwordError = trimmedPassword
+        ? validatePassword(password)
+        : "Can`t be empty";
+
+      if (passwordError) {
+        errors.password = passwordError;
+      }
+
+      return errors;
+    },
+
+    enableReinitialize: true,
+
+    onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
+      const { setSubmitting, setFieldError } = helpers;
+
+      try {
+        await login(values.email, values.password);
+        const state = location.state as { from?: Location };
+        navigate(state.from?.pathname ?? "/");
+      } catch (err) {
+        const error = err as LoginErrors;
+        if (!error.response?.data) return;
+        const { errors, message } = error.response.data;
+
+        setFieldError("email", errors?.email);
+        setFieldError("password", errors?.password);
+
+        setError(message ?? "");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
   if (isChecked && currentUser) {
     return <Navigate to="/" />;
   }
 
+  const { touched, errors, isSubmitting } = formik;
+
+  const handleFormBlur = (event: React.FocusEvent<HTMLFormElement>) => {
+    const { name, value } = event.target;
+
+    if (name && typeof value === "string") {
+      formik.setFieldValue(name, value.trim());
+    }
+
+    formik.handleBlur(event);
+  };
+
   return (
     <>
-      <Formik
-        initialValues={{
-          email: "",
-          password: "",
-        }}
-        validateOnMount={true}
-        onSubmit={({ email, password }) => {
-          return login(email, password)
-            .then(() => {
-              const state = location.state as { from?: Location };
-              navigate(state.from?.pathname ?? "/");
-            })
-            .catch((error: AxiosError<{ message?: string }>) => {
-              setError(error.response?.data?.message ?? "");
-            });
-        }}
+      <form
+        onSubmit={formik.handleSubmit}
+        onBlur={handleFormBlur}
+        className={styles.Login}
       >
-        {({ values, touched, errors, isSubmitting }) => (
-          <Form className={styles.Login}>
-            <h1 className={styles.Login__title}>Log in</h1>
-            <div className={styles.Login__controls}>
-              <div className="field">
-                <label htmlFor="email" className="label">
-                  Email
-                </label>
+        <h1 className={styles.Login__title}>Log in</h1>
+        <div className={styles.Login__controls}>
+          <FormField
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="e.g. bobsmith@gmail.com"
+            rightIcon="fa-lock"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.email}
+            touched={touched.email}
+          />
 
-                <div className="control has-icons-left has-icons-right">
-                  <Field
-                    validate={validateEmail}
-                    name="email"
-                    type="email"
-                    id="email"
-                    placeholder="e.g. bobsmith@gmail.com"
-                    className={cn("input", {
-                      "is-danger": touched.email && errors.email,
-                    })}
-                  />
+          <FormField
+            label="Password"
+            name="password"
+            type="password"
+            id="password"
+            placeholder="*******"
+            rightIcon="fa-lock"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.password}
+            touched={touched.password}
+          />
+          <button
+            type="submit"
+            className={cn("button is-success has-text-weight-bold", {
+              "is-loading": isSubmitting,
+            })}
+            disabled={isSubmitting || !!errors.email || !!errors.password}
+          >
+            Log in
+          </button>
+        </div>
 
-                  <span className="icon is-small is-left">
-                    <i className="fa fa-envelope"></i>
-                  </span>
+        <div className={styles.Login__messages}>
+          <p>
+            <Link
+              className={styles.Login__messageLink}
+              to="/forgot-password"
+              state={formik.values.email}
+            >
+              Forgot password?
+            </Link>
+          </p>
+          <p className={styles.Login__messagesRegistration}>
+            Do not have an account?
+            <Link className={styles.Login__messageLink} to="/register">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </form>
 
-                  {touched.email && errors.email && (
-                    <span className="icon is-small is-right has-text-danger">
-                      <i className="fas fa-exclamation-triangle"></i>
-                    </span>
-                  )}
-                </div>
-
-                {touched.email && errors.email && (
-                  <p className="help is-danger">{errors.email}</p>
-                )}
-              </div>
-              <div className="field">
-                <label htmlFor="password" className="label">
-                  Password
-                </label>
-
-                <div className="control has-icons-left has-icons-right">
-                  <Field
-                    validate={validatePassword}
-                    name="password"
-                    type="password"
-                    id="password"
-                    placeholder="*******"
-                    className={cn("input", {
-                      "is-danger": touched.password && errors.password,
-                    })}
-                  />
-
-                  <span className="icon is-small is-left">
-                    <i className="fa fa-lock"></i>
-                  </span>
-
-                  {touched.password && errors.password && (
-                    <span className="icon is-small is-right has-text-danger">
-                      <i className="fas fa-exclamation-triangle"></i>
-                    </span>
-                  )}
-                </div>
-
-                {touched.password && errors.password ? (
-                  <p className="help is-danger">{errors.password}</p>
-                ) : (
-                  <p className="help">At least 6 characters</p>
-                )}
-              </div>
-              <div className="field">
-                <button
-                  type="submit"
-                  className={cn("button is-success has-text-weight-bold", {
-                    "is-loading": isSubmitting,
-                  })}
-                  disabled={isSubmitting || !!errors.email || !!errors.password}
-                >
-                  Log in
-                </button>
-              </div>
-            </div>
-            <div className={styles.Login__messages}>
-              <p>
-                <Link
-                  className={styles.Login__messageLink}
-                  to="/forgot-password"
-                  state={values.email}
-                >
-                  Forgot password?
-                </Link>
-              </p>
-              <p className={styles.Login__messagesRegistration}>
-                Do not have an account?
-                <Link className={styles.Login__messageLink} to="/register">
-                  Sign up
-                </Link>
-              </p>
-            </div>
-          </Form>
-        )}
-      </Formik>
-
-      {error && <p className="notification is-danger is-light">{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </>
   );
 };

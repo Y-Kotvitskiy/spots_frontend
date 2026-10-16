@@ -30,6 +30,7 @@
 }
 
 %h3 {
+  color: v.$grey-90-color;
   font-size: 18px;
   @include m.on-tablet {
     font-size: 24px;
@@ -37,7 +38,14 @@
 }
 
 %h4 {
+  color: v.$grey-90-color;
+  font-style: normal;
+  font-weight: 500;
   font-size: 16px;
+
+  line-height: 110%;
+
+  font-family: "Roboto";
 
   @include m.on-tablet {
     font-size: 20px;
@@ -53,7 +61,14 @@
 }
 
 %p2 {
+  color: v.$grey-90-color;
+
+  font-style: normal;
+  font-weight: 400;
   font-size: 14px;
+  line-height: 140%;
+
+  font-family: "Roboto";
 
   @include m.on-tablet {
     font-size: 18px;
