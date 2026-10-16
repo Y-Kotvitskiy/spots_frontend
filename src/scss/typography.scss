@@ -1,0 +1,108 @@
+@use "mixins" as m;
+@use "variables" as v;
+
+%h1 {
+  color: v.$grey-90-color;
+  font-style: normal;
+  font-weight: 600;
+
+  font-size: 24px;
+
+  line-height: 110%;
+  font-family: "Roboto";
+  @include m.on-tablet {
+    font-size: 40px;
+  }
+}
+
+%h2 {
+  color: v.$grey-90-color;
+  font-style: normal;
+  font-weight: 500;
+
+  font-size: 22px;
+
+  line-height: 110%;
+  font-family: "Roboto";
+  @include m.on-tablet {
+    font-size: 32px;
+  }
+}
+
+%h3 {
+  font-size: 18px;
+  @include m.on-tablet {
+    font-size: 24px;
+  }
+}
+
+%h4 {
+  font-size: 16px;
+
+  @include m.on-tablet {
+    font-size: 20px;
+  }
+}
+
+%p1 {
+  font-size: 16px;
+
+  @include m.on-tablet {
+    font-size: 20px;
+  }
+}
+
+%p2 {
+  font-size: 14px;
+
+  @include m.on-tablet {
+    font-size: 18px;
+  }
+}
+
+%p3 {
+  color: v.$grey-90-color;
+  font-style: normal;
+  font-weight: 400;
+
+  font-size: 12px;
+  line-height: 140%;
+  font-family: "Roboto";
+
+  @include m.on-tablet {
+    font-size: 16px;
+  }
+}
+
+%nav_item {
+  font-size: 12px;
+
+  @include m.on-tablet {
+    font-size: 12px;
+  }
+}
+
+%button_small {
+  font-size: 16px;
+
+  @include m.on-tablet {
+    font-size: 14px;
+  }
+}
+
+%button_big {
+  font-size: 18px;
+
+  @include m.on-tablet {
+    font-size: 20px;
+  }
+}
+
+%display-menu {
+  color: v.$menu-color;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 110%;
+  font-family: "Inter";
+}

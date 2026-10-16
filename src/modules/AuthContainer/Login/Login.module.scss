@@ -1,0 +1,55 @@
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/typography.scss" as t;
+
+.Login {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__title {
+    @extend %h1;
+
+    display: flex;
+    flex: 1 1 calc((249 / 1024) * 100%);
+    align-items: end;
+    justify-content: center;
+
+    padding-bottom: 36px;
+    border: solid 1px red;
+  }
+
+  &__controls {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    height: max-content;
+    border: solid 1px red;
+
+    @include m.on-tablet {
+      min-height: 130px;
+    }
+  }
+
+  &__messages {
+    display: flex;
+    flex: 1 1 calc((477 / 1024) * 100%);
+    flex-direction: column;
+    align-items: center;
+    min-height: 0;
+    padding-top: 36px;
+    border: solid 1px red;
+  }
+
+  &__messagesRegistration {
+    @extend %p3;
+
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  &__messageLink {
+    @extend %button_small;
+  }
+}

@@ -2,10 +2,11 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import cn from "classnames";
 
-import { useAuth } from "../../../components/AuthContext";
+import styles from "./Login.module.scss";
+import { useAuth } from "@/components/AuthContext";
 import { AxiosError } from "axios";
-import { usePageError } from "../../hooks.ts";
-import { validateEmail, validatePassword } from "../../utils.ts";
+import { usePageError } from "@/modules/hooks.ts";
+import { validateEmail, validatePassword } from "@/modules/utils.ts";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -38,94 +39,104 @@ const Login = () => {
         }}
       >
         {({ values, touched, errors, isSubmitting }) => (
-          <Form className="box">
-            <h1 className="title">Log in</h1>
-            <div className="field">
-              <label htmlFor="email" className="label">
-                Email
-              </label>
+          <Form className={styles.Login}>
+            <h1 className={styles.Login__title}>Log in</h1>
+            <div className={styles.Login__controls}>
+              <div className="field">
+                <label htmlFor="email" className="label">
+                  Email
+                </label>
 
-              <div className="control has-icons-left has-icons-right">
-                <Field
-                  validate={validateEmail}
-                  name="email"
-                  type="email"
-                  id="email"
-                  placeholder="e.g. bobsmith@gmail.com"
-                  className={cn("input", {
-                    "is-danger": touched.email && errors.email,
-                  })}
-                />
+                <div className="control has-icons-left has-icons-right">
+                  <Field
+                    validate={validateEmail}
+                    name="email"
+                    type="email"
+                    id="email"
+                    placeholder="e.g. bobsmith@gmail.com"
+                    className={cn("input", {
+                      "is-danger": touched.email && errors.email,
+                    })}
+                  />
 
-                <span className="icon is-small is-left">
-                  <i className="fa fa-envelope"></i>
-                </span>
+                  <span className="icon is-small is-left">
+                    <i className="fa fa-envelope"></i>
+                  </span>
+
+                  {touched.email && errors.email && (
+                    <span className="icon is-small is-right has-text-danger">
+                      <i className="fas fa-exclamation-triangle"></i>
+                    </span>
+                  )}
+                </div>
 
                 {touched.email && errors.email && (
-                  <span className="icon is-small is-right has-text-danger">
-                    <i className="fas fa-exclamation-triangle"></i>
-                  </span>
+                  <p className="help is-danger">{errors.email}</p>
                 )}
               </div>
+              <div className="field">
+                <label htmlFor="password" className="label">
+                  Password
+                </label>
 
-              {touched.email && errors.email && (
-                <p className="help is-danger">{errors.email}</p>
-              )}
-            </div>
-            <div className="field">
-              <label htmlFor="password" className="label">
-                Password
-              </label>
+                <div className="control has-icons-left has-icons-right">
+                  <Field
+                    validate={validatePassword}
+                    name="password"
+                    type="password"
+                    id="password"
+                    placeholder="*******"
+                    className={cn("input", {
+                      "is-danger": touched.password && errors.password,
+                    })}
+                  />
 
-              <div className="control has-icons-left has-icons-right">
-                <Field
-                  validate={validatePassword}
-                  name="password"
-                  type="password"
-                  id="password"
-                  placeholder="*******"
-                  className={cn("input", {
-                    "is-danger": touched.password && errors.password,
+                  <span className="icon is-small is-left">
+                    <i className="fa fa-lock"></i>
+                  </span>
+
+                  {touched.password && errors.password && (
+                    <span className="icon is-small is-right has-text-danger">
+                      <i className="fas fa-exclamation-triangle"></i>
+                    </span>
+                  )}
+                </div>
+
+                {touched.password && errors.password ? (
+                  <p className="help is-danger">{errors.password}</p>
+                ) : (
+                  <p className="help">At least 6 characters</p>
+                )}
+              </div>
+              <div className="field">
+                <button
+                  type="submit"
+                  className={cn("button is-success has-text-weight-bold", {
+                    "is-loading": isSubmitting,
                   })}
-                />
-
-                <span className="icon is-small is-left">
-                  <i className="fa fa-lock"></i>
-                </span>
-
-                {touched.password && errors.password && (
-                  <span className="icon is-small is-right has-text-danger">
-                    <i className="fas fa-exclamation-triangle"></i>
-                  </span>
-                )}
+                  disabled={isSubmitting || !!errors.email || !!errors.password}
+                >
+                  Log in
+                </button>
               </div>
-
-              {touched.password && errors.password ? (
-                <p className="help is-danger">{errors.password}</p>
-              ) : (
-                <p className="help">At least 6 characters</p>
-              )}
             </div>
-            <div className="field">
-              <button
-                type="submit"
-                className={cn("button is-success has-text-weight-bold", {
-                  "is-loading": isSubmitting,
-                })}
-                disabled={isSubmitting || !!errors.email || !!errors.password}
-              >
-                Log in
-              </button>
+            <div className={styles.Login__messages}>
+              <p>
+                <Link
+                  className={styles.Login__messageLink}
+                  to="/forgot-password"
+                  state={values.email}
+                >
+                  Forgot password?
+                </Link>
+              </p>
+              <p className={styles.Login__messagesRegistration}>
+                Do not have an account?
+                <Link className={styles.Login__messageLink} to="/register">
+                  Sign up
+                </Link>
+              </p>
             </div>
-            <p>
-              Do not have an account? <Link to="/register">Sign up</Link>
-            </p>
-            <p>
-              Forgot password?{" "}
-              <Link to="/forgot-password" state={values.email}>
-                Send reset link
-              </Link>
-            </p>
           </Form>
         )}
       </Formik>
