@@ -25,7 +25,12 @@
       {
         "name": "typescript-plugin-css-modules"
       }
-    ]
+    ],
+
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"]
+    }
   },
   "include": ["src", "src/types/**/*.d.ts"]
 }

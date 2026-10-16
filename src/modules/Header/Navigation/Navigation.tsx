@@ -47,9 +47,7 @@ const Navigation = () => {
             <li>
               <NavLink
                 to="/login"
-                className={({ isActive }) =>
-                  `nav-item ${isActive ? "active" : ""}`
-                }
+                className={({ isActive }) => activeItemClass(isActive)}
               >
                 Login
               </NavLink>
@@ -57,9 +55,7 @@ const Navigation = () => {
             <li>
               <NavLink
                 to="/register"
-                className={({ isActive }) =>
-                  `nav-item ${isActive ? "active" : ""}`
-                }
+                className={({ isActive }) => activeItemClass(isActive)}
               >
                 Register
               </NavLink>

@@ -1,0 +1,29 @@
+@use "@/scss/main.scss" as *;
+
+.AuthContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__wrapper {
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+  }
+
+  &__form {
+    flex-basis: 710px;
+    min-width: 0;
+  }
+
+  &__photo {
+    display: none;
+    flex-basis: 730px;
+    min-width: 0;
+    object-fit: cover;
+
+    @include on-tablet {
+      display: block;
+    }
+  }
+}

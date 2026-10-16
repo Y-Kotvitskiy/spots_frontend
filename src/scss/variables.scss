@@ -1,4 +1,26 @@
+// #region Colors
+
 $primary-color: #000;
 $body-background-color: #f2f2f2;
 $menu-color: #6b6666;
 $header-background-color: #fff;
+// #region Colors
+
+// #region Global Layout Variables
+$header-max-width: 1440px;
+$body-min-width: 320px;
+$grid-column-desktop: 32px;
+$grid-gap-mobile: 16px;
+$grid-gap-desktop: 16px;
+$grid-column-mobile: 68px;
+$mobile-max-width: 320px;
+$tablet-min-width: 640px;
+$desktop-min-width: 1200px;
+$mobile-padding-inline: 16px;
+$tablet-padding-inline: 24px;
+$desktop-padding-inline: 32px;
+$image_hover_transform: 1.1;
+$text_hover_transform: 1.07;
+// #endregion Global Layout Variables
+
+$hover_time_transition: 0.3s;

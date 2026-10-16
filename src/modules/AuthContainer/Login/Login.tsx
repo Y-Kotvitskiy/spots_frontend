@@ -1,103 +1,45 @@
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import cn from "classnames";
 
+import { useAuth } from "../../../components/AuthContext";
 import { AxiosError } from "axios";
-import { authService } from "../../services/authService.ts";
-import { useAuth } from "../../components/AuthContext.tsx";
+import { usePageError } from "../../hooks.ts";
+import { validateEmail, validatePassword } from "../../utils.ts";
 
-import { validateEmail, validatePassword, validateName } from "../utils.ts";
-import { usePageError } from "../hooks.ts";
-type RegistrationError = AxiosError<{
-  errors?: { name?: string; email?: string; password?: string };
-  message: string;
-}>;
+const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-const Registration = () => {
   const [error, setError] = usePageError("");
-  const [registered, setRegistered] = useState(false);
-
-  const { isChecked, currentUser } = useAuth();
+  const { login, isChecked, currentUser } = useAuth();
 
   if (isChecked && currentUser) {
     return <Navigate to="/" />;
-  }
-
-  if (registered) {
-    return (
-      <section className="">
-        <h1 className="title">Check your email</h1>
-        <p>We have sent you an email with the activation link</p>
-      </section>
-    );
   }
 
   return (
     <>
       <Formik
         initialValues={{
-          name: "",
           email: "",
           password: "",
         }}
         validateOnMount={true}
-        onSubmit={({ name, email, password }, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
-
-          authService
-            .register(name, email, password)
-            .then(() => setRegistered(true))
-            .catch((error: RegistrationError) => {
-              if (error.message) setError(error.message);
-              if (!error.response?.data) return;
-
-              const { errors, message } = error.response.data;
-
-              formikHelpers.setFieldError("name", errors?.name);
-              formikHelpers.setFieldError("email", errors?.email);
-              formikHelpers.setFieldError("password", errors?.password);
-
-              if (message) setError(message);
+        onSubmit={({ email, password }) => {
+          return login(email, password)
+            .then(() => {
+              const state = location.state as { from?: Location };
+              navigate(state.from?.pathname ?? "/");
             })
-            .finally(() => formikHelpers.setSubmitting(false));
+            .catch((error: AxiosError<{ message?: string }>) => {
+              setError(error.response?.data?.message ?? "");
+            });
         }}
       >
-        {({ touched, errors, isSubmitting }) => (
+        {({ values, touched, errors, isSubmitting }) => (
           <Form className="box">
-            <h1 className="title">Sign up</h1>
-            <div className="field">
-              <label htmlFor="name" className="label">
-                User name
-              </label>
-              <div className="control has-icons-left has-icons-right">
-                <Field
-                  validate={validateName}
-                  name="name"
-                  type="name"
-                  autoComplete="name"
-                  id="name"
-                  placeholder="e.g. John Doe"
-                  className={cn("input", {
-                    "is-danger": errors.name,
-                  })}
-                />
-
-                <span className="icon is-small is-left">
-                  <i className="fa fa-user"></i>
-                </span>
-
-                {touched.name && errors.name && (
-                  <span className="icon is-small is-right has-text-danger">
-                    <i className="fas fa-exclamation-triangle"></i>
-                  </span>
-                )}
-              </div>
-
-              {touched.name && errors.name && (
-                <p className="help is-danger">{errors.name}</p>
-              )}
-            </div>
+            <h1 className="title">Log in</h1>
             <div className="field">
               <label htmlFor="email" className="label">
                 Email
@@ -109,7 +51,6 @@ const Registration = () => {
                   name="email"
                   type="email"
                   id="email"
-                  autoComplete="email"
                   placeholder="e.g. bobsmith@gmail.com"
                   className={cn("input", {
                     "is-danger": touched.email && errors.email,
@@ -173,10 +114,18 @@ const Registration = () => {
                 })}
                 disabled={isSubmitting || !!errors.email || !!errors.password}
               >
-                Sign up
+                Log in
               </button>
             </div>
-            Already have an account? <Link to="/login">Log in</Link>
+            <p>
+              Do not have an account? <Link to="/register">Sign up</Link>
+            </p>
+            <p>
+              Forgot password?{" "}
+              <Link to="/forgot-password" state={values.email}>
+                Send reset link
+              </Link>
+            </p>
           </Form>
         )}
       </Formik>
@@ -186,4 +135,4 @@ const Registration = () => {
   );
 };
 
-export default Registration;
+export default Login;
