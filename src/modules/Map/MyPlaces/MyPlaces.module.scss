@@ -1,0 +1,9 @@
+@use "@/scss/variables" as v;
+
+.MyPlaces {
+  display: flex;
+
+  &__error {
+    color: v.$system-error-color;
+  }
+}

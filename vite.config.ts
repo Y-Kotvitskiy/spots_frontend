@@ -11,13 +11,13 @@ export default defineConfig({
     },
   },
 
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://79.76.43.137",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
+  // server: {
+  //   proxy: {
+  //     "/api": {
+  //       target: "http://79.76.43.137",
+  //       changeOrigin: true,
+  //       secure: false,
+  //     },
+  //   },
+  // },
 });
