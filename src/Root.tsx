@@ -10,6 +10,7 @@ import PersonalRoom from "./modules/PersonalRoom";
 import AuthContainer from "./modules/AuthContainer";
 import Login from "./modules/AuthContainer/Login";
 import Registration from "./modules/AuthContainer/Registration";
+import ForgotPassword from "./modules/AuthContainer/ForgotPassword";
 
 const Root = () => {
   return (
@@ -20,6 +21,7 @@ const Root = () => {
             <Route element={<AuthContainer />}>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Registration />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
             </Route>
             <Route path="/activate/:activationToken" element={<Activation />} />
             <Route element={<RequireAuth />}>
