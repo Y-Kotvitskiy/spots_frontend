@@ -1,0 +1,28 @@
+@use "@/scss/variables" as v;
+@use "@/scss/mixins" as m;
+@use "@/scss/typography" as t;
+
+.FormButton {
+  @extend %button_big;
+  width: 80%;
+  width: 100%;
+
+  height: 48px;
+  border: none;
+  border-radius: 41px;
+  background-color: v.$primary-indigo-color;
+  color: v.$grey-0-color;
+
+  @include m.on-tablet {
+    width: 70%;
+    height: 60px;
+  }
+
+  &:hover {
+    background-color: v.$primary-states-hovered-color;
+  }
+
+  &:disabled {
+    background-color: v.$primary-states-disabled-color;
+  }
+}
