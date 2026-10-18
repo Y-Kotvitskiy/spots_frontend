@@ -1,7 +1,7 @@
+import styles from "./Registration.module.scss";
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Formik, Form, Field } from "formik";
-import cn from "classnames";
+import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 
 import { AxiosError } from "axios";
 import { authService } from "../../../services/authService.ts";
@@ -9,16 +9,88 @@ import { useAuth } from "../../../components/AuthContext.tsx";
 
 import { validateEmail, validatePassword, validateName } from "../../utils.ts";
 import { usePageError } from "../../hooks.ts";
+import FormButton from "../FormButton";
+import FormField from "../FormField/index.ts";
 type RegistrationError = AxiosError<{
   errors?: { name?: string; email?: string; password?: string };
   message: string;
 }>;
+
+interface FormValues {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const Registration = () => {
   const [error, setError] = usePageError("");
   const [registered, setRegistered] = useState(false);
 
   const { isChecked, currentUser } = useAuth();
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+
+    validate: (values): FormikErrors<FormValues> | void => {
+      const { name, email, password } = values;
+
+      const errors: { name?: string; email?: string; password?: string } = {};
+
+      const nameError = validateName(name);
+
+      if (nameError) {
+        errors.name = nameError;
+      }
+
+      const emailError = !email ? "Can`t be empty" : validateEmail(email);
+
+      if (emailError) {
+        errors.email = emailError;
+      }
+
+      const trimmedPassword = password.trim();
+
+      const passwordError = trimmedPassword
+        ? validatePassword(password)
+        : "Can`t be empty";
+
+      if (passwordError) {
+        errors.password = passwordError;
+      }
+
+      return errors;
+    },
+
+    enableReinitialize: true,
+
+    onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
+      const { setSubmitting, setFieldError } = helpers;
+      const { name, email, password } = values;
+
+      setSubmitting(true);
+
+      authService
+        .register(name, email, password)
+        .then(() => setRegistered(true))
+        .catch((error: RegistrationError) => {
+          if (error.message) setError(error.message);
+          if (!error.response?.data) return;
+
+          const { errors, message } = error.response.data;
+
+          setFieldError("name", errors?.name);
+          setFieldError("email", errors?.email);
+          setFieldError("password", errors?.password);
+
+          if (message) setError(message);
+        })
+        .finally(() => setSubmitting(false));
+    },
+  });
 
   if (isChecked && currentUser) {
     return <Navigate to="/" />;
@@ -33,155 +105,81 @@ const Registration = () => {
     );
   }
 
+  const handleFormBlur = (event: React.FocusEvent<HTMLFormElement>) => {
+    const { name, value } = event.target;
+
+    if (name && typeof value === "string") {
+      formik.setFieldValue(name, value.trim());
+    }
+
+    formik.handleBlur(event);
+  };
+
+  const { touched, errors, isSubmitting } = formik;
+
   return (
     <>
-      <Formik
-        initialValues={{
-          name: "",
-          email: "",
-          password: "",
-        }}
-        validateOnMount={true}
-        onSubmit={({ name, email, password }, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
-
-          authService
-            .register(name, email, password)
-            .then(() => setRegistered(true))
-            .catch((error: RegistrationError) => {
-              if (error.message) setError(error.message);
-              if (!error.response?.data) return;
-
-              const { errors, message } = error.response.data;
-
-              formikHelpers.setFieldError("name", errors?.name);
-              formikHelpers.setFieldError("email", errors?.email);
-              formikHelpers.setFieldError("password", errors?.password);
-
-              if (message) setError(message);
-            })
-            .finally(() => formikHelpers.setSubmitting(false));
-        }}
+      <form
+        onSubmit={formik.handleSubmit}
+        onBlur={handleFormBlur}
+        className={styles.Registration}
       >
-        {({ touched, errors, isSubmitting }) => (
-          <Form className="box">
-            <h1 className="title">Sign up</h1>
-            <div className="field">
-              <label htmlFor="name" className="label">
-                User name
-              </label>
-              <div className="control has-icons-left has-icons-right">
-                <Field
-                  validate={validateName}
-                  name="name"
-                  type="name"
-                  autoComplete="name"
-                  id="name"
-                  placeholder="e.g. John Doe"
-                  className={cn("input", {
-                    "is-danger": errors.name,
-                  })}
-                />
+        <h1 className={styles.Registration__title}>Sign up</h1>
+        <div className={styles.Registration__controls}>
+          <FormField
+            label="Name"
+            name="name"
+            type="name"
+            autoComplete="name"
+            id="name"
+            placeholder="e.g. John Doe"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.name}
+            touched={touched.name}
+          />
 
-                <span className="icon is-small is-left">
-                  <i className="fa fa-user"></i>
-                </span>
+          <FormField
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="e.g. bobsmith@gmail.com"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.email}
+            touched={touched.email}
+          />
 
-                {touched.name && errors.name && (
-                  <span className="icon is-small is-right has-text-danger">
-                    <i className="fas fa-exclamation-triangle"></i>
-                  </span>
-                )}
-              </div>
-
-              {touched.name && errors.name && (
-                <p className="help is-danger">{errors.name}</p>
-              )}
-            </div>
-            <div className="field">
-              <label htmlFor="email" className="label">
-                Email
-              </label>
-
-              <div className="control has-icons-left has-icons-right">
-                <Field
-                  validate={validateEmail}
-                  name="email"
-                  type="email"
-                  id="email"
-                  autoComplete="email"
-                  placeholder="e.g. bobsmith@gmail.com"
-                  className={cn("input", {
-                    "is-danger": touched.email && errors.email,
-                  })}
-                />
-
-                <span className="icon is-small is-left">
-                  <i className="fa fa-envelope"></i>
-                </span>
-
-                {touched.email && errors.email && (
-                  <span className="icon is-small is-right has-text-danger">
-                    <i className="fas fa-exclamation-triangle"></i>
-                  </span>
-                )}
-              </div>
-
-              {touched.email && errors.email && (
-                <p className="help is-danger">{errors.email}</p>
-              )}
-            </div>
-            <div className="field">
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-
-              <div className="control has-icons-left has-icons-right">
-                <Field
-                  validate={validatePassword}
-                  name="password"
-                  type="password"
-                  id="password"
-                  placeholder="*******"
-                  className={cn("input", {
-                    "is-danger": touched.password && errors.password,
-                  })}
-                />
-
-                <span className="icon is-small is-left">
-                  <i className="fa fa-lock"></i>
-                </span>
-
-                {touched.password && errors.password && (
-                  <span className="icon is-small is-right has-text-danger">
-                    <i className="fas fa-exclamation-triangle"></i>
-                  </span>
-                )}
-              </div>
-
-              {touched.password && errors.password ? (
-                <p className="help is-danger">{errors.password}</p>
-              ) : (
-                <p className="help">At least 6 characters</p>
-              )}
-            </div>
-            <div className="field">
-              <button
-                type="submit"
-                className={cn("button is-success has-text-weight-bold", {
-                  "is-loading": isSubmitting,
-                })}
-                disabled={isSubmitting || !!errors.email || !!errors.password}
-              >
-                Sign up
-              </button>
-            </div>
-            Already have an account? <Link to="/login">Log in</Link>
-          </Form>
-        )}
-      </Formik>
-
-      {error && <p className="notification is-danger is-light">{error}</p>}
+          <FormField
+            label="Password"
+            name="password"
+            type="password"
+            id="password"
+            placeholder="*******"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.password}
+            touched={touched.password}
+          />
+          <FormButton
+            type="submit"
+            disabled={isSubmitting || !!errors.email || !!errors.password}
+            text="Log in"
+          />
+        </div>
+        <div className={styles.Registration__messages}>
+          <p className={styles.Registration__messagesRegistration}>
+            Already have an account?{" "}
+            <Link className={styles.Registration__messageLink} to="/login">
+              Log in
+            </Link>
+          </p>
+        </div>
+        {error && <p className={styles.Registration__error}>{error}</p>}
+      </form>
     </>
   );
 };
