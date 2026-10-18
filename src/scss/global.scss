@@ -1,0 +1,26 @@
+@use "./mixins.scss" as *;
+@use "./variables.scss" as *;
+
+.container {
+  width: 100%;
+  min-width: $mobile-max-width;
+
+  @include content-padding-inline;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+// stylelint-disable-next-line selector-pseudo-class-no-unknown
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  white-space: nowrap;
+  clip: rect(0, 0, 0, 0);
+}

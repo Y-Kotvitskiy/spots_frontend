@@ -1,0 +1,40 @@
+@use "@/scss/main.scss" as *;
+
+.AuthContainer {
+  display: flex;
+  justify-content: center;
+  height: calc(100vh - 80px);
+  min-height: 350px;
+  padding-inline: $mobile-padding-inline;
+  background-color: $grey-0-color;
+
+  @include on-tablet {
+    align-items: center;
+    padding-inline: 0;
+  }
+
+  &__wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    max-width: 1440px;
+    height: 100%;
+    overflow: auto;
+  }
+
+  &__form {
+    flex-basis: 710px;
+    min-width: 0;
+  }
+
+  &__photo {
+    display: none;
+    flex-basis: 730px;
+    min-width: 0;
+    object-fit: cover;
+
+    @include on-tablet {
+      display: block;
+    }
+  }
+}

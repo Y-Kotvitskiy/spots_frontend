@@ -4,13 +4,16 @@
 $menu-height: 80px;
 
 .Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
   padding-inline: 40px;
 
-  display: flex;
-  height: 80px;
-  justify-content: space-between;
-  align-items: center;
+  border-radius: math.div($menu-height, 2);
   background-color: v.$header-background-color;
 
-  border-radius: math.div($menu-height, 2);
+  &_borderRadiusNone {
+    border-radius: 0;
+  }
 }
