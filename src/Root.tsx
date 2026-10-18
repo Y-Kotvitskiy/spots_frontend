@@ -11,6 +11,7 @@ import AuthContainer from "./modules/AuthContainer";
 import Login from "./modules/AuthContainer/Login";
 import Registration from "./modules/AuthContainer/Registration";
 import ForgotPassword from "./modules/AuthContainer/ForgotPassword";
+import ResetPassword from "./modules/AuthContainer/ResetPassword/index.ts";
 
 const Root = () => {
   return (
@@ -22,6 +23,10 @@ const Root = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Registration />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route
+                path="/reset-password/:email/:jwt"
+                element={<ResetPassword />}
+              />
             </Route>
             <Route path="/activate/:activationToken" element={<Activation />} />
             <Route element={<RequireAuth />}>
