@@ -3,12 +3,20 @@
 .AuthContainer {
   display: flex;
   flex-grow: 1;
-  align-items: center;
   justify-content: center;
+  padding-inline: $mobile-padding-inline;
+  background-color: $grey-0-color;
+
+  @include on-tablet {
+    align-items: center;
+    padding-inline: 0;
+  }
 
   &__wrapper {
     display: flex;
+    flex-grow: 1;
     flex-direction: row;
+    max-width: 1440px;
     overflow: auto;
   }
 

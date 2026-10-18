@@ -3,7 +3,6 @@ import cn from "classnames";
 import Navigation from "./Navigation/Navigation";
 import { NavLink } from "react-router-dom";
 import Logo from "../shared/Logo";
-import type classNames from "classnames";
 import { useAuth } from "@/components/AuthContext.tsx";
 
 const Header = () => {

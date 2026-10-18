@@ -32,11 +32,10 @@
 
   &__messages {
     display: flex;
-    flex: 1 1 calc((477 / 1024) * 100%);
     flex-direction: column;
     align-items: center;
-    min-height: 0;
     padding-top: 36px;
+    gap: 16px;
   }
 
   &__messagesRegistration {
@@ -51,5 +50,10 @@
     @extend %button_small;
 
     color: v.$grey-60-color;
+  }
+
+  &__error {
+    @extend %p3;
+    color: v.$system-error-color;
   }
 }

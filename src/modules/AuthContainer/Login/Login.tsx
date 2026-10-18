@@ -1,6 +1,5 @@
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
-import cn from "classnames";
 import { AxiosError } from "axios";
 
 import styles from "./Login.module.scss";
@@ -8,6 +7,7 @@ import { useAuth } from "@/components/AuthContext";
 import { usePageError } from "@/modules/hooks.ts";
 import { validateEmail, validatePassword } from "@/modules/utils.ts";
 import FormField from "../FormField";
+import FormButton from "../FormButton/FormButton.tsx";
 
 interface FormValues {
   email: string;
@@ -131,15 +131,11 @@ const Login = () => {
             error={errors.password}
             touched={touched.password}
           />
-          <button
+          <FormButton
             type="submit"
-            className={cn("button is-success has-text-weight-bold", {
-              "is-loading": isSubmitting,
-            })}
             disabled={isSubmitting || !!errors.email || !!errors.password}
-          >
-            Log in
-          </button>
+            text="Log in"
+          />
         </div>
 
         <div className={styles.Login__messages}>
@@ -159,9 +155,8 @@ const Login = () => {
             </Link>
           </p>
         </div>
+        {error && <p className={styles.Login__error}>{error}</p>}
       </form>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
     </>
   );
 };

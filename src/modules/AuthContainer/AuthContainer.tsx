@@ -3,7 +3,7 @@ import styles from "./AuthContainer.module.scss";
 
 const AuthContainer = () => {
   return (
-    <main className={styles.AuthContainer + " .container"}>
+    <main className={styles.AuthContainer}>
       <section className={styles.AuthContainer__wrapper}>
         <div className={styles.AuthContainer__form}>
           <Outlet />
