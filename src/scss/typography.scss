@@ -3,13 +3,13 @@
 
 %h1 {
   color: v.$grey-90-color;
-  font-style: normal;
+  font-family: "Roboto", sans-serif;
+
   font-weight: 600;
-
   font-size: 24px;
-
   line-height: 110%;
-  font-family: "Roboto";
+  letter-spacing: 0;
+
   @include m.on-tablet {
     font-size: 40px;
   }
@@ -17,13 +17,13 @@
 
 %h2 {
   color: v.$grey-90-color;
-  font-style: normal;
+  font-family: "Roboto", sans-serif;
+
   font-weight: 500;
-
   font-size: 22px;
-
   line-height: 110%;
-  font-family: "Roboto";
+  letter-spacing: 0;
+
   @include m.on-tablet {
     font-size: 32px;
   }
@@ -31,7 +31,13 @@
 
 %h3 {
   color: v.$grey-90-color;
+  font-family: "Roboto", sans-serif;
+
+  font-weight: 500;
   font-size: 18px;
+  line-height: 110%;
+  letter-spacing: 0;
+
   @include m.on-tablet {
     font-size: 24px;
   }
@@ -39,13 +45,13 @@
 
 %h4 {
   color: v.$grey-90-color;
-  font-style: normal;
+  font-family: "Roboto", sans-serif;
+
   font-weight: 500;
   font-size: 16px;
-
   line-height: 110%;
+  letter-spacing: 0;
 
-  font-family: "Roboto";
 
   @include m.on-tablet {
     font-size: 20px;
@@ -53,7 +59,14 @@
 }
 
 %p1 {
+  color: v.$grey-90-color;
+  font-family: "Roboto", sans-serif;
+
+  font-weight: 400;
   font-size: 16px;
+  line-height: 140%;
+  letter-spacing: 0;
+
 
   @include m.on-tablet {
     font-size: 20px;
@@ -62,13 +75,13 @@
 
 %p2 {
   color: v.$grey-90-color;
+  font-family: "Roboto", sans-serif;
 
-  font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 140%;
+  letter-spacing: 0;
 
-  font-family: "Roboto";
 
   @include m.on-tablet {
     font-size: 18px;
@@ -77,12 +90,13 @@
 
 %p3 {
   color: v.$grey-90-color;
-  font-style: normal;
-  font-weight: 400;
+  font-family: "Roboto", sans-serif;
 
+  font-weight: 400;
   font-size: 12px;
   line-height: 140%;
-  font-family: "Roboto";
+  letter-spacing: 0;
+
 
   @include m.on-tablet {
     font-size: 16px;
@@ -90,7 +104,13 @@
 }
 
 %nav_item {
+  font-family: "Roboto", sans-serif;
+
+  font-weight: 500;
   font-size: 12px;
+  line-height: 110%;
+  letter-spacing: 0;
+
 
   @include m.on-tablet {
     font-size: 12px;
@@ -98,7 +118,13 @@
 }
 
 %button_small {
+  font-family: "Roboto", sans-serif;
+
+  font-weight: 600;
   font-size: 14px;
+  line-height: 110%;
+  letter-spacing: 0;
+
 
   @include m.on-tablet {
     font-size: 16px;
@@ -106,7 +132,13 @@
 }
 
 %button_big {
+  font-family: "Roboto", sans-serif;
+
+  font-weight: 600;
   font-size: 18px;
+  line-height: 110%;
+  letter-spacing: 0;
+
 
   @include m.on-tablet {
     font-size: 20px;
@@ -120,4 +152,17 @@
   font-size: 20px;
   line-height: 110%;
   font-family: "Inter";
+}
+
+%nav_adaptive {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 110%;
+  letter-spacing: 0;
+
+  @include m.on-tablet {
+    font-weight: 500;
+    font-size: 20px;
+  }
 }

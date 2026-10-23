@@ -1,19 +1,88 @@
 @use "../../scss/variables.scss" as v;
+@use "../../scss/mixins.scss" as m;
 @use "sass:math";
 
-$menu-height: 80px;
+// ==========================================
+// 1. ЗМІННІ ТА РОЗМІРИ (Variables & Constants)
+// ==========================================
+
+$header-height-desktop: 80px;
+$header-height-tablet: 80px;
+$header-height-phone: 65px;
+
+$header-height-login-desktop: 100px;
+$header-height-login-tablet: 80px;
+$header-height-login-phone: 65px;
+
+$offset-desktop: 40px;
+$offset-tablet: 30px;
+$offset-mobile: 16px;
+
+$header-backdrop: blur(12px);
+$header-bg: v.$grey-0-alpha-70-color;
+$header-shadow: 0 4px 15px v.$shadow-color;
+$header-z-index: 1000;
+
+// ==========================================
+// 2. ДОПОМІЖНІ МІКСИНИ ДЛЯ ХЕДЕРА
+// ==========================================
+@mixin header-size($height, $offset) {
+  height: $height;
+  border-radius: math.div($height, 2);
+  width: calc(100% - (#{$offset} * 2));
+  left: $offset;
+  padding-inline: $offset;
+}
+
+// ==========================================
+// 3. СТИЛІ КОМПОНЕНТА .Header
+// ==========================================
 
 .Header {
+  position: absolute;
+  z-index: $header-z-index;
+  top: 90%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 80px;
-  padding-inline: 40px;
+  box-sizing: border-box;
 
-  border-radius: math.div($menu-height, 2);
-  background-color: v.$header-background-color;
+  backdrop-filter: $header-backdrop;
+  -webkit-backdrop-filter: $header-backdrop;
+  background-color: $header-bg;
+  box-shadow: $header-shadow;
 
-  &_borderRadiusNone {
-    border-radius: 0;
+  @include header-size($header-height-phone, $offset-mobile);
+
+  &__logo {
+    display: none;
+
+    @include m.on-tablet {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+
+  &_loginPage {
+    @include header-size($header-height-login-phone, $offset-mobile);
+  }
+
+  @include m.on-tablet {
+    top: 32px;
+    @include header-size($header-height-tablet, $offset-tablet);
+
+    &.Header_loginPage {
+      @include header-size($header-height-login-tablet, $offset-tablet);
+    }
+  }
+
+  @include m.on-desktop {
+    top: 32px;
+    @include header-size($header-height-desktop, $offset-desktop);
+
+    &.Header_loginPage {
+      @include header-size($header-height-login-desktop, $offset-desktop);
+    }
   }
 }

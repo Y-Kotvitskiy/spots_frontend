@@ -4,7 +4,6 @@
 
 .FormButton {
   @extend %button_big;
-  width: 80%;
   width: 100%;
 
   height: 48px;
@@ -14,7 +13,6 @@
   color: v.$grey-0-color;
 
   @include m.on-tablet {
-    width: 70%;
     height: 60px;
   }
 

@@ -1,17 +1,224 @@
+@use "../../../scss/variables.scss" as v;
+@use "../../../scss/mixins.scss" as m;
 @use "@/scss/typography.scss" as *;
 
+// ==========================================
+// 1. ЗМІННІ ТА РОЗМІРИ
+// ==========================================
+$button-height-login-desktop: 60px;
+$button-height-login-tablet: 50px;
+$button-height-login-mobile: 40px;
+
+$button-height-desktop: 22px; 
+$button-height-tablet: 50px;
+$button-height-mobile: 40px; 
+
+$nav-bg-active: v.$grey-0-alpha-70-color;
+$nav-shadow: 0 4px 15px v.$shadow-color;
+$nav-backdrop: blur(12px);
+
+$nav-bg-login: v.$primary-indigo-color;
+$nav-color-login: v.$grey-0-color;
+
+// ==========================================
+// 2. СТИЛІ КОМПОНЕНТА .Navigation
+// ==========================================
 .Navigation {
+  width: 100%;
+
+  @include m.on-tablet {
+    width: auto;
+  }
+
   &__list {
     display: flex;
     flex-direction: row;
-    gap: 60px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+
+    & > li {
+      display: flex;
+      flex: 1;
+    }
+
+    @include m.on-tablet {
+      gap: 60px;
+      justify-content: space-around;
+      width: auto;
+
+      & > li {
+        flex: unset;
+        display: block;
+      }
+    }
   }
 
   &__item {
-    @extend %display-menu;
+    @extend %nav_adaptive;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    width: 100%;
+    min-width: auto;
+    box-sizing: border-box;
+    padding-inline: 4px;
+    border: 2px solid transparent;
+    border-radius: 30px;
+    height: auto;
+    text-align: center;
+
+    color: v.$grey-60-color;
+    background-color: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &__icon {
+      display: inline-flex;
+      margin-bottom: 4px;
+      color: inherit;
+    }
 
     &_active {
-      text-decoration: underline;
+      color: v.$grey-90-color;
+      backdrop-filter: $nav-backdrop;
+      -webkit-backdrop-filter: $nav-backdrop;
+      background-color: $nav-bg-active;
+      box-shadow: $nav-shadow;
+    }
+
+    &:hover,
+    &:active {
+      background-color: transparent;
+    }
+
+    &_login {
+      @extend %nav_adaptive;
+      height: $button-height-login-mobile;
+      flex-direction: row; 
+      background-color: $nav-bg-login;
+      color: $nav-color-login;
+
+      &:hover {
+        background-color: v.$primary-states-hovered-color;
+      }
+
+      &:active {
+        background-color: v.$primary-states-clicked-color;
+      }
+    }
+
+    // ==========================================
+    // ПЛАНШЕТНА ВЕРСІЯ (Tablet)
+    // ==========================================
+    @include m.on-tablet {
+      flex-direction: row; 
+      width: auto; 
+      min-width: auto;
+      height: $button-height-tablet;
+
+      background-color: transparent;
+      color: v.$grey-60-color;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+
+      &:hover {
+        background-color: transparent;
+        color: v.$grey-70-color;
+      }
+
+      &:active {
+        background-color: transparent;
+      }
+
+      &_active {
+        color: v.$grey-90-color;
+        background-color: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+      }
+
+      &_login {
+        height: $button-height-login-tablet;
+        background-color: $nav-bg-login;
+        color: $nav-color-login;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+        padding-inline: 16px;
+
+        &:hover {
+          background-color: v.$primary-states-hovered-color;
+          color: v.$grey-0-color;
+        }
+
+        &:active {
+          background-color: v.$primary-states-clicked-color;
+        }
+      }
+
+      .Navigation__icon {
+        display: none; 
+      }
+    }
+
+    // ==========================================
+    // ДЕСКТОПНА ВЕРСІЯ (Desktop)
+    // ==========================================
+    @include m.on-desktop {
+      width: auto;
+      height: $button-height-desktop;
+
+      background-color: transparent;
+      color: v.$grey-60-color;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+
+      &:hover {
+        background-color: transparent;
+        color: v.$grey-70-color;
+      }
+
+      &:active {
+        background-color: transparent;
+      }
+
+      &_active {
+        color: v.$grey-90-color;
+        background-color: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+      }
+
+      &_login {
+        height: $button-height-login-desktop;
+        background-color: $nav-bg-login;
+        color: $nav-color-login;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+        padding-inline: 20px;
+
+        &:hover {
+          background-color: v.$primary-states-hovered-color;
+          color: v.$grey-0-color;
+        }
+
+        &:active {
+          background-color: v.$primary-states-clicked-color;
+        }
+      }
+
+      .Navigation__icon {
+        display: none;
+      }
     }
   }
 }
