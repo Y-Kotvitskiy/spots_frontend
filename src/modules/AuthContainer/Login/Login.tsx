@@ -1,14 +1,15 @@
+import styles from "./Login.module.scss";
+
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 import { AxiosError } from "axios";
 
-import styles from "./Login.module.scss";
 import { useAuth } from "@/components/AuthContext";
 import { usePageError } from "@/modules/hooks.ts";
 import { validateEmail, validatePassword } from "@/modules/utils.ts";
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
-import Icon from "@/modules/shared/Icon/Icon.tsx";
+// import Icon from "@/modules/shared/Icon/Icon.tsx";
 
 interface FormValues {
   email: string;
@@ -160,13 +161,17 @@ const Login = () => {
         </div>
         {error && (
           <p className={styles.Login__error}>
+            {/* TODO: Відсутній Icon props name */}
+
+            {/*
+            
             <Icon
               className="fa-solid fa-circle-exclamation"
               style={{
                 color: "var(--system-error-color, #ff4d4f)",
                 marginRight: "8px",
               }}
-            ></Icon>
+            ></Icon> */}
             {error}
           </p>
         )}
