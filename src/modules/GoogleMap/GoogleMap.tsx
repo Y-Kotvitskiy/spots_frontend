@@ -1,3 +1,5 @@
+import styles from "./GoogleMap.module.scss";
+
 import React, { useState, useCallback, useEffect } from "react";
 import {
   APIProvider,
@@ -7,6 +9,7 @@ import {
   useMap,
 } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
+import Controls from "./Controls";
 
 interface SelectedPoint {
   lat: number;
@@ -47,7 +50,8 @@ export const GoogleMap: React.FC = () => {
 
   return (
     <APIProvider apiKey={apiKey}>
-      <div style={{ marginBottom: "10px" }}>
+      <main className={styles.GoogleMap}>
+        <Controls />
         {selectedCoords ? (
           <div>
             <b>Широта:</b> {selectedCoords.lat.toFixed(6)} | <b>Долгота:</b>{" "}
@@ -56,34 +60,33 @@ export const GoogleMap: React.FC = () => {
         ) : (
           <div>Кликните по карте, чтобы выбрать точку</div>
         )}
-      </div>
+        <div className={styles.GoogleMap__map}>
+          <Map
+            defaultCenter={{ lat: 50.4501, lng: 30.5234 }}
+            defaultZoom={12}
+            mapId={mapId}
+            onClick={handleMapClick}
+            clickableIcons={false}
+          >
+            {/* Устанавливаем курсор 'crosshair' (крестик) или 'pointer' (ручка) */}
+            <MapCursorController cursorType="crosshair" />
 
-      <div style={{ width: "100%", height: "500px" }}>
-        <Map
-          defaultCenter={{ lat: 50.4501, lng: 30.5234 }}
-          defaultZoom={12}
-          mapId={mapId}
-          onClick={handleMapClick}
-          clickableIcons={false}
-        >
-          {/* Устанавливаем курсор 'crosshair' (крестик) или 'pointer' (ручка) */}
-          <MapCursorController cursorType="crosshair" />
-
-          {selectedCoords && (
-            <AdvancedMarker
-              position={selectedCoords}
-              draggable={true}
-              onDragEnd={(e) => {
-                if (e.detail.latLng) {
-                  setSelectedCoords(e.detail.latLng);
-                }
-              }}
-            >
-              <Pin background={"#ea4335"} glyphColor={"#fff"} />
-            </AdvancedMarker>
-          )}
-        </Map>
-      </div>
+            {selectedCoords && (
+              <AdvancedMarker
+                position={selectedCoords}
+                draggable={true}
+                onDragEnd={(e) => {
+                  if (e.detail.latLng) {
+                    setSelectedCoords(e.detail.latLng);
+                  }
+                }}
+              >
+                <Pin background={"#ea4335"} glyphColor={"#fff"} />
+              </AdvancedMarker>
+            )}
+          </Map>
+        </div>
+      </main>
     </APIProvider>
   );
 };

@@ -1,0 +1,28 @@
+.Controls {
+  display: grid;
+  z-index: 10;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  grid-template-columns: 1fr auto auto;
+  grid-auto-flow: column;
+  column-gap: 28px;
+  justify-content: center;
+  width: 100vw;
+  padding: 10px;
+  gap: 10px;
+  transform: translateX(-50%);
+  border: 1px solid blue;
+  pointer-events: none;
+
+  &__input {
+    width: 100%;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  &__button {
+    cursor: pointer;
+    pointer-events: auto;
+  }
+}
