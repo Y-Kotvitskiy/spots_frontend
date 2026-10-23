@@ -14,7 +14,7 @@ const PersonalRoom = () => {
 
     const timerId = setTimeout(() => {
       navigate("/");
-    }, 3000); // через 3 секунды
+    }, 3000);
 
     return () => {
       clearTimeout(timerId);

@@ -2,39 +2,65 @@
 
 .AuthContainer {
   display: flex;
-  justify-content: center;
-  height: calc(100vh - 80px);
-  min-height: 350px;
-  padding-inline: $mobile-padding-inline;
+  flex-direction: column;
+
+  width: 100%;
+  min-height: 100vh;
+
   background-color: $grey-0-color;
 
-  @include on-tablet {
-    align-items: center;
-    padding-inline: 0;
-  }
-
   &__wrapper {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: row;
-    max-width: 1440px;
-    height: 100%;
-    overflow: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+
+    width: 100%;
+    min-height: 100vh;
+
+    @include on-tablet {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   &__form {
-    flex-basis: 710px;
-    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    padding: 140px 15px 0 15px;
+
+    @include on-tablet {
+      padding: 170px 30px 0 30px;
+    }
+
+    @include on-desktop {
+      padding: 230px 120px 0 120px;
+    }
+  }
+
+  &__photoWrapper {
+    display: none;
+
+    @include on-tablet {
+      display: block;
+
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
   }
 
   &__photo {
     display: none;
-    flex-basis: 730px;
-    min-width: 0;
-    object-fit: cover;
 
     @include on-tablet {
       display: block;
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      object-position: center;
     }
   }
 }

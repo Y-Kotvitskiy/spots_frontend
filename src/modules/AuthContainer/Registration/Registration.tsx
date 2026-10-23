@@ -167,7 +167,7 @@ const Registration = () => {
           <FormButton
             type="submit"
             disabled={isSubmitting || !!errors.email || !!errors.password}
-            text="Log in"
+            text="Registration"
           />
         </div>
         <div className={styles.Registration__messages}>
