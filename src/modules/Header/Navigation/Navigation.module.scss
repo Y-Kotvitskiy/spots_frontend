@@ -227,5 +227,7 @@ $nav-color-login: v.$grey-0-color;
   &__text {
     /* TODO: додати імплементацію */
     @extend %h4;
+
+    color: inherit;
   }
 }

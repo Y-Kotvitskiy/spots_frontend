@@ -6,10 +6,6 @@
 // 1. ЗМІННІ ТА РОЗМІРИ (Variables & Constants)
 // ==========================================
 
-$header-height-desktop: 80px;
-$header-height-tablet: 80px;
-$header-height-phone: 65px;
-
 $header-height-login-desktop: 100px;
 $header-height-login-tablet: 80px;
 $header-height-login-phone: 65px;
@@ -53,7 +49,7 @@ $header-z-index: 1000;
   background-color: $header-bg;
   box-shadow: $header-shadow;
 
-  @include header-size($header-height-phone, $offset-mobile);
+  @include header-size(v.$header-height-phone, $offset-mobile);
 
   &__logo {
     display: none;
@@ -69,8 +65,8 @@ $header-z-index: 1000;
   }
 
   @include m.on-tablet {
-    top: 32px;
-    @include header-size($header-height-tablet, $offset-tablet);
+    top: v.$header-top;
+    @include header-size(v.$header-height-tablet, $offset-tablet);
 
     &.Header_loginPage {
       @include header-size($header-height-login-tablet, $offset-tablet);
@@ -78,8 +74,8 @@ $header-z-index: 1000;
   }
 
   @include m.on-desktop {
-    top: 32px;
-    @include header-size($header-height-desktop, $offset-desktop);
+    top: v.$header-top;
+    @include header-size(v.$header-height-desktop, $offset-desktop);
 
     &.Header_loginPage {
       @include header-size($header-height-login-desktop, $offset-desktop);

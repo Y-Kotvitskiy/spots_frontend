@@ -8,8 +8,10 @@ const App = () => {
 
   return (
     <div className="App__container">
-      {location.pathname !== "/" &&
-        location.pathname.toLocaleLowerCase() !== "/map" && <Header />}
+      {/* {location.pathname !== "/" &&
+        location.pathname.toLocaleLowerCase() !== "/map" && <Header />} */}
+
+      <Header />
       <Outlet />
     </div>
   );

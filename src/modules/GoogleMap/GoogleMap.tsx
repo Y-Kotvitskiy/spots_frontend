@@ -67,6 +67,7 @@ export const GoogleMap: React.FC = () => {
             mapId={mapId}
             onClick={handleMapClick}
             clickableIcons={false}
+            options={{ disableDefaultUI: true }}
           >
             {/* Устанавливаем курсор 'crosshair' (крестик) или 'pointer' (ручка) */}
             <MapCursorController cursorType="crosshair" />
