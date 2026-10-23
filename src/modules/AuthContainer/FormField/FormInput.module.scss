@@ -10,12 +10,20 @@
   gap: 12px;
 
   @include m.on-tablet {
-    width: 70%;
     gap: 16px;
   }
 
   &__label {
     @extend %h4;
+  }
+
+  &__required {
+    color: v.$system-error-color;
+  }
+
+  &__inputWrapper {
+    position: relative;
+    width: 100%;
   }
 
   &__input {
@@ -26,7 +34,7 @@
     height: 44px;
     padding-inline: 20px;
     border: 2px solid v.$grey-10-color;
-    border-radius: 31px;
+    border-radius: 30px;
 
     background-color: v.$grey-10-color;
 
@@ -34,6 +42,10 @@
 
     @include m.on-tablet {
       height: 57px;
+    }
+
+    &_withIcon {
+      padding-right: 50px;
     }
 
     &:hover {
@@ -56,6 +68,36 @@
     &::placeholder {
       @extend %p2;
       color: v.$grey-60-color;
+    }
+  }
+
+  &__iconBtn {
+    display: flex;
+    position: absolute;
+    top: 22px;
+    right: 18px;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: v.$grey-60-color;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    @include m.on-tablet {
+      top: 28.5px;
+      right: 20px;
+    }
+
+    &:hover {
+      color: v.$grey-90-color;
+    }
+
+    &:focus {
+      outline: none;
     }
   }
 

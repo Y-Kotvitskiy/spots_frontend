@@ -11,10 +11,10 @@ const Header = () => {
   return (
     <header
       className={cn(styles.Header, {
-        [styles.Header_borderRadiusNone]: !currentUser,
+        [styles.Header_loginPage]: !currentUser,
       })}
     >
-      <NavLink to="/">
+      <NavLink to="/" className={styles.Header__logo}>
         <Logo />
       </NavLink>
       <Navigation />
