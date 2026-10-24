@@ -1,0 +1,88 @@
+@use "@/scss/typography" as t;
+@use "@/scss/mixins" as m;
+@use "@/scss/variables" as v;
+
+.SearchInput {
+  position: relative;
+  width: 100%;
+
+  &::after {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    background: url("/icons/lens.svg") center center no-repeat;
+    content: "";
+  }
+
+  &__input {
+    @extend %p1;
+
+    position: relative;
+    width: 100%;
+    height: 48px;
+    padding-inline: 16px 25px;
+    padding-block: 13px;
+    border: none;
+    border-radius: 40px;
+    background: v.$grey-10-color;
+    cursor: pointer;
+    pointer-events: auto;
+
+    @include m.on-tablet {
+      height: 60px;
+      padding-inline: 24px 76px;
+      padding-block: 16px;
+      outline: none;
+    }
+
+    &:focus,
+    &:hover {
+      border: none;
+      outline: none;
+    }
+
+    &_hasList {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  &__suggestionsList {
+    z-index: 10;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    max-height: 300px;
+    padding: 0;
+    overflow-y: auto;
+    background: v.$grey-10-color;
+    cursor: pointer;
+    pointer-events: auto;
+
+    &:last-child {
+      border-bottom: none;
+      border-bottom-right-radius: 40px;
+      border-bottom-left-radius: 40p;
+    }
+  }
+
+  &__suggestionsItem {
+    @extend %p1;
+    display: block;
+    width: 100%;
+    height: 60px;
+    padding: 15.5px 24px;
+    overflow: hidden; /* 2. Hides the text that overflows the container */
+
+    border-bottom: 1px solid v.$grey-30-color;
+
+    color: v.$grey-90-color;
+    text-overflow: ellipsis;
+
+    white-space: nowrap; /* 1. Prevents the text from wrapping to a new line */
+  }
+}
