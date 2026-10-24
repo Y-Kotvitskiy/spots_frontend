@@ -1,6 +1,6 @@
 import styles from "./GoogleMap.module.scss";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   APIProvider,
   Map,
@@ -10,13 +10,19 @@ import {
 } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
 import Controls from "./Controls";
+import { getAddressFromCoords } from "./utils";
+import { selectIsPickingMode, selectSelectedCoords } from "@/store/mapSlice";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/store/hooks";
+import { mapActions } from "@/store";
 
-interface SelectedPoint {
+export interface SelectedPoint {
   lat: number;
   lng: number;
+  address?: string;
 }
 
-// 1. Объявляем вспомогательный компонент для управления курсором карты
+// 1. Вспомогательный компонент для управления курсором карты
 const MapCursorController: React.FC<{ cursorType: string }> = ({
   cursorType,
 }) => {
@@ -24,7 +30,6 @@ const MapCursorController: React.FC<{ cursorType: string }> = ({
 
   useEffect(() => {
     if (!map) return;
-    // Устанавливаем стиль курсора через стандартный API Google Maps
     map.setOptions({ draggableCursor: cursorType });
   }, [map, cursorType]);
 
@@ -36,30 +41,34 @@ export const GoogleMap: React.FC = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const mapId = import.meta.env.VITE_MAP_ID as string;
 
-  const [selectedCoords, setSelectedCoords] = useState<SelectedPoint | null>(
-    null,
-  );
+  const isPickingMode = useSelector(selectIsPickingMode);
+  const selectedCoords = useSelector(selectSelectedCoords);
+  const dispatch = useAppDispatch();
 
-  const handleMapClick = useCallback((event: MapMouseEvent) => {
-    if (event.detail.latLng) {
-      const { lat, lng } = event.detail.latLng;
-      setSelectedCoords({ lat, lng });
-      console.log("Выбранные координаты:", { lat, lng });
-    }
-  }, []);
+  const handleMapClick = useCallback(
+    async (event: MapMouseEvent) => {
+      // Клик обрабатываем только если режим выбора активен
+      if (!isPickingMode) return;
+
+      if (event.detail.latLng) {
+        const { lat, lng } = event.detail.latLng;
+        const address = await getAddressFromCoords(lat, lng);
+
+        dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
+        console.log("Выбранные координаты:", { lat, lng, address });
+
+        // Опционально: можно автоматически выключать режим после выбора точки
+        // setIsPickingMode(false);
+      }
+    },
+    [isPickingMode],
+  );
 
   return (
     <APIProvider apiKey={apiKey}>
       <main className={styles.GoogleMap}>
         <Controls />
-        {selectedCoords ? (
-          <div>
-            <b>Широта:</b> {selectedCoords.lat.toFixed(6)} | <b>Долгота:</b>{" "}
-            {selectedCoords.lng.toFixed(6)}
-          </div>
-        ) : (
-          <div>Кликните по карте, чтобы выбрать точку</div>
-        )}
+
         <div className={styles.GoogleMap__map}>
           <Map
             defaultCenter={{ lat: 50.4501, lng: 30.5234 }}
@@ -67,18 +76,24 @@ export const GoogleMap: React.FC = () => {
             mapId={mapId}
             onClick={handleMapClick}
             clickableIcons={false}
-            options={{ disableDefaultUI: true }}
+            disableDefaultUI={true}
           >
-            {/* Устанавливаем курсор 'crosshair' (крестик) или 'pointer' (ручка) */}
-            <MapCursorController cursorType="crosshair" />
+            {/* Динамический курсор: крестик, если режим активен, иначе стандартный */}
+            <MapCursorController
+              cursorType={isPickingMode ? "crosshair" : "grab"}
+            />
 
             {selectedCoords && (
               <AdvancedMarker
                 position={selectedCoords}
                 draggable={true}
                 onDragEnd={(e) => {
-                  if (e.detail.latLng) {
-                    setSelectedCoords(e.detail.latLng);
+                  if (e.latLng) {
+                    const point = {
+                      lat: e.latLng.lat(),
+                      lng: e.latLng.lng(),
+                    };
+                    dispatch(mapActions.setSelectedCoords(point));
                   }
                 }}
               >

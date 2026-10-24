@@ -12,32 +12,39 @@ import Registration from "./modules/AuthContainer/Registration";
 import ForgotPassword from "./modules/AuthContainer/ForgotPassword";
 import ResetPassword from "./modules/AuthContainer/ResetPassword/index.ts";
 import GoogleMap from "./modules/GoogleMap";
+import { Provider } from "react-redux";
+import store from "./store";
 
 const Root = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<App />}>
-            <Route element={<AuthContainer />}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Registration />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<App />}>
+              <Route element={<AuthContainer />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Registration />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route
+                  path="/reset-password/:email/:jwt"
+                  element={<ResetPassword />}
+                />
+              </Route>
               <Route
-                path="/reset-password/:email/:jwt"
-                element={<ResetPassword />}
+                path="/activate/:activationToken"
+                element={<Activation />}
               />
+              <Route element={<RequireAuth />}>
+                <Route index element={<GoogleMap />} />
+                <Route path="/map" element={<GoogleMap />} />
+                <Route path="/groups" element={<Groups />} />
+                <Route path="/personal-room" element={<PersonalRoom />} />
+              </Route>
             </Route>
-            <Route path="/activate/:activationToken" element={<Activation />} />
-            <Route element={<RequireAuth />}>
-              <Route index element={<GoogleMap />} />
-              <Route path="/map" element={<GoogleMap />} />
-              <Route path="/groups" element={<Groups />} />
-              <Route path="/personal-room" element={<PersonalRoom />} />
-            </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
     </AuthProvider>
   );
 };

@@ -2,8 +2,11 @@ import styles from "./SearchInput.module.scss";
 import { useState, useEffect, useRef } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import cn from "classnames";
+import { useAppDispatch } from "@/store/hooks";
+import { mapActions } from "@/store";
 
-const SearchInput = () => {
+const SearchInput: React.FC = () => {
+  const dispatch = useAppDispatch();
   const map = useMap();
   const places = useMapsLibrary("places");
   const [input, setInput] = useState("");
@@ -66,6 +69,7 @@ const SearchInput = () => {
 
     try {
       const place = suggestion.placePrediction.toPlace();
+
       await place.fetchFields({
         fields: ["displayName", "formattedAddress", "location"],
       });
@@ -73,15 +77,28 @@ const SearchInput = () => {
       if (place.location) {
         map.setCenter(place.location);
         map.setZoom(15);
+
+        const point = {
+          lat: place.location.lat(),
+          lng: place.location.lng(),
+          address: place.formattedAddress || place.displayName || "",
+        };
+
+        dispatch(mapActions.setSelectedCoords(point));
       }
 
       setInput(place.displayName || place.formattedAddress || "");
       setSuggestions([]);
 
-      // Оновлюємо сесійний токен після успішного вибору місця
+      // Обновляем сессионный токен
       sessionToken.current = new places.AutocompleteSessionToken();
     } catch (error) {
       console.error("Помилка вибору місця:", error);
+    }
+  };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape") {
+      setSuggestions([]);
     }
   };
 
@@ -90,6 +107,7 @@ const SearchInput = () => {
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="Search on map ..."
         className={cn(styles.SearchInput__input, {
           [styles.SearchInput__input_hasList]: suggestions.length > 0,
