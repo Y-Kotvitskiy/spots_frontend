@@ -8,7 +8,7 @@ import { mapActions } from "@/store";
 import { getAddressFromCoords } from "../utils";
 import { useMap } from "@vis.gl/react-google-maps";
 import { useState } from "react";
-import SavePlaceForm from "./SavePlaceForm";
+import SavePlaceForm from "./PlaceForm";
 
 const Controls: React.FC = () => {
   const [savingMode, setSavingMode] = useState(false);
@@ -18,33 +18,36 @@ const Controls: React.FC = () => {
 
   const map = useMap();
 
+  const putMarkerToCenter = async () => {
+    const newState = !isPickingMode;
+
+    dispatch(mapActions.togglePickingMode());
+
+    if (selectedCoords && !newState) {
+      dispatch(mapActions.setSelectedCoords(null));
+    }
+
+    if (map && newState && !selectedCoords) {
+      const center = map.getCenter();
+
+      if (center) {
+        const lat = center.lat();
+        const lng = center.lng();
+        const address = await getAddressFromCoords(lat, lng);
+
+        dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
+      }
+    }
+  };
+
   const handleAddButtonClick = async () => {
     if (isPickingMode) {
       if (!savingMode) {
-        setSavingMode(true);
-      }
-    } else {
-      const newState = !isPickingMode;
-
-      dispatch(mapActions.togglePickingMode());
-
-      if (selectedCoords && !newState) {
-        dispatch(mapActions.setSelectedCoords(null));
-      }
-
-      // Используем map из useMap() вместо mapInstanceRef.current
-      if (map && newState && !selectedCoords) {
-        const center = map.getCenter();
-
-        if (center) {
-          const lat = center.lat();
-          const lng = center.lng();
-          const address = await getAddressFromCoords(lat, lng);
-
-          dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
-        }
+        return setSavingMode(true);
       }
     }
+
+    await putMarkerToCenter();
   };
 
   const handleSavePlaceClose = () => {

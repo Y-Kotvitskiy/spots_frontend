@@ -9,7 +9,7 @@ export const getAddressFromCoords = async (
 
   // TODO прибрати заглушку на продакшені
 
-  return "Це тестова адреса!";
+  return "Це тестова адреса! " + new Date().toISOString();
 
   if (addressCache.has(key)) {
     return addressCache.get(key)!;

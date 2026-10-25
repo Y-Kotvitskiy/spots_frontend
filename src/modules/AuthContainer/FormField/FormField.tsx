@@ -54,7 +54,6 @@ const FormField: React.FC<FormFieldProps> = ({
           type={inputType}
           className={cn(styles.FormField__input, {
             [styles.FormField__input_error]: hasError,
-            [styles.FormField__input_withIcon]: isPasswordType,
           })}
           {...restProps}
         />
