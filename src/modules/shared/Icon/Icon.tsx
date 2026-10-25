@@ -49,7 +49,7 @@ export const ICONS = {
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke="#665F5E"
+        stroke="currentColor"
       />
     </svg>
   ),
@@ -66,14 +66,14 @@ export const ICONS = {
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke="#665F5E"
+        stroke="currentColor"
       />
       <path
         d="M7.5 12.4997C7.5 12.0576 7.6756 11.6337 7.98816 11.3212C8.30072 11.0086 8.72464 10.833 9.16667 10.833H10.8333C11.2754 10.833 11.6993 11.0086 12.0118 11.3212C12.3244 11.6337 12.5 12.0576 12.5 12.4997V17.4997H7.5V12.4997Z"
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke="#665F5E"
+        stroke="currentColor"
       />
     </svg>
   ),
@@ -90,13 +90,27 @@ export const ICONS = {
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke="#665F5E"
+        stroke="currentColor"
       />
       <path
         d="M7.5 4.16667V17.5M12.5 2.5V15.8333"
         stroke-width="1.5"
         stroke-linejoin="round"
-        stroke="#665F5E"
+        stroke="currentColor"
+      />
+    </svg>
+  ),
+  error: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9.96091 1.6665C5.38758 1.6665 1.66675 5.40484 1.66675 9.99984C1.66675 14.5948 5.40508 18.3332 10.0001 18.3332C14.5951 18.3332 18.3334 14.5948 18.3334 9.99984C18.3334 5.40484 14.5776 1.6665 9.96091 1.6665ZM10.8334 14.1665H9.16675V12.4998H10.8334V14.1665ZM10.8334 10.8332H9.16675V5.83317H10.8334V10.8332Z"
+        fill="currentColor"
       />
     </svg>
   ),

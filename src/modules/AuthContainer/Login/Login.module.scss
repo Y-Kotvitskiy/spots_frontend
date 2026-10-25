@@ -52,6 +52,16 @@
 
   &__error {
     @extend %p3;
+
+    display: flex;
+    align-self: flex-start;
+    gap: 6px;
+
     color: v.$system-error-color;
+
+    &Icon {
+      display: inline-flex;
+      flex-shrink: 0;
+    }
   }
 }

@@ -75,7 +75,12 @@ const FormField: React.FC<FormFieldProps> = ({
         )}
       </div>
 
-      {hasError && <p className={styles.FormField__error}>{error}</p>}
+      {hasError && (
+        <p className={styles.FormField__error}>
+          <Icon name="error" size={16} className={styles.FormField__errorIcon} />
+          <span>{error}</span>
+        </p>
+      )}
     </div>
   );
 };

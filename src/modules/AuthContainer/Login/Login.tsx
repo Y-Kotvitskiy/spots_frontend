@@ -9,7 +9,7 @@ import { usePageError } from "@/modules/hooks.ts";
 import { validateEmail, validatePassword } from "@/modules/utils.ts";
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
-// import Icon from "@/modules/shared/Icon/Icon.tsx";
+import Icon from "@/modules/shared/Icon/Icon.tsx";
 
 interface FormValues {
   email: string;
@@ -135,6 +135,14 @@ const Login = () => {
             error={errors.password}
             touched={touched.password}
           />
+
+          {error && (
+            <p className={styles.Login__error}>
+              <Icon name="error" size={16} className={styles.Login__errorIcon} />
+              {error}
+            </p>
+          )}
+
           <FormButton
             type="submit"
             disabled={isSubmitting || !!errors.email || !!errors.password}
@@ -159,22 +167,6 @@ const Login = () => {
             </Link>
           </p>
         </div>
-        {error && (
-          <p className={styles.Login__error}>
-            {/* TODO: Відсутній Icon props name */}
-
-            {/*
-            
-            <Icon
-              className="fa-solid fa-circle-exclamation"
-              style={{
-                color: "var(--system-error-color, #ff4d4f)",
-                marginRight: "8px",
-              }}
-            ></Icon> */}
-            {error}
-          </p>
-        )}
       </form>
     </>
   );

@@ -5,6 +5,11 @@
 // ==========================================
 // 1. ЗМІННІ ТА РОЗМІРИ
 // ==========================================
+$button-min-width-desktop: 200px;
+$button-min-width-tablet: 150px;
+$button-min-width-mobile: auto;
+$button-min-width-basePages: auto;
+
 $button-height-login-desktop: 60px;
 $button-height-login-tablet: 50px;
 $button-height-login-mobile: 40px;
@@ -41,7 +46,22 @@ $nav-color-login: v.$grey-0-color;
     & > li {
       display: flex;
       flex: 1;
+      width: $button-min-width-basePages;
     }
+    
+    // Потрібно для сторінок реєстріції та заходу, для фіксованої довжини кнопки
+    .startPage {
+      width: $button-min-width-mobile;
+
+      @include m.on-tablet {
+        width: $button-min-width-tablet;
+      }
+
+      @include m.on-desktop {
+        width: $button-min-width-desktop;
+      }
+    }
+
 
     @include m.on-tablet {
       justify-content: space-around;
@@ -227,5 +247,9 @@ $nav-color-login: v.$grey-0-color;
   &__text {
     /* TODO: додати імплементацію */
     @extend %h4;
+
+    &_reg {
+      color: v.$grey-0-color;
+    }
   }
 }

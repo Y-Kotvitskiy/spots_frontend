@@ -11,6 +11,8 @@ import { validateEmail, validatePassword, validateName } from "../../utils.ts";
 import { usePageError } from "../../hooks.ts";
 import FormButton from "../FormButton";
 import FormField from "../FormField/index.ts";
+import Icon from "@/modules/shared/Icon/Icon.tsx";
+
 type RegistrationError = AxiosError<{
   errors?: { name?: string; email?: string; password?: string };
   message: string;
@@ -164,6 +166,14 @@ const Registration = () => {
             error={errors.password}
             touched={touched.password}
           />
+
+          {error && (
+            <p className={styles.Registration__error}>
+              <Icon name="error" size={16} className={styles.Registration__errorIcon} />
+              {error}
+            </p>
+          )}
+
           <FormButton
             type="submit"
             disabled={isSubmitting || !!errors.email || !!errors.password}
@@ -178,7 +188,6 @@ const Registration = () => {
             </Link>
           </p>
         </div>
-        {error && <p className={styles.Registration__error}>{error}</p>}
       </form>
     </>
   );
