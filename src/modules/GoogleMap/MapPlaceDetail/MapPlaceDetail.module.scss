@@ -1,0 +1,91 @@
+@use "@/scss/variables" as v;
+@use "@/scss/typography" as t;
+
+.MapPlaceDetail {
+  display: flex;
+  z-index: 10;
+  position: absolute;
+  bottom: 32px;
+  left: 40px;
+  grid: 28px;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100vw - 80px);
+  height: 164px;
+  padding-inline: 40px;
+  border: green 2px solid;
+  border-radius: 80px;
+  background-color: v.$grey-0-color;
+
+  &__leftPanel {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: start;
+    width: 378px;
+    height: 100px;
+    gap: 36px;
+  }
+
+  &__leftText {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 246px;
+    height: 72px;
+  }
+
+  &__title {
+    @extend %h2;
+
+    color: v.$grey-90-color;
+  }
+
+  &__description {
+    @extend %p2;
+
+    display: flex;
+    justify-content: start;
+    gap: 20px;
+    color: v.$grey-70-color;
+  }
+
+  &__Buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 208px;
+    height: 100%;
+    gap: 28px;
+  }
+
+  &__buttonShared {
+    display: block;
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    outline: none;
+    background: url("/icons/shared.svg") center center no-repeat;
+    background-color: v.$grey-20-color;
+  }
+
+  &__img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border: none;
+    border-radius: 50%;
+    background-color: v.$grey-20-color;
+  }
+
+  &__title {
+    @extend %h2;
+
+    color: v.$grey-90-color;
+  }
+}

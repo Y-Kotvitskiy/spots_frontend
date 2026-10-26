@@ -22,6 +22,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
 import type { Place } from "@/types";
 import PlaceForm from "./PlaceForm";
+import MapPlaceDetail from "./MapPlaceDetail";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -65,7 +66,10 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
     <AdvancedMarker
       position={{ lat: place.latitude, lng: place.longitude }}
       title={place.name}
-      onClick={() => dispatch(mapActions.setSelectedPlace(place))}
+      onClick={(event) => {
+        event.stopPropagation();
+        dispatch(mapActions.setSelectedPlace(place));
+      }}
     >
       <svg
         width="34"
@@ -139,7 +143,10 @@ export const GoogleMap: React.FC = () => {
 
   const handleMapClick = useCallback(
     async (event: MapMouseEvent) => {
-      if (!isPickingModeRef.current) return;
+      if (!isPickingModeRef.current) {
+        dispatch(mapActions.clearSelectedPlace());
+        return;
+      }
 
       if (event.detail.latLng) {
         const { lat, lng } = event.detail.latLng;
@@ -155,6 +162,7 @@ export const GoogleMap: React.FC = () => {
     <main className={styles.GoogleMap}>
       <Controls />
       <PlaceForm />
+      <MapPlaceDetail />
 
       <div className={styles.GoogleMap__map}>
         <Map
@@ -176,25 +184,6 @@ export const GoogleMap: React.FC = () => {
           {places.map((place) => (
             <PlaceMarker key={place.id} place={place} />
           ))}
-
-          {selectedPlace && (
-            <InfoWindow
-              position={{
-                lat: selectedPlace.latitude,
-                lng: selectedPlace.longitude,
-              }}
-              onCloseClick={() => dispatch(mapActions.clearSelectedPlace())}
-            >
-              <div style={{ padding: "4px" }}>
-                <h4 style={{ margin: "0 0 6px 0", color: "#333" }}>
-                  {selectedPlace.name}!!!
-                </h4>
-                <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
-                  {selectedPlace.description}
-                </p>
-              </div>
-            </InfoWindow>
-          )}
         </Map>
       </div>
     </main>

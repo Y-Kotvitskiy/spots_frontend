@@ -24,7 +24,7 @@
   @include m.on-tablet {
     top: calc(v.$header-top + v.$header-height-tablet);
     grid-template-columns: 1fr auto auto;
-    grid-auto-flow: column;
+    grid-auto-flow: row;
     height: auto;
     padding-top: 48px;
     padding-inline: 40px;

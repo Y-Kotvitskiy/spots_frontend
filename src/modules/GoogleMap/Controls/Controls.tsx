@@ -7,7 +7,6 @@ import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
 import { getAddressFromCoords } from "../utils";
 import { useMap } from "@vis.gl/react-google-maps";
-import MapPlaceDetail from "./MapPlaceDetail";
 
 const Controls: React.FC = () => {
   const mapMode = useSelector(selectMapMode);
@@ -17,7 +16,6 @@ const Controls: React.FC = () => {
   const map = useMap();
 
   const putMarkerToCenter = async () => {
-    debugger;
     if (map) {
       const center = map.getCenter();
 
@@ -57,14 +55,13 @@ const Controls: React.FC = () => {
         className={styles.Controls__addButton}
         onClick={handleAddButtonClick}
       >
-        {mapMode === MapMode.Select && "Save"}
+        {(mapMode === MapMode.Select || mapMode === MapMode.Add) && "Save"}
         {mapMode === MapMode.Show && (
           <>
             <span className={styles.Controls__addButtonPlus}>+</span> Add place
           </>
         )}
       </button>
-      <MapPlaceDetail />
     </aside>
   );
 };
