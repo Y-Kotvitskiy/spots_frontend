@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
 import type { Place } from "@/types";
+import PlaceForm from "./PlaceForm";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -153,6 +154,7 @@ export const GoogleMap: React.FC = () => {
   return (
     <main className={styles.GoogleMap}>
       <Controls />
+      <PlaceForm />
 
       <div className={styles.GoogleMap__map}>
         <Map
