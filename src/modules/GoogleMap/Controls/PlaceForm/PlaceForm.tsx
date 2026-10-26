@@ -1,164 +1,106 @@
-import styles from "./PlaceForm.module.scss";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
-import { selectSelectedCoords } from "@/store/mapSlice";
 import cn from "classnames";
-import Button from "@/modules/shared/Button/";
-import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
-import PlaceField from "./PlaceField/PlaceField";
-import PlacePhotoField from "./PlacePhotoField";
+import { useFormik, type FormikHelpers } from "formik";
+
+import { selectSelectedCoords } from "@/store/mapSlice";
+import { mapActions } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 import { useAuth } from "@/components/AuthContext";
-import AddPlace from "../../AddPlace";
-import { mapActions } from "@/store";
+import Button from "@/modules/shared/Button/";
 
-interface FormValues {
-  name: string;
-  category: string;
-  tags: string[];
-  address: string;
-  description: string;
-  location: string;
-  photo: File | null;
-}
+import PlaceField from "./PlaceField/PlaceField";
+import PlacePhotoField from "./PlacePhotoField";
+import styles from "./PlaceForm.module.scss";
 
-interface ModalFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  //  onSubmit: (data: ModalFormData) => void;
-  initialData?: Partial<FormValues>;
-}
+import { CATEGORIES, TAGS, INITIAL_VALUES } from "./PlaceForm.types";
 
-const CATEGORIES = [
-  "Cafe",
-  "Restaurant",
-  "Bar",
-  "Bakery",
-  "Street food",
-  "Museum",
-  "Park",
-  "Shopping",
-];
+import type { PlaceFormProps, FormValues, FormPages } from "./PlaceForm.types";
 
-const TAGS = [
-  "Wi-Fi",
-  "Power outlets",
-  "Outdoor seating",
-  "Parking",
-  "Restrooms",
-  "Vegan options",
-];
+import { validatePlaceForm } from "./PlaceForm.utils";
 
-type FormPages = 1 | 2 | 3;
-
-const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
+const PlaceForm: React.FC<PlaceFormProps> = ({ isOpen, onClose }) => {
   const [activePage, setActivePage] = useState<FormPages>(1);
   const dispatch = useAppDispatch();
   const { currentUser } = useAuth();
-
   const selectedCoords = useSelector(selectSelectedCoords);
 
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      category: "",
-      tags: [],
-      address: "",
-      description: "",
-      location: "",
-      photo: null,
-    } as FormValues,
-
-    validate: (values): FormikErrors<FormValues> | void => {
-      const { name, category, description } = values;
-
-      const errors: { name?: string; category?: string; description?: string } =
-        {};
-
-      if (!name) {
-        errors.name = "Can`t be empty";
-      }
-
-      if (!category) {
-        errors.category = "Can`t be empty";
-      }
-
-      if (!description) {
-        errors.description = "Can`t be empty";
-      }
-
-      return errors;
-    },
-
+  const formik = useFormik<FormValues>({
+    initialValues: INITIAL_VALUES,
     enableReinitialize: true,
-
+    validate: validatePlaceForm,
     onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
-      if (!selectedCoords || !currentUser) {
-        return;
-      }
+      if (!selectedCoords || !currentUser) return;
 
-      const { setSubmitting, setFieldError, setFieldTouched } = helpers;
-      const { name, description, category, tags } = formik.values;
-      const { address = "" } = selectedCoords;
-      const id = Date.now();
       dispatch(
         mapActions.addPlace({
-          id,
-          creator_id: currentUser?.id || 0,
-          name,
-          description,
-          category,
-          tags,
-          address,
-          latitude: selectedCoords?.lat || 0,
-          longitude: selectedCoords?.lng || 0,
+          id: Date.now(),
+          creator_id: currentUser.id,
+          name: values.name,
+          description: values.description,
+          category: values.category,
+          tags: values.tags,
+          address: selectedCoords.address || "",
+          latitude: selectedCoords.lat || 0,
+          longitude: selectedCoords.lng || 0,
           created_at: new Date().toISOString(),
         }),
       );
 
-      setSubmitting(false);
+      helpers.setSubmitting(false);
       setActivePage(3);
     },
   });
 
+  // Эффект для закрытия по Esc, блокировки скролла и сброса формы
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
 
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-    }
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
 
-    if (isOpen) {
-      formik.setValues({
-        name: "",
-        category: "",
-        tags: [],
-        address: "",
-        description: "",
-        location: "",
-        photo: null,
-      } as FormValues);
-
-      setActivePage(1);
-      formik.setTouched({});
-    }
+    formik.resetForm({ values: INITIAL_VALUES });
+    setActivePage(1);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Обработчики для категорий и тегов
+  const handleCategoryClick = (newCategory: unknown) => {
+    if (
+      typeof newCategory === "string" &&
+      formik.values.category !== newCategory
+    ) {
+      formik.setFieldValue("category", newCategory);
+    }
+  };
 
-    onClose();
+  const handleTagClick = (currentTag: unknown) => {
+    if (typeof currentTag !== "string") return;
+    const currentTags = formik.values.tags;
+    const isSelected = currentTags.includes(currentTag);
+    const updatedTags = isSelected
+      ? currentTags.filter((tag) => tag !== currentTag)
+      : [...currentTags, currentTag];
+
+    formik.setFieldValue("tags", updatedTags);
+  };
+
+  // Валидация перехода на следующий шаг
+  const isDisabledNext = () => {
+    if (activePage === 1) return !formik.values.name || !formik.values.category;
+    if (activePage === 2) return !formik.values.description.trim();
+    return false;
   };
 
   const handleNextClick = () => {
@@ -171,78 +113,39 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const { touched, errors, setFieldValue, isSubmitting } = formik;
-
-  const handleCategoryClick = (
-    newCategory: React.ChangeEvent<any> | string,
-  ) => {
-    if (typeof newCategory !== "string") return;
-
-    if (formik.values.category !== newCategory) {
-      setFieldValue("category", newCategory);
-    }
-  };
-
-  const handleTagClick = (currentTag: React.ChangeEvent<any> | string) => {
-    if (typeof currentTag !== "string") return;
-    const values = formik.values;
-    const currentTags = values.tags;
-    const isSelected = currentTags.includes(currentTag);
-    const updatedTags = isSelected
-      ? currentTags.filter((tag) => tag !== currentTag) // Удаляем
-      : [...currentTags, currentTag]; // Добавляем
-
-    setFieldValue("tags", updatedTags);
-  };
-
-  const handlePhotoChange = (file: File | null) => {
-    setFieldValue("photo", file);
-  };
-
-  const isDisabledNext = () => {
-    switch (activePage) {
-      case 1: {
-        const { name, category } = formik.values;
-
-        return !name || !category;
-      }
-
-      case 2: {
-        return !formik.values.description.trim();
-      }
-    }
-    return false;
-  };
-
   const handlePrevPageButton = () => {
     if (activePage > 1) setActivePage((prev) => (prev - 1) as FormPages);
   };
 
   return createPortal(
-    <div className={styles.overlay}>
+    <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <header className={styles.PlaceForm__header}>
-            {activePage == 3 ? (
-              <h1> Your place is now on the map</h1>
-            ) : (
-              <h1> Add place {activePage}/3</h1>
-            )}
+            <h1>
+              {activePage === 3
+                ? "Your place is now on the map"
+                : `Add place ${activePage}/3`}
+            </h1>
 
             {activePage === 2 && (
               <button
                 className={styles.PlaceForm__headerPrevPageButton}
                 type="button"
                 onClick={handlePrevPageButton}
-              ></button>
+                aria-label="Previous page"
+              />
             )}
             <button
               className={styles.PlaceForm__headerClose}
               type="button"
               onClick={onClose}
-            ></button>
+              aria-label="Close modal"
+            />
           </header>
+
           <main>
+            {/* Шаг 1 */}
             <fieldset
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 1,
@@ -257,8 +160,8 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={errors.name}
-                touched={touched.name}
+                error={formik.errors.name}
+                touched={formik.touched.name}
               />
               <PlaceField
                 label="Category"
@@ -266,7 +169,7 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
                 type="selectButtons"
                 required
                 value={formik.values.category}
-                options={CATEGORIES}
+                options={[...CATEGORIES]}
                 onChange={handleCategoryClick}
                 onBlur={formik.handleBlur}
               />
@@ -275,11 +178,13 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
                 name="tags"
                 type="selectButtons"
                 value={formik.values.tags}
-                options={TAGS}
+                options={[...TAGS]}
                 onChange={handleTagClick}
                 onBlur={formik.handleBlur}
               />
             </fieldset>
+
+            {/* Шаг 2 */}
             <fieldset
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 2,
@@ -293,8 +198,8 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={errors.description}
-                touched={touched.description}
+                error={formik.errors.description}
+                touched={formik.touched.description}
               />
               <PlaceField
                 label="Location"
@@ -302,17 +207,19 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
                 type="text"
                 required
                 value={selectedCoords?.address || "*"}
-                onChange={(_e) => {}}
+                onChange={() => {}}
                 onBlur={formik.handleBlur}
                 touched={false}
               />
               <PlacePhotoField
                 label="Photo"
                 name="photo"
-                onChange={handlePhotoChange}
+                onChange={(file) => formik.setFieldValue("photo", file)}
               />
             </fieldset>
-            <p
+
+            {/* Шаг 3 (Успех) */}
+            <div
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 3,
               })}
@@ -320,8 +227,9 @@ const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
               <span className={styles.PlaceForm__finalMessage}>
                 Other people can find it and add it to their lists.
               </span>
-            </p>
+            </div>
           </main>
+
           <footer className={styles.PlaceForm__footer}>
             <Button
               type="button"
