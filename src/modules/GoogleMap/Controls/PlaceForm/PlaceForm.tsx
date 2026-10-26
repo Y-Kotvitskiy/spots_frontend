@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import cn from "classnames";
 import { useFormik, type FormikHelpers } from "formik";
 
-import { selectSelectedCoords } from "@/store/mapSlice";
+import { MapMode, selectMapMode, selectSelectedCoords } from "@/store/mapSlice";
 import { mapActions } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 import { useAuth } from "@/components/AuthContext";
@@ -16,11 +16,11 @@ import styles from "./PlaceForm.module.scss";
 
 import { CATEGORIES, TAGS, INITIAL_VALUES } from "./PlaceForm.types";
 
-import type { PlaceFormProps, FormValues, FormPages } from "./PlaceForm.types";
+import type { FormValues, FormPages } from "./PlaceForm.types";
 
 import { validatePlaceForm } from "./PlaceForm.utils";
 
-const PlaceForm: React.FC<PlaceFormProps> = ({ isOpen, onClose }) => {
+const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);
   const dispatch = useAppDispatch();
   const { currentUser } = useAuth();
@@ -52,6 +52,13 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isOpen, onClose }) => {
       setActivePage(3);
     },
   });
+
+  const isOpen = useSelector(selectMapMode) === MapMode.Add;
+
+  const onClose = () => {
+    dispatch(mapActions.setMapMode(MapMode.Show));
+    dispatch(mapActions.clearSelectedCoord());
+  };
 
   // Эффект для закрытия по Esc, блокировки скролла и сброса формы
   useEffect(() => {

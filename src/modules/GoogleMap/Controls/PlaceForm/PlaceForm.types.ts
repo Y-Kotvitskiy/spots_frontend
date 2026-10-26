@@ -8,12 +8,6 @@ export interface FormValues {
   photo: File | null;
 }
 
-export interface PlaceFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: Partial<FormValues>;
-}
-
 export type FormPages = 1 | 2 | 3;
 
 export const CATEGORIES = [

@@ -5,14 +5,14 @@ import { useAuth } from "../../components/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
 import { usePageError } from "../hooks.ts";
 import { useEffect } from "react";
-import { selectSavedPoints } from "@/store/mapSlice";
+import { selectSavedPlaces } from "@/store/mapSlice";
 import { useSelector } from "react-redux";
 
 const PersonalRoom = () => {
   const { currentUser, logout } = useAuth();
   const [error, setError] = usePageError("");
   const navigate = useNavigate();
-  const places = useSelector(selectSavedPoints);
+  const places = useSelector(selectSavedPlaces);
 
   useEffect(() => {
     if (!error) return;

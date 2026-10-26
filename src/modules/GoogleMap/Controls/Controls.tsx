@@ -1,33 +1,30 @@
 import styles from "./Controls.module.scss";
 import { Link } from "react-router-dom";
 import SearchInput from "./SearchInput";
-import { selectIsPickingMode, selectSelectedCoords } from "@/store/mapSlice";
+import {
+  MapMode,
+  selectIsPickingMode,
+  selectMapMode,
+  selectSelectedCoords,
+} from "@/store/mapSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
 import { getAddressFromCoords } from "../utils";
 import { useMap } from "@vis.gl/react-google-maps";
-import { useState } from "react";
 import SavePlaceForm from "./PlaceForm";
+import MapPlaceDetail from "./MapPlaceDetail";
 
 const Controls: React.FC = () => {
-  const [savingMode, setSavingMode] = useState(false);
-  const isPickingMode = useSelector(selectIsPickingMode);
+  const mapMode = useSelector(selectMapMode);
   const selectedCoords = useSelector(selectSelectedCoords);
   const dispatch = useAppDispatch();
 
   const map = useMap();
 
   const putMarkerToCenter = async () => {
-    const newState = !isPickingMode;
-
-    dispatch(mapActions.togglePickingMode());
-
-    if (selectedCoords && !newState) {
-      dispatch(mapActions.setSelectedCoords(null));
-    }
-
-    if (map && newState && !selectedCoords) {
+    debugger;
+    if (map) {
       const center = map.getCenter();
 
       if (center) {
@@ -42,19 +39,17 @@ const Controls: React.FC = () => {
   };
 
   const handleAddButtonClick = async () => {
-    if (isPickingMode) {
-      if (!savingMode) {
-        return setSavingMode(true);
+    if (mapMode == MapMode.Show) {
+      if (!selectedCoords) {
+        await putMarkerToCenter();
       }
+      dispatch(mapActions.setMapMode(MapMode.Select));
+      return;
     }
 
-    await putMarkerToCenter();
-  };
-
-  const handleSavePlaceClose = () => {
-    setSavingMode(false);
-    dispatch(mapActions.setPickingMode(false));
-    dispatch(mapActions.setSelectedCoords(null));
+    if (mapMode == MapMode.Select) {
+      dispatch(mapActions.setMapMode(MapMode.Add));
+    }
   };
 
   return (
@@ -68,15 +63,15 @@ const Controls: React.FC = () => {
         className={styles.Controls__addButton}
         onClick={handleAddButtonClick}
       >
-        {isPickingMode ? (
-          <>Save</>
-        ) : (
+        {mapMode === MapMode.Select && "Save"}
+        {mapMode === MapMode.Show && (
           <>
             <span className={styles.Controls__addButtonPlus}>+</span> Add place
           </>
         )}
       </button>
-      <SavePlaceForm isOpen={savingMode} onClose={handleSavePlaceClose} />
+      <MapPlaceDetail />
+      <SavePlaceForm />
     </aside>
   );
 };
