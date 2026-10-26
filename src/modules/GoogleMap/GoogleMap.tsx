@@ -38,7 +38,6 @@ const MapCursorController: React.FC<{ cursorType: string }> = ({
 
 // 2. Основной компонент карты
 export const GoogleMap: React.FC = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const mapId = import.meta.env.VITE_MAP_ID as string;
 
   const isPickingMode = useSelector(selectIsPickingMode);
@@ -65,45 +64,44 @@ export const GoogleMap: React.FC = () => {
   );
 
   return (
-    <APIProvider apiKey={apiKey}>
-      <main className={styles.GoogleMap}>
-        <Controls />
+    <main className={styles.GoogleMap}>
+      <Controls />
 
-        <div className={styles.GoogleMap__map}>
-          <Map
-            defaultCenter={{ lat: 50.4501, lng: 30.5234 }}
-            defaultZoom={12}
-            mapId={mapId}
-            onClick={handleMapClick}
-            clickableIcons={false}
-            disableDefaultUI={true}
-          >
-            {/* Динамический курсор: крестик, если режим активен, иначе стандартный */}
-            <MapCursorController
-              cursorType={isPickingMode ? "crosshair" : "grab"}
-            />
+      <div className={styles.GoogleMap__map}>
+        <Map
+          defaultCenter={{ lat: 50.4501, lng: 30.5234 }}
+          defaultZoom={12}
+          mapId={mapId}
+          onClick={handleMapClick}
+          clickableIcons={false}
+          disableDefaultUI={true}
+        >
+          {/* Динамический курсор: крестик, если режим активен, иначе стандартный */}
+          <MapCursorController
+            cursorType={isPickingMode ? "crosshair" : "grab"}
+          />
 
-            {selectedCoords && (
-              <AdvancedMarker
-                position={selectedCoords}
-                draggable={true}
-                onDragEnd={(e) => {
-                  if (e.latLng) {
-                    const point = {
-                      lat: e.latLng.lat(),
-                      lng: e.latLng.lng(),
-                    };
-                    dispatch(mapActions.setSelectedCoords(point));
-                  }
-                }}
-              >
-                <Pin background={"#ea4335"} glyphColor={"#fff"} />
-              </AdvancedMarker>
-            )}
-          </Map>
-        </div>
-      </main>
-    </APIProvider>
+          {selectedCoords && (
+            <AdvancedMarker
+              position={selectedCoords}
+              draggable={true}
+              onDragEnd={(e) => {
+                if (e.latLng) {
+                  const point = {
+                    lat: e.latLng.lat(),
+                    lng: e.latLng.lng(),
+                    address: "",
+                  };
+                  dispatch(mapActions.setSelectedCoords(point));
+                }
+              }}
+            >
+              <Pin background={"#ea4335"} glyphColor={"#fff"} />
+            </AdvancedMarker>
+          )}
+        </Map>
+      </div>
+    </main>
   );
 };
 

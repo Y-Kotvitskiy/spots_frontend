@@ -8,6 +8,10 @@ import Button from "@/modules/shared/Button/";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 import PlaceField from "./PlaceField/PlaceField";
 import PlacePhotoField from "./PlacePhotoField";
+import { useAppDispatch } from "@/store/hooks";
+import { useAuth } from "@/components/AuthContext";
+import AddPlace from "../../AddPlace";
+import { mapActions } from "@/store";
 
 interface FormValues {
   name: string;
@@ -48,12 +52,10 @@ const TAGS = [
 
 type FormPages = 1 | 2 | 3;
 
-const PlaceForm: React.FC<ModalFormProps> = ({
-  isOpen,
-  onClose,
-  initialData,
-}) => {
+const PlaceForm: React.FC<ModalFormProps> = ({ isOpen, onClose }) => {
   const [activePage, setActivePage] = useState<FormPages>(1);
+  const dispatch = useAppDispatch();
+  const { currentUser } = useAuth();
 
   const selectedCoords = useSelector(selectSelectedCoords);
 
@@ -92,27 +94,31 @@ const PlaceForm: React.FC<ModalFormProps> = ({
     enableReinitialize: true,
 
     onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
+      if (!selectedCoords || !currentUser) {
+        return;
+      }
+
       const { setSubmitting, setFieldError, setFieldTouched } = helpers;
-      //      const { name, email, password } = values;
+      const { name, description, category, tags } = formik.values;
+      const { address = "" } = selectedCoords;
+      const id = Date.now();
+      dispatch(
+        mapActions.addPlace({
+          id,
+          creator_id: currentUser?.id || 0,
+          name,
+          description,
+          category,
+          tags,
+          address,
+          latitude: selectedCoords?.lat || 0,
+          longitude: selectedCoords?.lng || 0,
+          created_at: new Date().toISOString(),
+        }),
+      );
 
-      setSubmitting(true);
-
-      // authService
-      //   .register(name, email, password)
-      //   .then(() => setRegistered(true))
-      //   .catch((error: RegistrationError) => {
-      //     if (error.message) setError(error.message);
-      //     if (!error.response?.data) return;
-
-      //     const { errors, message } = error.response.data;
-
-      //     setFieldError("name", errors?.name);
-      //     setFieldError("email", errors?.email);
-      //     setFieldError("password", errors?.password);
-
-      //     if (message) setError(message);
-      //   })
-      //   .finally(() => setSubmitting(false));
+      setSubmitting(false);
+      setActivePage(3);
     },
   });
 
@@ -156,8 +162,10 @@ const PlaceForm: React.FC<ModalFormProps> = ({
   };
 
   const handleNextClick = () => {
-    if (activePage >= 3) {
-      setActivePage(1);
+    if (activePage === 2) {
+      formik.submitForm();
+    } else if (activePage === 3) {
+      onClose();
     } else {
       setActivePage((prev) => (prev + 1) as FormPages);
     }
@@ -215,8 +223,13 @@ const PlaceForm: React.FC<ModalFormProps> = ({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <form onSubmit={handleSubmit}>
           <header className={styles.PlaceForm__header}>
-            <h1>Add place {activePage}/3</h1>
-            {activePage != 1 && (
+            {activePage == 3 ? (
+              <h1> Your place is now on the map</h1>
+            ) : (
+              <h1> Add place {activePage}/3</h1>
+            )}
+
+            {activePage === 2 && (
               <button
                 className={styles.PlaceForm__headerPrevPageButton}
                 type="button"
@@ -299,18 +312,22 @@ const PlaceForm: React.FC<ModalFormProps> = ({
                 onChange={handlePhotoChange}
               />
             </fieldset>
-            <fieldset
+            <p
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 3,
               })}
-            ></fieldset>
+            >
+              <span className={styles.PlaceForm__finalMessage}>
+                Other people can find it and add it to their lists.
+              </span>
+            </p>
           </main>
           <footer className={styles.PlaceForm__footer}>
             <Button
               type="button"
               disabled={isDisabledNext()}
               onClick={handleNextClick}
-              text="Next"
+              text={activePage < 3 ? "Next" : "Great"}
             />
           </footer>
         </form>

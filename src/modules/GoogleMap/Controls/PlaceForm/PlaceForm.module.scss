@@ -72,4 +72,11 @@
 
     color: v.$grey-90-color;
   }
+
+  &__finalMessage {
+    @extend %p2;
+
+    color: v.$grey-70-color;
+    text-align: center;
+  }
 }

@@ -1,0 +1,13 @@
+@use "@/scss/mixins" as m;
+@use "@/scss/variables" as v;
+@use "@/scss/typography" as t;
+
+.PersonalRoom {
+  @include m.on-tablet {
+    margin: v.$header-top + v.$header-height-tablet;
+  }
+
+  @include m.on-desktop {
+    margin: v.$header-top + v.$header-height-desktop;
+  }
+}
