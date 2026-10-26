@@ -35,6 +35,7 @@ const Controls: React.FC = () => {
         const lng = center.lng();
         const address = await getAddressFromCoords(lat, lng);
 
+        console.log({ lat, lng, address });
         dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
       }
     }

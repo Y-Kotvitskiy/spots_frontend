@@ -1,13 +1,7 @@
 import styles from "./GoogleMap.module.scss";
 
-import React, { useCallback, useEffect } from "react";
-import {
-  APIProvider,
-  Map,
-  AdvancedMarker,
-  Pin,
-  useMap,
-} from "@vis.gl/react-google-maps";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Map, AdvancedMarker, Pin, useMap } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
 import Controls from "./Controls";
 import { getAddressFromCoords } from "./utils";
@@ -16,13 +10,34 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
 
-export interface SelectedPoint {
-  lat: number;
-  lng: number;
-  address?: string;
-}
+// 1. Отдельный изолированный компонент для маркера
+const MapMarker: React.FC = () => {
+  const selectedCoords = useSelector(selectSelectedCoords);
+  const dispatch = useAppDispatch();
 
-// 1. Вспомогательный компонент для управления курсором карты
+  if (!selectedCoords) return null;
+
+  return (
+    <AdvancedMarker
+      position={selectedCoords}
+      draggable={true}
+      onDragEnd={(e) => {
+        if (e.latLng) {
+          const point = {
+            lat: e.latLng.lat(),
+            lng: e.latLng.lng(),
+            address: "",
+          };
+          dispatch(mapActions.setSelectedCoords(point));
+        }
+      }}
+    >
+      <Pin background={"#ea4335"} glyphColor={"#fff"} />
+    </AdvancedMarker>
+  );
+};
+
+// 2. Компонент управления курсором
 const MapCursorController: React.FC<{ cursorType: string }> = ({
   cursorType,
 }) => {
@@ -36,18 +51,21 @@ const MapCursorController: React.FC<{ cursorType: string }> = ({
   return null;
 };
 
-// 2. Основной компонент карты
+// 3. Основной компонент карты
 export const GoogleMap: React.FC = () => {
   const mapId = import.meta.env.VITE_MAP_ID as string;
-
   const isPickingMode = useSelector(selectIsPickingMode);
-  const selectedCoords = useSelector(selectSelectedCoords);
   const dispatch = useAppDispatch();
+
+  // Храним актуальный isPickingMode в ref, чтобы не пересоздавать обработчик клика
+  const isPickingModeRef = useRef(isPickingMode);
+  useEffect(() => {
+    isPickingModeRef.current = isPickingMode;
+  }, [isPickingMode]);
 
   const handleMapClick = useCallback(
     async (event: MapMouseEvent) => {
-      // Клик обрабатываем только если режим выбора активен
-      if (!isPickingMode) return;
+      if (!isPickingModeRef.current) return;
 
       if (event.detail.latLng) {
         const { lat, lng } = event.detail.latLng;
@@ -55,12 +73,9 @@ export const GoogleMap: React.FC = () => {
 
         dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
         console.log("Выбранные координаты:", { lat, lng, address });
-
-        // Опционально: можно автоматически выключать режим после выбора точки
-        // setIsPickingMode(false);
       }
     },
-    [isPickingMode],
+    [dispatch], // Теперь функция стабильна и никогда не меняет ссылку
   );
 
   return (
@@ -76,29 +91,12 @@ export const GoogleMap: React.FC = () => {
           clickableIcons={false}
           disableDefaultUI={true}
         >
-          {/* Динамический курсор: крестик, если режим активен, иначе стандартный */}
           <MapCursorController
             cursorType={isPickingMode ? "crosshair" : "grab"}
           />
 
-          {selectedCoords && (
-            <AdvancedMarker
-              position={selectedCoords}
-              draggable={true}
-              onDragEnd={(e) => {
-                if (e.latLng) {
-                  const point = {
-                    lat: e.latLng.lat(),
-                    lng: e.latLng.lng(),
-                    address: "",
-                  };
-                  dispatch(mapActions.setSelectedCoords(point));
-                }
-              }}
-            >
-              <Pin background={"#ea4335"} glyphColor={"#fff"} />
-            </AdvancedMarker>
-          )}
+          {/* Рендерим изолированный маркер */}
+          <MapMarker />
         </Map>
       </div>
     </main>

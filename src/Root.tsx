@@ -11,17 +11,17 @@ import Login from "./modules/AuthContainer/Login";
 import Registration from "./modules/AuthContainer/Registration";
 import ForgotPassword from "./modules/AuthContainer/ForgotPassword";
 import ResetPassword from "./modules/AuthContainer/ResetPassword/index.ts";
-import GoogleMap from "./modules/GoogleMap";
 import { Provider } from "react-redux";
 import store from "./store";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import ProtectedLayout from "./modules/ProtectedLayout/ProtectedLayout.tsx";
 
 const Root = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 
   return (
-    <AuthProvider>
-      <APIProvider apiKey={apiKey}>
+    <APIProvider apiKey={apiKey}>
+      <AuthProvider>
         <Provider store={store}>
           <BrowserRouter>
             <Routes>
@@ -39,18 +39,23 @@ const Root = () => {
                   path="/activate/:activationToken"
                   element={<Activation />}
                 />
+
+                {/* Защищенные маршруты */}
                 <Route element={<RequireAuth />}>
-                  <Route index element={<GoogleMap />} />
-                  <Route path="/map" element={<GoogleMap />} />
-                  <Route path="/groups" element={<Groups />} />
-                  <Route path="/personal-room" element={<PersonalRoom />} />
+                  <Route element={<ProtectedLayout />}>
+                    <Route index element={null} />{" "}
+                    {/* Или заглушка, если на главной только карта */}
+                    <Route path="/map" element={null} />
+                    <Route path="/groups" element={<Groups />} />
+                    <Route path="/personal-room" element={<PersonalRoom />} />
+                  </Route>
                 </Route>
               </Route>
             </Routes>
           </BrowserRouter>
         </Provider>
-      </APIProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </APIProvider>
   );
 };
 

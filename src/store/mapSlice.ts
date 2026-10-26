@@ -49,7 +49,6 @@ export const mapSlice = createSlice({
     // Добавление точки в общий список сохраненных
     addPlace: (state, action: PayloadAction<Place>) => {
       state.savedPlaces.push(action.payload);
-      debugger;
     },
 
     // Удаление точки из сохраненных по индексу или id
