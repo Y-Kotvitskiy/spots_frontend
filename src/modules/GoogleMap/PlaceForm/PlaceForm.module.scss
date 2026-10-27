@@ -1,0 +1,82 @@
+@use "@/scss/typography" as t;
+@use "@/scss/variables" as v;
+
+.overlay {
+  display: flex;
+  z-index: 9999;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  width: 100%;
+  max-width: 679px;
+  border-radius: 40px;
+  background-color: #fff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.PlaceForm {
+  &__header {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+
+    &PrevPageButton {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      transform: translateY(-50%);
+      border: none;
+      background: url("/icons/place_arrow.svg") center center no-repeat;
+      //      background-color: transparent;
+    }
+
+    &Close {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      transform: translateY(-50%);
+      border: none;
+      background: url("/icons/place_close.svg") center center no-repeat;
+      //      background-color: transparent;
+    }
+  }
+  &__footer {
+    padding: 32px 40px;
+  }
+
+  &__fieldset {
+    display: none;
+    margin-inline: 32px;
+    border: none;
+
+    &_active {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+  }
+
+  &__title {
+    @extend %h3;
+
+    color: v.$grey-90-color;
+  }
+
+  &__finalMessage {
+    @extend %p2;
+
+    color: v.$grey-70-color;
+    text-align: center;
+  }
+}

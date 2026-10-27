@@ -12,7 +12,7 @@ const Navigation = () => {
   const isLoginPage = location.pathname === "/login";
   const isRegisterPage = location.pathname === "/register";
   const isForgotPage = location.pathname === "/forgot-password";
-  
+
   const isAuthPages = isLoginPage || isRegisterPage || isForgotPage;
 
   const activeItemClass = (isActive: boolean) => {
@@ -28,20 +28,41 @@ const Navigation = () => {
         {currentUser ? (
           <>
             <li>
-              <NavLink to="/" className={({ isActive }) => activeItemClass(isActive)}>
-                <Icon name="map" className={styles.Navigation__icon} size={22} />
+              <NavLink
+                to="/"
+                className={({ isActive }) => activeItemClass(isActive)}
+              >
+                <Icon
+                  name="map"
+                  className={styles.Navigation__icon}
+                  size={22}
+                />
                 <span className={styles.Navigation__text}>Map</span>
               </NavLink>
             </li>
             <li>
-              <NavLink to="/groups" className={({ isActive }) => activeItemClass(isActive)}>
-                <Icon name="group" className={styles.Navigation__icon} size={22} />
+              <NavLink
+                to="/groups"
+                className={({ isActive }) => activeItemClass(isActive)}
+              >
+                <Icon
+                  name="group"
+                  className={styles.Navigation__icon}
+                  size={22}
+                />
                 <span className={styles.Navigation__text}>Groups</span>
               </NavLink>
             </li>
             <li>
-              <NavLink to="/personal-room" className={({ isActive }) => activeItemClass(isActive)}>
-                <Icon name="home" className={styles.Navigation__icon} size={22} />
+              <NavLink
+                to="/personal-room"
+                className={({ isActive }) => activeItemClass(isActive)}
+              >
+                <Icon
+                  name="home"
+                  className={styles.Navigation__icon}
+                  size={22}
+                />
                 <span className={styles.Navigation__text}>Personal Room</span>
               </NavLink>
             </li>
@@ -50,19 +71,28 @@ const Navigation = () => {
           <>
             {!isLoginPage && (
               <li className={styles.startPage}>
-                <NavLink to="/login" className={({ isActive }) => activeItemClass(isActive)}>
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) => activeItemClass(isActive)}
+                >
                   <span className={styles.Navigation__text_reg}>Login</span>
                 </NavLink>
               </li>
             )}
 
-            {!isRegisterPage && !location.pathname.includes("/forgot-password") && (
-              <li className={styles.startPage}>
-                <NavLink to="/register" className={({ isActive }) => activeItemClass(isActive)}>
-                  <span className={styles.Navigation__text_reg}>Register</span>
-                </NavLink>
-              </li>
-            )}
+            {!isRegisterPage &&
+              !location.pathname.includes("/forgot-password") && (
+                <li className={styles.startPage}>
+                  <NavLink
+                    to="/register"
+                    className={({ isActive }) => activeItemClass(isActive)}
+                  >
+                    <span className={styles.Navigation__text_reg}>
+                      Register
+                    </span>
+                  </NavLink>
+                </li>
+              )}
           </>
         )}
       </ul>

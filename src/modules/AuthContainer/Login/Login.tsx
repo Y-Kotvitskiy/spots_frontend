@@ -138,7 +138,11 @@ const Login = () => {
 
           {error && (
             <p className={styles.Login__error}>
-              <Icon name="error" size={16} className={styles.Login__errorIcon} />
+              <Icon
+                name="error"
+                size={16}
+                className={styles.Login__errorIcon}
+              />
               {error}
             </p>
           )}

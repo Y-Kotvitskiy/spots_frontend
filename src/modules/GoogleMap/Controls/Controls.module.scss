@@ -1,0 +1,114 @@
+@use "@/scss/mixins" as m;
+@use "@/scss/variables" as v;
+@use "@/scss/typography" as t;
+
+.Controls {
+  display: grid;
+  z-index: 10;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 28px;
+  align-items: start;
+  justify-content: center;
+  width: 100vw;
+  height: calc(100dvh - v.$header-height-phone);
+  padding-top: 20px;
+  padding-bottom: 40px;
+  padding-inline: 16px;
+  gap: 12px;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  @include m.on-tablet {
+    top: calc(v.$header-top + v.$header-height-tablet);
+    grid-template-columns: 1fr auto auto;
+    grid-auto-flow: row;
+    height: auto;
+    padding-top: 48px;
+    padding-inline: 40px;
+  }
+
+  @include m.on-desktop {
+    top: calc(v.$header-top + v.$header-height-desktop);
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 40px;
+    background-color: v.$grey-0-color;
+    cursor: pointer;
+    pointer-events: auto;
+
+    @include m.on-tablet {
+      display: none;
+    }
+  }
+
+  &__brandImg {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+  }
+
+  &__filter {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 40px;
+    outline: none;
+    background: url("/icons/filter.svg") center center no-repeat;
+    background-color: v.$grey-0-color;
+    cursor: pointer;
+    pointer-events: auto;
+
+    @include m.on-tablet {
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  &__addButton {
+    @extend %button_big;
+
+    display: flex;
+    grid-column: 1 / -1;
+    place-self: end end;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    gap: 8px;
+    border: none;
+    border-radius: 40px;
+    outline: none;
+    background-color: v.$primary-indigo-color;
+    color: v.$grey-0-color;
+    cursor: pointer;
+    pointer-events: auto;
+
+    @include m.on-tablet {
+      grid-column: auto;
+      width: 184px;
+      height: 60px;
+    }
+
+    &:hover {
+      background-color: v.$primary-states-hovered-color;
+    }
+
+    &:disabled {
+      background-color: v.$primary-states-disabled-color;
+    }
+
+    &Plus {
+      font-size: 32px;
+      line-height: 100%;
+    }
+  }
+}

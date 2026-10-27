@@ -169,7 +169,11 @@ const Registration = () => {
 
           {error && (
             <p className={styles.Registration__error}>
-              <Icon name="error" size={16} className={styles.Registration__errorIcon} />
+              <Icon
+                name="error"
+                size={16}
+                className={styles.Registration__errorIcon}
+              />
               {error}
             </p>
           )}

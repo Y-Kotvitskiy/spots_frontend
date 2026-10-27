@@ -48,7 +48,7 @@ $nav-color-login: v.$grey-0-color;
       flex: 1;
       width: $button-min-width-basePages;
     }
-    
+
     // Потрібно для сторінок реєстріції та заходу, для фіксованої довжини кнопки
     .startPage {
       width: $button-min-width-mobile;
@@ -61,7 +61,6 @@ $nav-color-login: v.$grey-0-color;
         width: $button-min-width-desktop;
       }
     }
-
 
     @include m.on-tablet {
       justify-content: space-around;
