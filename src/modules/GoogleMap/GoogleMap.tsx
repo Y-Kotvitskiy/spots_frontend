@@ -59,6 +59,19 @@ const MapCursorController: React.FC<{ cursorType: string }> = ({
   return null;
 };
 
+const MapCenterController: React.FC<{
+  center: { lat: number; lng: number };
+}> = ({ center }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+    map.setCenter(center);
+  }, [map, center]);
+
+  return null;
+};
+
 // ==========================================
 // 4. Основной компонент карты
 // ==========================================
@@ -81,6 +94,7 @@ export const GoogleMap: React.FC = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log(position);
           setCenter({
             lat: position.coords.latitude,
             lng: position.coords.longitude,
@@ -132,6 +146,7 @@ export const GoogleMap: React.FC = () => {
           clickableIcons={false}
           disableDefaultUI={true}
         >
+          <MapCenterController center={center} />
           <MapCursorController
             cursorType={isPickingMode ? "crosshair" : "grab"}
           />

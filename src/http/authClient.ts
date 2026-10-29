@@ -6,8 +6,6 @@ export const authClient = axios.create({
   withCredentials: true,
 });
 
-console.log("authClient baseURL", authClient.defaults.baseURL);
-
 // to awoid getting `res.data` everywhere
 authClient.interceptors.response.use((res) => {
   // Якщо статус 204 — явно задаємо res.data як null
