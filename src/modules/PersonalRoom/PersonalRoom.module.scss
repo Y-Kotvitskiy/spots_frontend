@@ -1,13 +1,127 @@
-@use "@/scss/mixins" as m;
-@use "@/scss/variables" as v;
-@use "@/scss/typography" as t;
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+$offset-desktop: 40px;
+$offset-tablet: 30px;
+$offset-mobile: 16px;
 
 .PersonalRoom {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-color: v.$grey-40-color; // Тимчасовий фон сторінки
+
+  &__error {
+    color: v.$system-error-color;
+    text-align: center;
+    margin-top: 16px;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: $offset-mobile;
+  padding-top: 82px;
+
   @include m.on-tablet {
-    margin: v.$header-top + v.$header-height-tablet;
+    padding-top: 120px;
+    padding-inline: $offset-tablet;
   }
 
   @include m.on-desktop {
-    margin: v.$header-top + v.$header-height-desktop;
+    padding-inline: $offset-desktop;
+  }
+}
+
+.personalInfo {
+  display: flex;
+  flex-direction: column;
+  width: 100%; // Розтягується на всю ширину контейнера
+  padding: 24px 20px;
+  background-color: v.$grey-0-color;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px v.$shadow-color;
+  gap: 20px;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__avatarWrapper {
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__name {
+    @extend %h2;
+    color: v.$grey-90-color;
+    margin: 0;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    @extend %p3;
+    color: v.$grey-60-color;
+  }
+
+  &__separator {
+    font-weight: bold;
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+
+    button {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 48px;
+      border: none;
+      border-radius: 24px;
+      background-color: v.$grey-20-color;
+      color: v.$grey-70-color;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      &:hover {
+        background-color: v.$grey-20-color;
+        color: v.$grey-90-color;
+      }
+    }
+  }
+
+  &__btnEdit {
+    @extend %button_small;
+    display: none;
+  }
+
+  &__btnLogout {
+    @extend %button_small;
   }
 }
