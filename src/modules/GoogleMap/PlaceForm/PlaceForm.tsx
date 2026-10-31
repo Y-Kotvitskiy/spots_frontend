@@ -9,13 +9,13 @@ import { mapActions } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
 import { useAuth } from "@/components/AuthContext";
 import Button from "@/modules/shared/Button/";
+import Loader from "@/modules/shared/Loader";
 
 import PlaceField from "./PlaceField/PlaceField";
 import PlacePhotoField from "./PlacePhotoField";
 import styles from "./PlaceForm.module.scss";
 
 import { INITIAL_VALUES } from "./PlaceForm.types";
-
 import type { FormValues, FormPages } from "./PlaceForm.types";
 
 import { validatePlaceForm } from "./PlaceForm.utils";
@@ -24,6 +24,7 @@ import { getAddressFromCoords } from "../utils";
 
 const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);
+  const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { currentUser } = useAuth();
   const selectedCoords = useSelector(selectSelectedCoords);
@@ -62,7 +63,6 @@ const PlaceForm: React.FC = () => {
     dispatch(mapActions.clearSelectedCoord());
   };
 
-  // Эффект для закрытия по Esc, блокировки скролла и сброса формы
   useEffect(() => {
     if (!isOpen) return;
 
@@ -85,38 +85,35 @@ const PlaceForm: React.FC = () => {
   useEffect(() => {
     const getAddress = async () => {
       if (selectedCoords) {
-        const { lat, lng } = selectedCoords;
-        const address = await getAddressFromCoords(lat, lng);
-        dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
+        try {
+          setIsAddressLoading(true);
+          const { lat, lng } = selectedCoords;
+          const address = await getAddressFromCoords(lat, lng);
+          dispatch(mapActions.setSelectedCoords({ lat, lng, address }));
+        } catch (e) {
+          console.error("Failed to fetch address", e);
+        } finally {
+          setIsAddressLoading(false);
+        }
       }
     };
 
     if (!selectedCoords?.address && activePage === 2) {
       getAddress();
     }
-  }, [activePage]);
+  }, [activePage, selectedCoords?.address]);
 
   if (!isOpen) return null;
 
-  // Обработчики для категорий и тегов
-  const handleCategoryClick = (
-    newCategory: React.ChangeEvent<any> | string,
-  ) => {
-    if (
-      typeof newCategory !== "string" ||
-      !Object.keys(Category).includes(newCategory)
-    ) {
+  const handleCategoryClick = (newCategory: React.ChangeEvent<any> | string) => {
+    if (typeof newCategory !== "string" || !Object.keys(Category).includes(newCategory)) {
       return;
     }
-
     formik.setFieldValue("category", newCategory);
   };
 
   const handleTagClick = (currentTag: React.ChangeEvent<any> | string) => {
-    if (
-      typeof currentTag !== "string" ||
-      !Object.keys(Tag).includes(currentTag)
-    ) {
+    if (typeof currentTag !== "string" || !Object.keys(Tag).includes(currentTag)) {
       return;
     }
 
@@ -129,10 +126,10 @@ const PlaceForm: React.FC = () => {
     formik.setFieldValue("tags", updatedTags);
   };
 
-  // Валидация перехода на следующий шаг
   const isDisabledNext = () => {
+    if (isAddressLoading) return true;
     if (activePage === 1) return !formik.values.name || !formik.values.category;
-    if (activePage === 2) return !formik.values.description.trim();
+    if (activePage === 2) return !formik.values.description.trim() || !selectedCoords?.address;
     return false;
   };
 
@@ -234,16 +231,26 @@ const PlaceForm: React.FC = () => {
                 error={formik.errors.description}
                 touched={formik.touched.description}
               />
-              <PlaceField
-                label="Location"
-                name="address"
-                type="text"
-                required
-                value={selectedCoords?.address || "loading.."}
-                onChange={() => {}}
-                onBlur={formik.handleBlur}
-                touched={false}
-              />
+              
+              {/* Поле локації з компонентом Loader */}
+              <div style={{ position: "relative" }}>
+                <PlaceField
+                  label="Location"
+                  name="address"
+                  type="text"
+                  required
+                  value={isAddressLoading ? "Loading address..." : selectedCoords?.address || ""}
+                  onChange={() => {}}
+                  onBlur={formik.handleBlur}
+                  touched={false}
+                />
+                {isAddressLoading && (
+                  <div style={{ position: "absolute", right: 12, top: 36, display: "flex", alignItems: "center" }}>
+                    <Loader />
+                  </div>
+                )}
+              </div>
+
               <PlacePhotoField
                 label="Photo"
                 name="photo"
@@ -268,7 +275,7 @@ const PlaceForm: React.FC = () => {
               type="button"
               disabled={isDisabledNext()}
               onClick={handleNextClick}
-              text={activePage < 3 ? "Next" : "Great"}
+              text={activePage < 3 ? (isAddressLoading ? "Loading..." : "Next") : "Great"}
             />
           </footer>
         </form>

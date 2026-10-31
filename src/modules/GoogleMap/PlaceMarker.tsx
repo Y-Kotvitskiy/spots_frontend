@@ -1,5 +1,6 @@
 import { mapActions } from "@/store";
 import { useAppDispatch } from "@/store/hooks";
+import { selectSelectedPlaces } from "@/store/mapSlice";
 import type { CategoryKey, Place } from "@/types";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { memo } from "react";
@@ -331,7 +332,7 @@ const Icon: React.FC<IconProps> = ({ category, isSelected }) => {
 const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
   const dispatch = useAppDispatch();
 
-  const selectedPlace = useSelector(selectSelectedPlace); 
+  const selectedPlace = useSelector(selectSelectedPlaces); 
   const isSelected = selectedPlace?.id === place.id;
 
   return (

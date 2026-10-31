@@ -1,0 +1,161 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+.placeCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: v.$grey-0-color;
+  border-radius: 24px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px v.$shadow-color;
+  }
+
+  &__imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 220px;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__menuContainer {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  &__menuBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: v.$grey-90-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #ffffff;
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: max-content;
+    background-color: v.$grey-0-color;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    z-index: 10;
+    animation: fadeIn 0.15s ease;
+  }
+
+  &__dropdownItem,
+  &__dropdownItemDanger {
+    @extend %p2;
+    background: none;
+    border: none;
+    white-space: nowrap;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    
+    /* Вирівнювання тексту по центру */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: v.$grey-90-color;
+
+    &:hover {
+      background-color: v.$grey-20-color;
+    }
+  }
+
+  &__dropdownItemDanger {
+    color: v.$system-error-color;
+    
+    &:hover {
+      background-color: rgba(234, 67, 53, 0.08);
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 20px;
+    gap: 8px;
+  }
+
+  &__title {
+    @extend %h3;
+    color: v.$grey-90-color;
+    margin: 0;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    @extend %p3;
+    color: v.$grey-60-color;
+  }
+
+  &__separator {
+    font-weight: bold;
+  }
+
+  &__hours {
+    color: v.$grey-60-color;
+  }
+
+  &__statusWrapper {
+    margin-top: 4px;
+  }
+
+  &__notShared {
+    @extend %p3;
+    color: #e67e22; 
+    font-weight: 500;
+  }
+
+  &__shared {
+    @extend %p3;
+    color: #e67e22; 
+    font-weight: 500;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
