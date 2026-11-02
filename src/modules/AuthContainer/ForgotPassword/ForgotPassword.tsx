@@ -3,13 +3,13 @@ import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 import { AxiosError } from "axios";
 
 import styles from "./ForgotPassword.module.scss";
-import { useAuth } from "@/components/AuthContext";
 import { usePageError } from "@/modules/hooks.ts";
 import { validateEmail } from "@/modules/utils.ts";
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
 import { authService } from "@/services/authService.ts";
 import { useState } from "react";
+import { useAuthSelector } from "@/store/hooks";
 
 interface FormValues {
   email: string;
@@ -22,7 +22,7 @@ type LoginErrors = AxiosError<{
 
 const ForgotPassword = () => {
   const [error, setError] = usePageError("");
-  const { isChecked, currentUser } = useAuth();
+  const { isChecked, currentUser } = useAuthSelector();
   const navigate = useNavigate();
 
   const [message, setMessage] = useState("");

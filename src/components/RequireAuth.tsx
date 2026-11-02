@@ -1,10 +1,20 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "./AuthContext";
 import Loader from "../modules/shared/Loader";
+import { useAuthSelector, useAppDispatch } from "@/store/hooks";
+import { authActions } from "@/store";
+import { useEffect } from "react";
 
 const RequireAuth = ({ children }: { children?: React.ReactNode }) => {
-  const { isChecked, currentUser } = useAuth();
+  const { isChecked, currentUser } = useAuthSelector();
   const location = useLocation();
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!isChecked) {
+      dispatch(authActions.checkAuth());
+    }
+  }, [dispatch, isChecked]);
 
   if (!isChecked) {
     return <Loader />;

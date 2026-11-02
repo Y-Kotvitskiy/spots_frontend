@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useAuth } from "../../components/AuthContext";
 import { AxiosError } from "axios";
 import Loader from "../shared/Loader/Loader.tsx";
+import { useAppDispatch } from "@/store/hooks";
+import { authActions } from "@/store";
 
 const Activation = () => {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const { activate } = useAuth();
   const { activationToken = "" } = useParams();
 
   const navigate = useNavigate();
@@ -23,11 +24,18 @@ const Activation = () => {
       return;
     }
 
-    activate(activationToken)
-      .catch((error: AxiosError<{ message?: string }>) => {
+    const handleActivation = async () => {
+      try {
+        await dispatch(authActions.activate(activationToken)).unwrap();
+      } catch (err) {
+        const error = err as AxiosError<{ message?: string }>;
         setError(error.response?.data?.message ?? `Wrong activation link`);
-      })
-      .finally(() => setDone(true));
+      } finally {
+        () => setDone(true);
+      }
+    };
+
+    handleActivation();
   }, []);
 
   useEffect(() => {

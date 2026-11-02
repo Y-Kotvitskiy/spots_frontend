@@ -6,8 +6,7 @@ import { useFormik, type FormikHelpers } from "formik";
 
 import { MapMode, selectMapMode, selectSelectedCoords } from "@/store/mapSlice";
 import { mapActions } from "@/store";
-import { useAppDispatch } from "@/store/hooks";
-import { useAuth } from "@/components/AuthContext";
+import { useAppDispatch, useAuthSelector } from "@/store/hooks";
 import Button from "@/modules/shared/Button/";
 
 import PlaceField from "./PlaceField/PlaceField";
@@ -25,7 +24,7 @@ import { getAddressFromCoords } from "../utils";
 const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);
   const dispatch = useAppDispatch();
-  const { currentUser } = useAuth();
+  const { currentUser } = useAuthSelector();
   const selectedCoords = useSelector(selectSelectedCoords);
 
   const formik = useFormik<FormValues>({
@@ -38,7 +37,7 @@ const PlaceForm: React.FC = () => {
       dispatch(
         mapActions.addPlace({
           id: Date.now(),
-          creator_id: currentUser.id,
+          creator_id: 0,
           name: values.name,
           description: values.description,
           category: values.category as CategoryKey,

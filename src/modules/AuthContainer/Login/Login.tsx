@@ -3,7 +3,7 @@ import styles from "./Login.module.scss";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 
-import { useAuth } from "@/components/AuthContext";
+import { useAppDispatch, useAppSelector } from "@/store/hooks.ts";
 import { usePageError } from "@/modules/hooks.ts";
 import {
   setErrorMessages,
@@ -14,6 +14,7 @@ import {
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
 import Icon from "@/modules/shared/Icon/Icon.tsx";
+import { authActions } from "@/store";
 
 interface FormValues {
   email: string;
@@ -26,7 +27,8 @@ const Login = () => {
 
   const [error, setError] = usePageError("");
 
-  const { login, isChecked, currentUser } = useAuth();
+  const { isChecked, currentUser } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const formik = useFormik({
     initialValues: {
@@ -62,9 +64,10 @@ const Login = () => {
 
     onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
       const { setSubmitting, setFieldError } = helpers;
+      const { email, password } = values;
 
       try {
-        await login(values.email, values.password);
+        await dispatch(authActions.login({ email, password })).unwrap();
         const state = location.state as { from?: Location };
         navigate(state?.from?.pathname ?? "/");
       } catch (err) {

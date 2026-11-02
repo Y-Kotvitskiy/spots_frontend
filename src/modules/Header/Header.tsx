@@ -3,10 +3,10 @@ import cn from "classnames";
 import Navigation from "./Navigation/Navigation";
 import { NavLink } from "react-router-dom";
 import Logo from "../shared/Logo";
-import { useAuth } from "@/components/AuthContext.tsx";
+import { useAuthSelector } from "@/store/hooks";
 
 const Header = () => {
-  const { currentUser } = useAuth();
+  const { currentUser } = useAuthSelector();
 
   return (
     <header

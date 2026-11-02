@@ -1,12 +1,12 @@
 import styles from "./Navigation.module.scss";
 
 import { NavLink, useLocation } from "react-router-dom";
-import { useAuth } from "../../../components/AuthContext.tsx";
 import cn from "classnames";
 import Icon from "../../shared/Icon";
+import { useAuthSelector } from "@/store/hooks";
 
 const Navigation = () => {
-  const { currentUser } = useAuth();
+  const { currentUser } = useAuthSelector();
   const location = useLocation();
 
   const isLoginPage = location.pathname === "/login";

@@ -3,13 +3,13 @@ import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 import { AxiosError } from "axios";
 
 import styles from "./ResetPassword.module.scss";
-import { useAuth } from "@/components/AuthContext";
 import { usePageError } from "@/modules/hooks.ts";
 import { validatePassword } from "@/modules/utils.ts";
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
 import { authService } from "@/services/authService.ts";
 import { useState } from "react";
+import { useAuthSelector } from "@/store/hooks";
 
 interface FormValues {
   newPassword: string;
@@ -48,7 +48,7 @@ function isTokenValid(token: string): boolean {
 
 const ResetPassword = () => {
   const { email, jwt } = useParams();
-  const { currentUser } = useAuth();
+  const { currentUser } = useAuthSelector();
 
   const [error, setError] = usePageError("");
   const [successfullyReset, setSuccessfullyReset] = useState<Boolean>(false);

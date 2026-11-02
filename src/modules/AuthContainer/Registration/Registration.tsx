@@ -3,9 +3,7 @@ import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 
-import { AxiosError } from "axios";
 import { authService } from "../../../services/authService.ts";
-import { useAuth } from "../../../components/AuthContext.tsx";
 
 import {
   validateEmail,
@@ -18,6 +16,7 @@ import { usePageError } from "../../hooks.ts";
 import FormButton from "../FormButton";
 import FormField from "../FormField/index.ts";
 import Icon from "@/modules/shared/Icon/Icon.tsx";
+import { useAuthSelector } from "@/store/hooks";
 
 interface FormValues {
   display_name: string;
@@ -29,7 +28,7 @@ const Registration = () => {
   const [error, setError] = usePageError("");
   const [registered, setRegistered] = useState(false);
 
-  const { isChecked, currentUser } = useAuth();
+  const { isChecked, currentUser } = useAuthSelector();
 
   const formik = useFormik({
     initialValues: {

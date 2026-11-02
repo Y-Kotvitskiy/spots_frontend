@@ -1,5 +1,7 @@
 import { configureStore, type Middleware } from "@reduxjs/toolkit";
-import mapReducer, { actions, MapMode } from "./mapSlice";
+import mapReducer, { MapMode } from "./mapSlice";
+import authReducer from "./authSlice";
+import { useSelector, type TypedUseSelectorHook } from "react-redux";
 
 const LOCAL_STORAGE_KEY = "map_saved_places";
 
@@ -49,6 +51,7 @@ const saveStateMiddleware: Middleware = (store) => (next) => (action) => {
 const store = configureStore({
   reducer: {
     map: mapReducer,
+    auth: authReducer,
   },
   preloadedState: loadState(), // <--- Ось тут ми одразу читаємо state при створенні!
   middleware: (getDefaultMiddleware) =>
@@ -58,4 +61,8 @@ const store = configureStore({
 export default store;
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
-export { actions as mapActions };
+
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+export { actions as mapActions } from "./mapSlice";
+export { actions as authActions } from "./authSlice";

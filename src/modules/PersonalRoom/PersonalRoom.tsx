@@ -1,15 +1,17 @@
 import styles from "./PersonalRoom.module.scss";
 
 import type { AxiosError } from "axios";
-import { useAuth } from "../../components/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
 import { usePageError } from "../hooks.ts";
 import { useEffect } from "react";
 import { selectSavedPlaces } from "@/store/mapSlice";
 import { useSelector } from "react-redux";
+import { useAppDispatch, useAuthSelector } from "@/store/hooks";
+import { authActions } from "@/store";
 
 const PersonalRoom = () => {
-  const { currentUser, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const { currentUser } = useAuthSelector();
   const [error, setError] = usePageError("");
   const navigate = useNavigate();
   const places = useSelector(selectSavedPlaces);
@@ -26,14 +28,13 @@ const PersonalRoom = () => {
     };
   }, [navigate, error]);
 
-  const handleLogout = () => {
-    logout()
-      .then(() => {
-        navigate("/");
-      })
-      .catch((error: AxiosError<{ message?: string }>) => {
-        setError(error.response?.data?.message ?? "");
-      });
+  const handleLogout = async () => {
+    try {
+      await dispatch(authActions.logout()).unwrap();
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
+      setError(error.response?.data?.message ?? "");
+    }
   };
 
   return (
