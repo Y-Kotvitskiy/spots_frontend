@@ -2,7 +2,6 @@ import styles from "./Login.module.scss";
 
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
-import { AxiosError } from "axios";
 
 import { useAuth } from "@/components/AuthContext";
 import { usePageError } from "@/modules/hooks.ts";
@@ -15,7 +14,6 @@ import {
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
 import Icon from "@/modules/shared/Icon/Icon.tsx";
-import type { ErrorResponse } from "@/types";
 
 interface FormValues {
   email: string;

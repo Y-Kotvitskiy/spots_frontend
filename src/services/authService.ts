@@ -1,9 +1,16 @@
 import { authClient as client } from "../http/authClient";
-import type { User } from "../types/user";
+import { refreshTokenService } from "./refershTokenService";
 
 interface AuthData {
-  accessToken: string;
-  user: User;
+  access_token: string;
+  refresh_token: string;
+  display_name: string;
+  email: string;
+}
+
+interface RefreshData {
+  access_token: string;
+  refresh_token: string;
 }
 
 export const authService = {
@@ -15,8 +22,8 @@ export const authService = {
     return client.get(`/activation/${token}`);
   },
 
-  login: (email: string, password: string): Promise<AuthData> => {
-    return client.post("/login", { email, password });
+  login: (loginEmail: string, password: string): Promise<AuthData> => {
+    return client.post("/login", { email: loginEmail, password });
   },
 
   logout: () => {
@@ -38,12 +45,9 @@ export const authService = {
   ): Promise<{ message: string }> =>
     client.post("/reset-password", { newPassword, jwt }),
 
-  refresh: (): Promise<AuthData> =>
-    client.get("/refresh", {
-      headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
-    }),
+  refresh: (): Promise<RefreshData> => {
+    const refresh_token = refreshTokenService.get();
+
+    return client.post("/refresh", { refresh_token });
+  },
 };

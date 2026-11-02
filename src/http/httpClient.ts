@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { authService } from "../services/authService";
 import { accessTokenService } from "../services/accessTokenService";
+import { refreshTokenService } from "@/services/refershTokenService";
 
 export const httpClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string,
@@ -29,8 +30,9 @@ httpClient.interceptors.response.use(
     }
 
     const originalRequest = error.config;
-    const { accessToken } = await authService.refresh();
-    accessTokenService.save(accessToken);
+    const { access_token, refresh_token } = await authService.refresh();
+    accessTokenService.save(access_token);
+    refreshTokenService.save(refresh_token);
 
     return httpClient.request(originalRequest!);
   },

@@ -3,6 +3,7 @@ import { accessTokenService } from "../services/accessTokenService";
 import { authService } from "../services/authService";
 
 import type { User } from "../types/user";
+import { refreshTokenService } from "@/services/refershTokenService";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const AuthContext = React.createContext({
@@ -21,17 +22,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isChecked, setChecked] = useState(false);
 
   async function activate(token: string) {
-    const { accessToken, user } = await authService.activate(token);
+    const { access_token, refresh_token, display_name, email } =
+      await authService.activate(token);
 
-    accessTokenService.save(accessToken);
-    setCurrentUser(user);
+    accessTokenService.save(access_token);
+    refreshTokenService.save(refresh_token);
+    setCurrentUser({ name: display_name, email });
   }
 
   async function checkAuth() {
     try {
-      const { accessToken, user } = await authService.refresh();
-      accessTokenService.save(accessToken);
-      setCurrentUser(user);
+      const { access_token, refresh_token } = await authService.refresh();
+      accessTokenService.save(access_token);
+      refreshTokenService.save(refresh_token);
     } catch (error) {
       console.log("User is not authenticated");
     } finally {
@@ -43,11 +46,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuth();
   }, []);
 
-  async function login(email: string, password: string) {
-    const { accessToken, user } = await authService.login(email, password);
+  async function login(loginEmail: string, password: string) {
+    const { access_token, refresh_token, display_name, email } =
+      await authService.login(loginEmail, password);
 
-    accessTokenService.save(accessToken);
-    setCurrentUser(user);
+    accessTokenService.save(access_token);
+    refreshTokenService.save(refresh_token);
+    setCurrentUser({ name: display_name, email });
   }
 
   async function logout() {
