@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://79.76.43.137",
+        target: "https://spots.pp.ua",
         changeOrigin: true,
         secure: false,
       },

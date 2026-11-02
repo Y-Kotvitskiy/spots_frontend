@@ -6,26 +6,28 @@ import { AxiosError } from "axios";
 
 import { useAuth } from "@/components/AuthContext";
 import { usePageError } from "@/modules/hooks.ts";
-import { validateEmail, validatePassword } from "@/modules/utils.ts";
+import {
+  setErrorMessages,
+  validateEmail,
+  validatePassword,
+  type LoginErrors,
+} from "@/modules/utils.ts";
 import FormField from "../FormField";
 import FormButton from "../FormButton/FormButton.tsx";
 import Icon from "@/modules/shared/Icon/Icon.tsx";
+import type { ErrorResponse } from "@/types";
 
 interface FormValues {
   email: string;
   password: string;
 }
 
-type LoginErrors = AxiosError<{
-  errors?: { email?: string; password?: string };
-  message: string;
-}>;
-
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [error, setError] = usePageError("");
+
   const { login, isChecked, currentUser } = useAuth();
 
   const formik = useFormik({
@@ -66,16 +68,9 @@ const Login = () => {
       try {
         await login(values.email, values.password);
         const state = location.state as { from?: Location };
-        navigate(state.from?.pathname ?? "/");
+        navigate(state?.from?.pathname ?? "/");
       } catch (err) {
-        const error = err as LoginErrors;
-        if (!error.response?.data) return;
-        const { errors, message } = error.response.data;
-
-        setFieldError("email", errors?.email);
-        setFieldError("password", errors?.password);
-
-        setError(message ?? "");
+        setErrorMessages(err as LoginErrors, setFieldError, setError);
       } finally {
         setSubmitting(false);
       }
@@ -90,6 +85,10 @@ const Login = () => {
 
   const handleFormBlur = (event: React.FocusEvent<HTMLFormElement>) => {
     const { name, value } = event.target;
+
+    if (!name) {
+      return;
+    }
 
     if (name && typeof value === "string") {
       formik.setFieldValue(name, value.trim());

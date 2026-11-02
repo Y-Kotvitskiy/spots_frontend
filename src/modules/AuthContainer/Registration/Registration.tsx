@@ -7,19 +7,20 @@ import { AxiosError } from "axios";
 import { authService } from "../../../services/authService.ts";
 import { useAuth } from "../../../components/AuthContext.tsx";
 
-import { validateEmail, validatePassword, validateName } from "../../utils.ts";
+import {
+  validateEmail,
+  validatePassword,
+  validateName,
+  type LoginErrors,
+  setErrorMessages,
+} from "../../utils.ts";
 import { usePageError } from "../../hooks.ts";
 import FormButton from "../FormButton";
 import FormField from "../FormField/index.ts";
 import Icon from "@/modules/shared/Icon/Icon.tsx";
 
-type RegistrationError = AxiosError<{
-  errors?: { name?: string; email?: string; password?: string };
-  message: string;
-}>;
-
 interface FormValues {
-  name: string;
+  display_name: string;
   email: string;
   password: string;
 }
@@ -32,17 +33,17 @@ const Registration = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      display_name: "",
       email: "",
       password: "",
     },
 
     validate: (values): FormikErrors<FormValues> | void => {
-      const { name, email, password } = values;
+      const { display_name, email, password } = values;
 
       const errors: { name?: string; email?: string; password?: string } = {};
 
-      const nameError = validateName(name);
+      const nameError = validateName(display_name);
 
       if (nameError) {
         errors.name = nameError;
@@ -71,24 +72,15 @@ const Registration = () => {
 
     onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
       const { setSubmitting, setFieldError } = helpers;
-      const { name, email, password } = values;
+      const { display_name, email, password } = values;
 
       setSubmitting(true);
 
       authService
-        .register(name, email, password)
+        .register(display_name, email, password)
         .then(() => setRegistered(true))
-        .catch((error: RegistrationError) => {
-          if (error.message) setError(error.message);
-          if (!error.response?.data) return;
-
-          const { errors, message } = error.response.data;
-
-          setFieldError("name", errors?.name);
-          setFieldError("email", errors?.email);
-          setFieldError("password", errors?.password);
-
-          if (message) setError(message);
+        .catch((error: LoginErrors) => {
+          setErrorMessages(error as LoginErrors, setFieldError, setError);
         })
         .finally(() => setSubmitting(false));
     },
@@ -110,11 +102,13 @@ const Registration = () => {
   const handleFormBlur = (event: React.FocusEvent<HTMLFormElement>) => {
     const { name, value } = event.target;
 
-    if (name && typeof value === "string") {
-      formik.setFieldValue(name, value.trim());
-    }
+    if (name) {
+      if (name && typeof value === "string") {
+        formik.setFieldValue(name, value.trim());
+      }
 
-    formik.handleBlur(event);
+      formik.handleBlur(event);
+    }
   };
 
   const { touched, errors, isSubmitting } = formik;
@@ -130,16 +124,16 @@ const Registration = () => {
         <div className={styles.Registration__controls}>
           <FormField
             label="Name"
-            name="name"
+            name="display_name"
             type="name"
             autoComplete="name"
-            id="name"
+            id="display_name"
             placeholder="e.g. John Doe"
-            value={formik.values.name}
+            value={formik.values.display_name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={errors.name}
-            touched={touched.name}
+            error={errors.display_name}
+            touched={touched.display_name}
           />
 
           <FormField
