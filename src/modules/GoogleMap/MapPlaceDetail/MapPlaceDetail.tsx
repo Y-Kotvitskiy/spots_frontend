@@ -1,7 +1,7 @@
 import Button from "@/modules/shared/Button";
 import styles from "./MapPlaceDetail.module.scss";
 
-import { selectSelectedPlaces } from "@/store/mapSlice";
+import { selectSelectedPlaces } from "@/store/slices/mapSlice";
 import { useSelector } from "react-redux";
 import { Category } from "@/types";
 

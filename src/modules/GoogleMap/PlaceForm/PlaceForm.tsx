@@ -4,7 +4,11 @@ import { useSelector } from "react-redux";
 import cn from "classnames";
 import { useFormik, type FormikHelpers } from "formik";
 
-import { MapMode, selectMapMode, selectSelectedCoords } from "@/store/mapSlice";
+import {
+  MapMode,
+  selectMapMode,
+  selectSelectedCoords,
+} from "@/store/slices/mapSlice";
 import { mapActions } from "@/store";
 import { useAppDispatch, useAuthSelector } from "@/store/hooks";
 import Button from "@/modules/shared/Button/";

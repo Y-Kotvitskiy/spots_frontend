@@ -4,7 +4,7 @@ import type { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { usePageError } from "../hooks.ts";
 import { useEffect } from "react";
-import { selectSavedPlaces } from "@/store/mapSlice";
+import { selectSavedPlaces } from "@/store/slices/mapSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch, useAuthSelector } from "@/store/hooks";
 import { authActions } from "@/store";

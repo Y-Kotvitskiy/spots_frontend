@@ -1,6 +1,6 @@
 import { configureStore, type Middleware } from "@reduxjs/toolkit";
-import mapReducer, { MapMode } from "./mapSlice";
-import authReducer from "./authSlice";
+import mapReducer, { MapMode } from "./slices/mapSlice";
+import authReducer from "./slices/authSlice";
 import { useSelector, type TypedUseSelectorHook } from "react-redux";
 
 const LOCAL_STORAGE_KEY = "map_saved_places";
@@ -64,5 +64,5 @@ export type RootState = ReturnType<typeof store.getState>;
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export { actions as mapActions } from "./mapSlice";
-export { actions as authActions } from "./authSlice";
+export { actions as mapActions } from "./slices/mapSlice";
+export { actions as authActions } from "./slices/authSlice";

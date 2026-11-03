@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from ".";
+import type { RootState } from "..";
 import { type Place } from "@/types";
 
 export interface SelectedPoint {

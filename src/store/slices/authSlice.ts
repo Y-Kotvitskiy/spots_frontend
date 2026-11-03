@@ -3,10 +3,10 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import type { User } from "../types/user";
-import { authService } from "../services/authService";
-import { accessTokenService } from "../services/accessTokenService";
-import { refreshTokenService } from "../services/refershTokenService";
+import type { User } from "../../types/user";
+import { authService } from "../../services/authService";
+import { accessTokenService } from "../../services/accessTokenService";
+import { refreshTokenService } from "../../services/refershTokenService";
 
 interface AuthState {
   currentUser: User | null;
@@ -71,7 +71,7 @@ export const logout = createAsyncThunk("auth/logout", async () => {
     await authService.logout();
   } finally {
     accessTokenService.remove();
-    refreshTokenService.remove(); // если нужно удалять и рефреш
+    refreshTokenService.remove();
   }
 });
 
@@ -117,9 +117,13 @@ const authSlice = createSlice({
       });
 
     // Logout
-    builder.addCase(logout.fulfilled, (state) => {
-      state.currentUser = null;
-    });
+    builder
+      .addCase(logout.fulfilled, (state) => {
+        state.currentUser = null;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.currentUser = null;
+      });
   },
 });
 

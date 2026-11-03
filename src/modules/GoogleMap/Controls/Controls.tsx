@@ -1,7 +1,11 @@
 import styles from "./Controls.module.scss";
 import { Link } from "react-router-dom";
 import SearchInput from "./SearchInput";
-import { MapMode, selectMapMode, selectSelectedCoords } from "@/store/mapSlice";
+import {
+  MapMode,
+  selectMapMode,
+  selectSelectedCoords,
+} from "@/store/slices/mapSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";

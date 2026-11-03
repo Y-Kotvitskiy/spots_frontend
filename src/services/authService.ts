@@ -29,7 +29,7 @@ export const authService = {
   logout: () => {
     const accessToken = localStorage.getItem("accessToken");
 
-    return client.post("/logout", null, {
+    return client.get("/logout", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
