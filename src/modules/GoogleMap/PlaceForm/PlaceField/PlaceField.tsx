@@ -15,7 +15,7 @@ export interface FormFieldProps {
   touched?: boolean;
   required?: boolean;
   type?: "text" | "textarea" | "selectButtons" | "photo";
-  options?: typeof Category | typeof Tag;
+  options?: Record<string, string> | typeof Tag;
   className?: string;
 }
 
@@ -79,6 +79,7 @@ const FormField: React.FC<FormFieldProps> = ({
             Object.entries(options).map(([key, optionValue]) => {
               const isSelected =
                 typeof value === "string" ? value === key : value.includes(key);
+              console.log(options);
 
               return (
                 <button

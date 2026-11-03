@@ -1,5 +1,5 @@
 import { configureStore, type Middleware } from "@reduxjs/toolkit";
-import mapReducer, { MapMode } from "./slices/mapSlice";
+import mapReducer, { MapMode, type MapState } from "./slices/mapSlice";
 import groupReducer, { groupActions } from "./slices/groupSlice";
 import authReducer from "./slices/authSlice";
 import { useSelector, type TypedUseSelectorHook } from "react-redux";
@@ -20,7 +20,9 @@ const loadState = () => {
         selectedPlace: null,
         savedPlaces: serializedPlaces ? JSON.parse(serializedPlaces) : [],
         mapMode: MapMode.Show,
-      },
+        status: "idle",
+        error: null,
+      } as MapState,
       groups: {
         groups: serializedGroups ? JSON.parse(serializedGroups) : [],
         selectedGroup: null,

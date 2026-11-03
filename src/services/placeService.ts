@@ -1,8 +1,8 @@
 import { httpClient } from "../http/httpClient";
-import type { CreatePlace, Place } from "../types";
+import type { BackendPlace, CreatePlace } from "../types";
 
 export const placeService = {
-  getAll: (): Promise<Place[]> => httpClient.get("/places"),
-  create: (place: CreatePlace): Promise<Place> =>
+  getAll: (): Promise<BackendPlace[]> => httpClient.get("/places"),
+  create: (place: CreatePlace): Promise<BackendPlace> =>
     httpClient.post("/places", place),
 };

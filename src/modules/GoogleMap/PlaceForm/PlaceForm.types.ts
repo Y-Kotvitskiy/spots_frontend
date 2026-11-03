@@ -1,8 +1,8 @@
-import type { CategoryKey, TagKey } from "@/types";
+import type { TagKey } from "@/types";
 
 export interface FormValues {
   name: string;
-  category: CategoryKey | null;
+  category: string | null;
   tags: TagKey[];
   address: string;
   description: string;

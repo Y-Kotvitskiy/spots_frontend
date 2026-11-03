@@ -1,10 +1,27 @@
 export interface Place {
-  id: number;
-  creator_id: number;
+  id: string;
+  creator_id: string;
   name: string;
   description: string;
-  category: CategoryKey;
+  categoryId: string;
   tags: TagKey[];
+  address: string;
+  latitude: number;
+  longitude: number;
+  photo?: string;
+  created_at: string;
+}
+
+export type BackendCategory = { id: string; name: string };
+export type BackendTag = { id: string; name: string };
+
+export interface BackendPlace {
+  id: string;
+  creator_id: string;
+  name: string;
+  description: string;
+  categories: BackendCategory[];
+  tags: BackendTag[];
   address: string;
   latitude: number;
   longitude: number;
@@ -14,6 +31,10 @@ export interface Place {
 
 export interface CreatePlace {
   name: string;
+  description: string;
+  category_ids: string[];
+  tags: string[];
+  address: string;
   latitude: number;
   longitude: number;
 }
@@ -29,8 +50,7 @@ export enum Category {
   shopping = "Shopping",
 }
 
-export type CategoryKey = keyof typeof Category;
-export type TagKey = keyof typeof Tag;
+export type TagValues = (typeof Tag)[TagKey];
 
 export enum Tag {
   wi_fi = "Wi-Fi",
@@ -40,3 +60,5 @@ export enum Tag {
   restrooms = "Restrooms",
   vegan_options = "Vegan options",
 }
+
+export type TagKey = keyof typeof Tag;
