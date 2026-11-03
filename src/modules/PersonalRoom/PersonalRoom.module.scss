@@ -30,7 +30,7 @@ $offset-mobile: 16px;
   padding-top: 20px;
 
   @include m.on-tablet {
-    padding-top: 120px;
+    padding-top: 140px;
     padding-inline: $offset-tablet;
   }
 
@@ -190,10 +190,14 @@ $offset-mobile: 16px;
 
 // Секція зі списком місць
 .placesSection {
-  margin-top: 32px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  @include m.on-tablet {
+    margin-top: 24px;
+  }
 
   &__title {
     font-size: 16px;
@@ -208,17 +212,36 @@ $offset-mobile: 16px;
   }
 }
 
-.placesGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  width: 100%;
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
 
   @include m.on-tablet {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 32px;
   }
+}
 
-  @include m.on-desktop {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+.tab {
+  padding: 16px 20px;
+  border-radius: 28px;
+  border: none;
+  background-color: transparent;
+  color: v.$grey-70-color;
+  @extend %p2;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &_active {
+    background-color: v.$grey-20-color;
+    color: v.$grey-90-color;
   }
+}
+
+.placesGrid {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  justify-content: start;
 }
