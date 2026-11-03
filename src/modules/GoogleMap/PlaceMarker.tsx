@@ -14,6 +14,10 @@ interface IconProps {
   category: CategoryKey;
   isSelected?: boolean;
 }
+interface IconProps {
+  category: CategoryKey;
+  isSelected?: boolean;
+}
 
 const Icon: React.FC<IconProps> = ({ category }) => {
   switch (category) {

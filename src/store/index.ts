@@ -1,25 +1,29 @@
 import { configureStore, type Middleware } from "@reduxjs/toolkit";
 import mapReducer, { MapMode } from "./slices/mapSlice";
+import groupReducer, { groupActions } from "./slices/groupSlice";
 import authReducer from "./slices/authSlice";
 import { useSelector, type TypedUseSelectorHook } from "react-redux";
 
-const LOCAL_STORAGE_KEY = "map_saved_places";
+const LOCAL_STORAGE_MAP_KEY = "map_saved_places";
+const LOCAL_STORAGE_GROUPS_KEY = "app_groups";
 
-// 1. Проста функція читання зі стану браузера
 const loadState = () => {
   if (typeof window === "undefined") return undefined;
 
   try {
-    const serializedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!serializedState) return undefined;
+    const serializedPlaces = localStorage.getItem(LOCAL_STORAGE_MAP_KEY);
+    const serializedGroups = localStorage.getItem(LOCAL_STORAGE_GROUPS_KEY);
 
-    // Повертаємо об'єкт у тому форматі, в якому очікує redux-state
     return {
       map: {
         selectedCoords: null,
         selectedPlace: null,
-        savedPlaces: JSON.parse(serializedState),
+        savedPlaces: serializedPlaces ? JSON.parse(serializedPlaces) : [],
         mapMode: MapMode.Show,
+      },
+      groups: {
+        groups: serializedGroups ? JSON.parse(serializedGroups) : [],
+        selectedGroup: null,
       },
     };
   } catch (e) {
@@ -28,7 +32,6 @@ const loadState = () => {
   }
 };
 
-// 2. Middleware для автоматичного збереження при змінах
 const saveStateMiddleware: Middleware = (store) => (next) => (action) => {
   const result = next(action);
 
@@ -36,8 +39,12 @@ const saveStateMiddleware: Middleware = (store) => (next) => (action) => {
     try {
       const state = store.getState();
       localStorage.setItem(
-        LOCAL_STORAGE_KEY,
+        LOCAL_STORAGE_MAP_KEY,
         JSON.stringify(state.map.savedPlaces),
+      );
+      localStorage.setItem(
+        LOCAL_STORAGE_GROUPS_KEY,
+        JSON.stringify(state.groups.groups),
       );
     } catch (e) {
       console.error("Помилка збереження в localStorage", e);
@@ -47,13 +54,13 @@ const saveStateMiddleware: Middleware = (store) => (next) => (action) => {
   return result;
 };
 
-// 3. Створюємо store, передаючи прочитаний state в preloadedState
 const store = configureStore({
   reducer: {
     map: mapReducer,
     auth: authReducer,
+    groups: groupReducer,
   },
-  preloadedState: loadState(), // <--- Ось тут ми одразу читаємо state при створенні!
+  preloadedState: loadState(),
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(saveStateMiddleware),
 });
@@ -66,3 +73,4 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export { actions as mapActions } from "./slices/mapSlice";
 export { actions as authActions } from "./slices/authSlice";
+export { groupActions };

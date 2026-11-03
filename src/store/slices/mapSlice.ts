@@ -41,8 +41,10 @@ export const mapSlice = createSlice({
       state.savedPlaces.push(action.payload);
     },
 
-    removePlace: (state, action: PayloadAction<number>) => {
-      state.savedPlaces.splice(action.payload, 1);
+    removePlace: (state, action: PayloadAction<string | number>) => {
+      state.savedPlaces = state.savedPlaces.filter(
+        (place) => place.id !== action.payload,
+      );
     },
 
     setMapMode: (state, action: PayloadAction<MapMode>) => {

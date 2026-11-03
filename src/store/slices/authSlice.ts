@@ -121,8 +121,8 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.currentUser = null;
       })
-      .addCase(checkAuth.rejected, (state) => {
-        state.currentUser = null;
+      .addCase(logout.rejected, (state) => {
+        state.isChecked = true;
       });
   },
 });

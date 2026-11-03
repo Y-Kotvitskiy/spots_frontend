@@ -1,0 +1,209 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+.placeCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  min-width: 300px;
+  background-color: v.$grey-0-color;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px v.$shadow-color;
+
+    .placeCard__menuContainer {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  &__imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 180px;
+
+    padding: 16px;
+
+    @include m.on-tablet {
+      height: 200px;
+      padding: 20px;
+    }
+
+    @include m.on-desktop {
+      height: 240px;
+    }
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    border-radius: 14px;
+
+    @include m.on-tablet {
+      border-radius: 18px;
+    }
+    
+  }
+
+  &__menuContainer {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+
+    opacity: 1;
+
+    @include m.on-desktop {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+  }
+
+  &__menuContainer:has(.placeCard__dropdown) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &__menuBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: v.$grey-0-color;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: v.$grey-90-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: max-content;
+    background-color: v.$grey-0-color;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    z-index: 10;
+    animation: fadeIn 0.15s ease;
+  }
+
+  &__dropdownItem,
+  &__dropdownItemDanger {
+    @extend %p2;
+    background: none;
+    border: none;
+    white-space: nowrap;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: v.$grey-90-color;
+
+    &:hover {
+      background-color: v.$grey-20-color;
+    }
+  }
+
+  &__dropdownItemDanger {
+    color: v.$system-error-color;
+    
+    &:hover {
+      background-color: rgba(234, 67, 53, 0.08);
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 20px;
+    gap: 8px;
+  }
+
+  &__title {
+    @extend %h3;
+    color: v.$grey-90-color;
+    margin: 0;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    @extend %p3;
+    color: v.$grey-60-color;
+  }
+
+  &__separator {
+    font-weight: bold;
+  }
+
+  &__hours {
+    color: v.$grey-60-color;
+  }
+
+  &__statusWrapper {
+    margin-top: 4px;
+  }
+
+  &__notShared {
+    @extend %p1;
+    color: v.$secondary-orange-color;
+  }
+
+  &__shared {
+    @extend %p1;
+    color: v.$secondary-orange-color; 
+  }
+
+  // Загальний єдиний стиль і для статусу, і для тегу "Added by..."
+  &__footerMeta,
+  &.addedByTag {
+    margin-top: 4px;
+    @extend %p1;
+    color: v.$secondary-orange-color;
+  }
+}
+
+// Щоб клас зі старого коду теж працював через спільні стилі
+.addedByTag {
+  margin-top: 4px;
+  @extend %p1;
+  color: v.$secondary-orange-color;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

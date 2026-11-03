@@ -1,0 +1,181 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+$transition-speed: 0.2s;
+$modal-box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* РУЧНЕ НАЛАШТУВАННЯ КОЛЬОРУ/ТЕКСТУ */
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+  animation: fadeIn $transition-speed ease;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: v.$grey-0-color;
+  border-radius: 40px;
+  padding: 0 16px 24px;
+  box-shadow: $modal-box-shadow;
+  gap: 20px;
+
+  @include m.on-tablet {
+    gap: 32px;
+    padding: 40px;
+    max-width: 670px;
+    padding: 0 32px 40px;
+  }
+
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 20px;
+
+  @include m.on-tablet {
+    padding: 20px 32px;
+  }
+}
+
+.title {
+  @extend %h3;
+  color: v.$grey-90-color;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: v.$grey-70-color;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color $transition-speed ease, color $transition-speed ease;
+
+  &:hover {
+    background-color: v.$grey-20-color;
+    color: v.$grey-90-color;
+  }
+
+  @include m.on-tablet {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @include m.on-tablet {
+    gap: 40px;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  @extend %h4;
+  color: v.$grey-90-color;
+}
+
+.required {
+  color: v.$system-error-color;
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  background-color: v.$grey-10-color;
+  border: none;
+  border-radius: 30px;
+  padding: 16px 20px;
+  @extend %p2;
+  color: v.$grey-90-color;
+  outline: none;
+  transition: background-color $transition-speed ease;
+
+  &::placeholder {
+    color: v.$grey-60-color;
+  }
+
+  &:focus {
+    background-color: v.$grey-20-color;
+  }
+}
+
+.textarea {
+  width: 100%;
+  height: 120px;
+  background-color: v.$grey-10-color;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 20px;
+  @extend %p2;
+  color: v.$grey-90-color;
+  outline: none;
+  resize: none;
+  transition: background-color $transition-speed ease;
+
+  &::placeholder {
+    color: v.$grey-60-color;
+  }
+
+  &:focus {
+    background-color: v.$grey-20-color;
+  }
+}
+
+.createBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  border-radius: 30px;
+  background-color: v.$primary-indigo-color;
+  color: v.$grey-0-color;
+  border: none;
+  cursor: pointer;
+  transition: opacity $transition-speed ease, background-color $transition-speed ease;
+  @extend %button_big;
+  margin-top: 8px;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &_disabled {
+    background-color: v.$grey-20-color;
+    color: v.$grey-60-color;
+    cursor: not-allowed;
+  }
+}
