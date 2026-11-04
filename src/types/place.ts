@@ -4,6 +4,7 @@ export interface Place {
   name: string;
   description: string;
   categoryId: string;
+  category: string;
   tags: TagKey[];
   address: string;
   latitude: number;

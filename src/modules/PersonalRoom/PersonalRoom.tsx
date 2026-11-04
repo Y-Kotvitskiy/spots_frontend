@@ -200,7 +200,7 @@ const PersonalRoom = () => {
                     <PlaceCard
                       key={place.id || index}
                       image={
-                        place.photo ||
+                        place.photos?.[0]?.url ||
                         "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
                       }
                       title={place.name}

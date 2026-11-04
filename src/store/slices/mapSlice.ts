@@ -41,9 +41,13 @@ export interface MapState {
   error: ErrorResponse | null;
 }
 
-function convertToFrontendPlace(backendPlace: BackendPlace): Place {
+function convertToFrontendPlace(
+  backendPlace: BackendPlace,
+  category: CategoryRecord,
+): Place {
   return {
     ...backendPlace,
+    category: category[backendPlace.categories[0]?.id] || "Park",
     categoryId: backendPlace.categories[0]?.id || "",
     tags: backendPlace.tags.map((tag) => tag.id as keyof typeof Tag),
     photos: backendPlace.photos?.reduce((acc, curr) => {
@@ -62,7 +66,9 @@ export const fetchInitialData = createAsyncThunk<
     const backendPlaces = await placeService.getAll();
     const categories = await taxonomyService.getAll("categories");
     const tags = await taxonomyService.getAll("tags");
-    const places = backendPlaces.map((place) => convertToFrontendPlace(place));
+    const places = backendPlaces.map((place) =>
+      convertToFrontendPlace(place, categories),
+    );
 
     const result = {
       places,
@@ -81,11 +87,12 @@ export const fetchInitialData = createAsyncThunk<
 
 export const addPlace = createAsyncThunk(
   "places/addPlace",
-  async (newPlaceData: CreatePlace, { rejectWithValue }) => {
+  async (newPlaceData: CreatePlace, { getState, rejectWithValue }) => {
     try {
       const backendPlace = await placeService.create(newPlaceData);
+      const rootState = getState() as RootState;
 
-      return convertToFrontendPlace(backendPlace);
+      return convertToFrontendPlace(backendPlace, rootState.map.categories);
     } catch (err: any) {
       const error = err as AxiosError<ErrorResponse>;
       return rejectWithValue(error.response?.data || SERVER_ERROR_MESSAGE);
