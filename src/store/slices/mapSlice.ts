@@ -7,6 +7,7 @@ import {
   type CreatePlace,
   type ErrorResponse,
   type Place,
+  type PlacePhotos,
 } from "@/types";
 import { taxonomyService } from "@/services/taxonomyService";
 import { placeService } from "@/services/placeService";
@@ -45,6 +46,10 @@ function convertToFrontendPlace(backendPlace: BackendPlace): Place {
     ...backendPlace,
     categoryId: backendPlace.categories[0]?.id || "",
     tags: backendPlace.tags.map((tag) => tag.id as keyof typeof Tag),
+    photos: backendPlace.photos?.reduce((acc, curr) => {
+      acc[curr.position] = curr;
+      return acc;
+    }, {} as PlacePhotos),
   };
 }
 
@@ -127,6 +132,25 @@ export const mapSlice = createSlice({
 
     clearSelectedCoord: (state) => {
       state.selectedCoords = null;
+    },
+
+    updatePlace: (state, action: PayloadAction<Partial<Place>>) => {
+      const index = state.savedPlaces.findIndex(
+        (p) => p.id === action.payload.id,
+      );
+
+      if (index !== -1) {
+        // Об'єднуємо старі дані з новими
+        state.savedPlaces[index] = {
+          ...state.savedPlaces[index],
+          ...action.payload,
+        };
+      }
+    },
+
+    resetAddPlaceStatus: (state) => {
+      state.status = "idle";
+      state.error = null;
     },
   },
 

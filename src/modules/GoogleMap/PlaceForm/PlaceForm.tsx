@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import cn from "classnames";
-import { useFormik, type FormikHelpers } from "formik";
+import { useFormik } from "formik";
 
 import {
   MapMode,
@@ -22,12 +22,14 @@ import { INITIAL_VALUES } from "./PlaceForm.types";
 import type { FormValues, FormPages } from "./PlaceForm.types";
 
 import { validatePlaceForm } from "./PlaceForm.utils";
-import { Tag, type TagKey } from "@/types";
+import { Tag, type CreatePlace, type Place, type TagKey } from "@/types";
 import { getAddressFromCoords } from "../utils";
+import { placeService } from "@/services/placeService";
 
 const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);
   const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { currentUser } = useAuthSelector();
   const selectedCoords = useSelector(selectSelectedCoords);
@@ -37,23 +39,50 @@ const PlaceForm: React.FC = () => {
     initialValues: INITIAL_VALUES,
     enableReinitialize: true,
     validate: validatePlaceForm,
-    onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
+    onSubmit: async (values) => {
       if (!selectedCoords || !currentUser) return;
 
-      dispatch(
-        mapActions.addPlace({
-          name: values.name,
-          description: values.description,
-          category_ids: [values.category || ""],
-          tags: values.tags,
-          address: selectedCoords.address || "",
-          latitude: selectedCoords.lat || 0,
-          longitude: selectedCoords.lng || 0,
-        }),
-      );
+      const CreatePlacePayload: CreatePlace = {
+        name: values.name,
+        description: values.description,
+        category_ids: [values.category || ""],
+        tags: values.tags,
+        address: selectedCoords.address || "",
+        latitude: selectedCoords.lat || 0,
+        longitude: selectedCoords.lng || 0,
+      };
+      setSaveError(false);
 
-      helpers.setSubmitting(false);
-      setActivePage(3);
+      try {
+        formik.setSubmitting(true);
+        const backendPlace: Place = await dispatch(
+          mapActions.addPlace(CreatePlacePayload),
+        ).unwrap();
+        if (values.photo) {
+          try {
+            const photoResult = await placeService.addPhoto(
+              backendPlace.id,
+              values.photo as File,
+            );
+
+            debugger;
+            dispatch(
+              mapActions.updatePlace({
+                id: backendPlace.id,
+                photos: { [photoResult.position]: photoResult },
+              }),
+            );
+          } catch (error) {
+            console.error("Failed to upload photo:", error);
+          }
+        }
+
+        formik.setSubmitting(false);
+        setActivePage(3);
+      } catch (error) {
+        console.error("Failed to add place:", error);
+        setSaveError(true);
+      }
     },
   });
 
@@ -66,6 +95,8 @@ const PlaceForm: React.FC = () => {
 
   useEffect(() => {
     if (!isOpen) return;
+
+    setSaveError(false);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -82,6 +113,15 @@ const PlaceForm: React.FC = () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    const setTimeoutForError = setTimeout(() => {
+      formik.isSubmitting && formik.setSubmitting(false);
+      setSaveError(false);
+    }, 3000);
+
+    return () => clearTimeout(setTimeoutForError);
+  }, [saveError]);
 
   useEffect(() => {
     const getAddress = async () => {
@@ -133,11 +173,24 @@ const PlaceForm: React.FC = () => {
   };
 
   const isDisabledNext = () => {
-    if (isAddressLoading) return true;
+    if (isAddressLoading || formik.isSubmitting) return true;
     if (activePage === 1) return !formik.values.name || !formik.values.category;
     if (activePage === 2)
       return !formik.values.description.trim() || !selectedCoords?.address;
     return false;
+  };
+
+  const getNextButtonText = () => {
+    if (activePage > 2) {
+      return "Great";
+    }
+    if (isAddressLoading) {
+      return "Loading...";
+    }
+    if (saveError) {
+      return "Error! Try again";
+    }
+    return "Next";
   };
 
   const handleNextClick = () => {
@@ -294,13 +347,7 @@ const PlaceForm: React.FC = () => {
               type="button"
               disabled={isDisabledNext()}
               onClick={handleNextClick}
-              text={
-                activePage < 3
-                  ? isAddressLoading
-                    ? "Loading..."
-                    : "Next"
-                  : "Great"
-              }
+              text={getNextButtonText()}
             />
           </footer>
         </form>

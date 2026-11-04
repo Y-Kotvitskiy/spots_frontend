@@ -79,7 +79,6 @@ const FormField: React.FC<FormFieldProps> = ({
             Object.entries(options).map(([key, optionValue]) => {
               const isSelected =
                 typeof value === "string" ? value === key : value.includes(key);
-              console.log(options, key, value, isSelected, "isSelected");
 
               return (
                 <button

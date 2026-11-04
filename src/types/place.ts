@@ -8,9 +8,11 @@ export interface Place {
   address: string;
   latitude: number;
   longitude: number;
-  photo?: string;
+  photos?: PlacePhotos;
   created_at: string;
 }
+
+export type PlacePhotos = Record<number, BackendPhoto>;
 
 export type BackendCategory = { id: string; name: string };
 export type BackendTag = { id: string; name: string };
@@ -25,8 +27,14 @@ export interface BackendPlace {
   address: string;
   latitude: number;
   longitude: number;
-  photo?: string;
+  photos?: BackendPhoto[];
   created_at: string;
+}
+
+export interface BackendPhoto {
+  id: string;
+  url: string;
+  position: number;
 }
 
 export interface CreatePlace {

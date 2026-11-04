@@ -13,10 +13,10 @@ const MapPlaceDetail: React.FC = () => {
   return (
     <section className={styles.MapPlaceDetail}>
       <div className={styles.MapPlaceDetail__leftPanel}>
-        {selectedPlace.photo ? (
+        {selectedPlace.photos ? (
           <img
             className={styles.MapPlaceDetail__img}
-            src=""
+            src={selectedPlace.photos[0]?.url}
             alt="Place image"
           />
         ) : (

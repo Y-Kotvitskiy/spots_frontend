@@ -5,6 +5,7 @@ import { Map, AdvancedMarker, Pin, useMap } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
 import Controls from "./Controls";
 import {
+  fetchInitialData,
   selectIsPickingMode,
   selectSavedPlaces,
   selectSelectedCoords,
@@ -85,6 +86,11 @@ export const GoogleMap: React.FC = () => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const isPickingModeRef = useRef(isPickingMode);
+
+  useEffect(() => {
+    dispatch(fetchInitialData());
+  }, []);
+
   useEffect(() => {
     isPickingModeRef.current = isPickingMode;
   }, [isPickingMode]);
