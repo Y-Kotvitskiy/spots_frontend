@@ -22,7 +22,7 @@ import { INITIAL_VALUES } from "./PlaceForm.types";
 import type { FormValues, FormPages } from "./PlaceForm.types";
 
 import { validatePlaceForm } from "./PlaceForm.utils";
-import { Category, Tag, type TagKey } from "@/types";
+import { Tag, type TagKey } from "@/types";
 import { getAddressFromCoords } from "../utils";
 
 const PlaceForm: React.FC = () => {
@@ -32,7 +32,6 @@ const PlaceForm: React.FC = () => {
   const { currentUser } = useAuthSelector();
   const selectedCoords = useSelector(selectSelectedCoords);
   const { categories } = useMapSelector();
-  console.log("categories", categories);
 
   const formik = useFormik<FormValues>({
     initialValues: INITIAL_VALUES,
@@ -110,10 +109,7 @@ const PlaceForm: React.FC = () => {
   const handleCategoryClick = (
     newCategory: React.ChangeEvent<any> | string,
   ) => {
-    if (
-      typeof newCategory !== "string" ||
-      !Object.keys(Category).includes(newCategory)
-    ) {
+    if (typeof newCategory !== "string" || !categories[newCategory]) {
       return;
     }
     formik.setFieldValue("category", newCategory);

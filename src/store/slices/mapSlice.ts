@@ -41,19 +41,10 @@ export interface MapState {
 }
 
 function convertToFrontendPlace(backendPlace: BackendPlace): Place {
-  debugger;
   return {
     ...backendPlace,
     categoryId: backendPlace.categories[0]?.id || "",
     tags: backendPlace.tags.map((tag) => tag.id as keyof typeof Tag),
-  };
-}
-
-function convertToCreatePlace(place: Place, tags: TagRecord): CreatePlace {
-  return {
-    ...place,
-    category_ids: [place.categoryId],
-    tags: place.tags.map((id) => tags[id]),
   };
 }
 
@@ -67,7 +58,6 @@ export const fetchInitialData = createAsyncThunk<
     const categories = await taxonomyService.getAll("categories");
     const tags = await taxonomyService.getAll("tags");
     const places = backendPlaces.map((place) => convertToFrontendPlace(place));
-    debugger;
 
     const result = {
       places,
@@ -86,11 +76,9 @@ export const fetchInitialData = createAsyncThunk<
 
 export const addPlace = createAsyncThunk(
   "places/addPlace",
-  async (newPlaceData: CreatePlace, { getState, rejectWithValue }) => {
+  async (newPlaceData: CreatePlace, { rejectWithValue }) => {
     try {
       const backendPlace = await placeService.create(newPlaceData);
-
-      debugger;
 
       return convertToFrontendPlace(backendPlace);
     } catch (err: any) {

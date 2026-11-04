@@ -50,7 +50,7 @@ export enum Category {
   shopping = "Shopping",
 }
 
-export type TagValues = (typeof Tag)[TagKey];
+export type CategoryKey = keyof typeof Category;
 
 export enum Tag {
   wi_fi = "Wi-Fi",
