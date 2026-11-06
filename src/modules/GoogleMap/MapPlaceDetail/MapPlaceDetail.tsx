@@ -25,6 +25,7 @@ const MapPlaceDetail: React.FC = () => {
 
         <div className={styles.MapPlaceDetail__leftText}>
           <h2 className={styles.MapPlaceDetail__title}>{selectedPlace.name}</h2>
+          <h2 className={styles.MapPlaceDetail__title}>{selectedPlace.name}</h2>
           <p className={styles.MapPlaceDetail__description}>
             <span>{selectedPlace.categoryName}</span>
             &middot;

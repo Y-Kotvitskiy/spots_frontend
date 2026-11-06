@@ -18,12 +18,6 @@ $danger-hover-bg: rgba(234, 67, 53, 0.08);
   width: 100%;
   min-height: 100vh;
   background-color: v.$grey-40-color;
-
-  &__error {
-    color: v.$system-error-color;
-    text-align: center;
-    margin-top: 16px;
-  }
 }
 
 .container {

@@ -2,49 +2,66 @@ import styles from "./PersonalRoom.module.scss";
 
 import type { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import { usePageError } from "../hooks.ts";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
-import { selectGroups } from "@/store/slices/groupSlice";
 import { usePlaceCardActions } from "../usePlaceCardActions";
 import { authActions } from "@/store";
-import { userService } from "@/services/userService";
-import Icon from "../shared/Icon";
-import EditProfileModal from "./EditProfileModal";
-import ShareToGroup from "../shared/PlaceCard/ShareToGroup";
+import { placeService } from "@/services/placeService";
+import { usePageError } from "../hooks.ts";
+
 import PlaceCard from "../shared/PlaceCard";
+import type { Place } from "@/types/index.ts";
+import ConfirmForm from "../shared/ConfirmForm/ConfirmForm.tsx";
+import Icon from "../shared/Icon";
 
 const PersonalRoom = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { currentUser } = useAuthSelector();
   const [error, setError] = usePageError("");
-  const navigate = useNavigate();
-  const { savedPlaces } = useMapSelector();
 
-  const userPlaces = savedPlaces.filter(
-    (place) => place.creator_id === currentUser?.id,
-  );
-
-  const groups = useSelector(selectGroups);
-
-  const placesCount = userPlaces.length;
-  const groupsCount = groups.length;
-
+  const groupsCount = 0;
+  const [myPlaces, setMyPlaces] = useState<Place[]>([]);
+  const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  // Змінено назву вкладки на "shared-to-me"
   const [activeTab, setActiveTab] = useState<"my-places" | "shared-to-me">(
     "my-places",
   );
 
   const {
-    isShareModalOpen,
+    placeToDelete,
     handleOpenShare,
-    handleCloseShare,
-    handleConfirmShare,
     handleDeletePersonal,
+    handleConfirmDeletePersonal,
+    handleCancelDelete,
     handleEdit: handleCardEdit,
-  } = usePlaceCardActions();
+  } = usePlaceCardActions((deletedId) => {
+    setMyPlaces((prev) => prev.filter((p) => p.id !== deletedId));
+  });
+
+  const { savedPlaces } = useMapSelector();
+
+  useEffect(() => {
+    const fetchMyPlaces = async () => {
+      if (!currentUser?.id) return;
+      try {
+        setIsLoadingMyPlaces(true);
+
+        const userPersonalPlaces = savedPlaces.filter(
+          (place) => place.creator_id === currentUser.id,
+        );
+        setMyPlaces(userPersonalPlaces);
+      } catch (err) {
+        console.error("Failed to load my places:", err);
+      } finally {
+        setIsLoadingMyPlaces(false);
+      }
+    };
+
+    fetchMyPlaces();
+  }, [currentUser?.id]);
+
+  const placesCount = myPlaces.length;
 
   useEffect(() => {
     if (!error) return;
@@ -63,47 +80,11 @@ const PersonalRoom = () => {
     }
   };
 
-  const handleSaveProfile = async (newName: string) => {
-    if (!currentUser) return;
-    try {
-      /* TODO change currentUser.id = 1 */
-      const updatedUser = await userService.patch(1, {
-        name: newName,
-      });
-      dispatch(authActions.updateUser(updatedUser));
-      setIsEditModalOpen(false);
-    } catch (err: any) {
-      console.error("Failed to update profile:", err);
-      setError(err.response?.data?.message || "Failed to update profile");
-    }
-  };
-
-  // Збираємо місця з усіх груп і залишаємо ТІЛЬКИ ті, які поширені НЕ мною
-  const sharedToMePlaces = groups.flatMap((group) =>
-    (group.places || [])
-      .filter((place: any) => {
-        // Перевіряємо, чи цього місця НЕМАЄ в твоїх особистих збережених (savedPlaces)
-        const isNotMyPersonalPlace = !userPlaces.some((p) => p.id === place.id);
-
-        // Перевіряємо по імені або ID автора (залежно від того, що зберігається в об'єкті місця)
-        const isNotMyShare =
-          place.addedBy !== currentUser?.name &&
-          place.userName !== currentUser?.name &&
-          place.userId !== 1; // currentUser?.id ;
-
-        return isNotMyPersonalPlace && isNotMyShare;
-      })
-      .map((place: any) => ({
-        ...place,
-        sharedGroupName: group.name,
-        sharedBy: place.addedBy || place.userName || "Group Member",
-      })),
-  );
-
   return (
     <main className={styles.PersonalRoom}>
       <div className={styles.container}>
         <div className={styles.personalInfo}>
+          {/* Інформація про користувача */}
           <div className={styles.personalInfo__top}>
             <div className={styles.personalInfo__avatarWrapper}>
               <img
@@ -120,12 +101,6 @@ const PersonalRoom = () => {
                 <h2 className={styles.personalInfo__name}>
                   {currentUser?.name || "Error: Name does not exist"}
                 </h2>
-                <button
-                  className={styles.personalInfo__editNameBtn}
-                  onClick={() => setIsEditModalOpen(true)}
-                >
-                  Edit name
-                </button>
               </div>
               <div className={styles.personalInfo__stats}>
                 <span className={styles.personalInfo__statItem}>
@@ -133,7 +108,7 @@ const PersonalRoom = () => {
                 </span>
                 <span className={styles.personalInfo__separator}>•</span>
                 <span className={styles.personalInfo__statItem}>
-                  {groupsCount} {groupsCount === 1 ? "group" : "groups"}
+                  {groupsCount} groups
                 </span>
               </div>
             </div>
@@ -167,7 +142,6 @@ const PersonalRoom = () => {
           </div>
         </div>
 
-        {/* Вкладки перемикання */}
         <div className={styles.tabs}>
           <button
             className={`${styles.tab} ${activeTab === "my-places" ? styles.tab_active : ""}`}
@@ -183,79 +157,65 @@ const PersonalRoom = () => {
           </button>
         </div>
 
-        {/* Секція зі списком карток залежно від активної вкладки */}
         <section className={styles.placesSection}>
           {activeTab === "my-places" ? (
-            userPlaces.length === 0 ? (
+            isLoadingMyPlaces ? (
+              <p className={styles.placesSection__empty}>
+                Loading your places...
+              </p>
+            ) : myPlaces.length === 0 ? (
               <p className={styles.placesSection__empty}>
                 You haven't added any places yet.
               </p>
             ) : (
               <div className={styles.placesGrid}>
-                {userPlaces.map((place, index) => {
-                  const sharedGroupsCount = groups.filter((group) =>
-                    group.places?.some((p) => p.id === place.id),
-                  ).length;
-
-                  return (
-                    <PlaceCard
-                      key={place.id || index}
-                      image={
-                        place.photos?.[0]?.url ||
-                        "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
-                      }
-                      title={place.name}
-                      category={place.categoryName}
-                      workingHours="08:00 - 20:00"
-                      isShared={sharedGroupsCount}
-                      deleteButtonText="Delete place"
-                      onEdit={() => handleCardEdit(place)}
-                      onShare={() => handleOpenShare(place)}
-                      onDelete={() => handleDeletePersonal(place.id)}
-                      onClick={() => console.log("Clicked place", place.id)}
-                    />
-                  );
-                })}
+                {myPlaces.map((place, index) => (
+                  <PlaceCard
+                    key={place.id || index}
+                    image={
+                      place.photos?.[0]?.url ||
+                      "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
+                    }
+                    title={place.name}
+                    category={place.categoryName}
+                    workingHours={
+                      place.opening_hours
+                        ? `${place.opening_hours.opens_at} - ${place.opening_hours.closes_at}`
+                        : "08:00 - 20:00"
+                    }
+                    isShared={0}
+                    deleteButtonText="Delete place"
+                    onEdit={() => handleCardEdit(place)}
+                    onShare={() => handleOpenShare(place)}
+                    onDelete={() => handleDeletePersonal(place)}
+                    onClick={() => navigate(`/places/${place.id}`)}
+                  />
+                ))}
               </div>
             )
-          ) : sharedToMePlaces.length === 0 ? (
+          ) : (
             <p className={styles.placesSection__empty}>
               No places have been shared to you yet.
             </p>
-          ) : (
-            <div className={styles.placesGrid}>
-              {sharedToMePlaces.map((place, index) => (
-                <PlaceCard
-                  key={`${place.id}-${index}`}
-                  image={
-                    place.photo ||
-                    "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
-                  }
-                  title={place.name}
-                  category={place.category}
-                  workingHours="08:00 - 20:00"
-                  addedBy={`Shared by ${place.sharedBy}`}
-                  onClick={() => console.log("Clicked shared place", place.id)}
-                />
-              ))}
-            </div>
           )}
         </section>
       </div>
 
-      <EditProfileModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        currentName={currentUser?.name || ""}
-        currentAvatar={currentUser?.avatar}
-        onSave={handleSaveProfile}
-      />
-
-      <ShareToGroup
-        isOpen={isShareModalOpen}
-        onClose={handleCloseShare}
-        groups={groups}
-        onSelectGroup={handleConfirmShare}
+      {/* Універсальне модальне вікно підтвердження видалення */}
+      <ConfirmForm
+        isOpen={!!placeToDelete}
+        title="Delete place"
+        message={
+          <>
+            Are you sure you want to delete{" "}
+            <strong>{placeToDelete?.name}</strong>?
+          </>
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        onConfirm={handleConfirmDeletePersonal}
+        onClose={handleCancelDelete}
       />
 
       {error && <p className={styles.PersonalRoom__error}>{error}</p>}

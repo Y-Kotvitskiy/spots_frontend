@@ -43,7 +43,7 @@ $header-z-index: 10;
 
   display: flex;
   z-index: $header-z-index;
-  position: absolute;
+  position: fixed;
   top: 90%;
   align-items: center;
   justify-content: space-between;

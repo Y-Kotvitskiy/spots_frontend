@@ -1,63 +1,112 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from ".";
-import type { Group, GroupMember, InvitePermission, Place } from "@/types";
+import type { Group, GroupMember, InvitePermission, Place, ErrorResponse } from "@/types";
+import type { RootState } from "..";
+import { groupService, type BackendGroup, type CreateGroupDto } from "@/services/groupService";
+import { AxiosError } from "axios";
+
+// ==========================================
+// TYPES & INTERFACES
+// ==========================================
 
 interface GroupState {
   groups: Group[];
   selectedGroup: Group | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: ErrorResponse | null;
 }
+
+const SERVER_ERROR_MESSAGE = { detail: "Помилка сервера" };
 
 const initialState: GroupState = {
   groups: [],
   selectedGroup: null,
+  status: "idle",
+  error: null,
 };
+
+// ==========================================
+// HELPERS (CONVERTERS)
+// ==========================================
+
+// Конвертація з бекенд-формату у фронтенд-формат [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
+function convertToFrontendGroup(backendGroup: BackendGroup): Group {
+  return {
+    ...backendGroup,
+    description: backendGroup.description || "",
+    whoCanInvite: "all-members",
+    members: [],
+    places: [],
+  };
+}
+
+// ==========================================
+// ASYNC THUNKS [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
+// ==========================================
+
+export const fetchGroups = createAsyncThunk<
+  Group[],
+  void,
+  { rejectValue: ErrorResponse }
+>("groups/fetchGroups", async (_, { rejectWithValue }) => {
+  try {
+    const backendGroups = await groupService.getAll();
+    return backendGroups.map(convertToFrontendGroup);
+  } catch (err: any) {
+    const error = err as AxiosError<ErrorResponse>;
+    return rejectWithValue(error.response?.data || SERVER_ERROR_MESSAGE);
+  }
+});
+
+export const createGroup = createAsyncThunk<
+  Group,
+  CreateGroupDto,
+  { rejectValue: ErrorResponse }
+>("groups/createGroup", async (groupData, { rejectWithValue }) => {
+  try {
+    const backendGroup = await groupService.create(groupData);
+    return convertToFrontendGroup(backendGroup);
+  } catch (err: any) {
+    const error = err as AxiosError<ErrorResponse>;
+    return rejectWithValue(error.response?.data || SERVER_ERROR_MESSAGE);
+  }
+});
+
+export const deleteGroup = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: ErrorResponse }
+>("groups/deleteGroup", async (groupId, { rejectWithValue }) => {
+  try {
+    await groupService.delete(groupId);
+    return groupId;
+  } catch (err: any) {
+    const error = err as AxiosError<ErrorResponse>;
+    return rejectWithValue(error.response?.data || SERVER_ERROR_MESSAGE);
+  }
+});
+
+// ==========================================
+// SLICE & REDUCERS
+// ==========================================
 
 export const groupSlice = createSlice({
   name: "groups",
   initialState,
   reducers: {
-    setGroups: (state, action: PayloadAction<Group[]>) => {
-      state.groups = action.payload;
+    setSelectedGroup: (state, action: PayloadAction<Group | null>) => {
+      state.selectedGroup = action.payload;
     },
 
-    createGroup: (
-      state,
-      action: PayloadAction<{
-        name: string;
-        description?: string;
-        creator: { id: number; name: string; avatar?: string | null };
-        whoCanInvite: InvitePermission;
-      }>
-    ) => {
-      const { name, description, creator, whoCanInvite } = action.payload;
-      
-      const newGroup: Group = {
-        id: Date.now(),
-        name,
-        description: description || "",
-        creator_id: creator.id,
-        whoCanInvite,
-        members: [
-          {
-            id: creator.id,
-            name: creator.name,
-            avatar: creator.avatar,
-            isAdmin: true, // Творець групи автоматично стає адміном
-          },
-        ],
-        places: [],
-        created_at: new Date().toISOString(),
-      };
-
-      state.groups.push(newGroup);
-      state.selectedGroup = newGroup;
+    clearSelectedGroup: (state) => {
+      state.selectedGroup = null;
     },
 
+    // Локальне оновлення групи [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
     updateGroup: (
       state,
       action: PayloadAction<{
-        groupId: number;
+        groupId: string;
         name: string;
         description?: string;
         whoCanInvite: InvitePermission;
@@ -77,26 +126,10 @@ export const groupSlice = createSlice({
       }
     },
 
-    deleteGroup: (state, action: PayloadAction<number>) => {
-      const groupId = action.payload;
-      state.groups = state.groups.filter((g) => g.id !== groupId);
-      if (state.selectedGroup?.id === groupId) {
-        state.selectedGroup = state.groups[0] || null;
-      }
-    },
-
-    setSelectedGroup: (state, action: PayloadAction<Group | null>) => {
-      state.selectedGroup = action.payload;
-    },
-
-    clearSelectedGroup: (state) => {
-      state.selectedGroup = null;
-    },
-
-    // Додавання учасника (наприклад, через інвайт-посилання або додавання)
+    // Додавання учасника до групи [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
     addMemberToGroup: (
       state,
-      action: PayloadAction<{ groupId: number; member: GroupMember }>
+      action: PayloadAction<{ groupId: string; member: GroupMember }>
     ) => {
       const { groupId, member } = action.payload;
       const group = state.groups.find((g) => g.id === groupId);
@@ -108,33 +141,36 @@ export const groupSlice = createSlice({
       }
     },
 
-    // Видалення учасника або вихід з групи
-    removeMemberFromGroup: (state, action: PayloadAction<{ groupId: number | string; memberId: number | string }>) => {
+    // Видалення учасника з групи / вихід з групи [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
+    removeMemberFromGroup: (
+      state,
+      action: PayloadAction<{ groupId: string; memberId: string }>
+    ) => {
       const { groupId, memberId } = action.payload;
       const groupIndex = state.groups.findIndex((g) => g.id === groupId);
 
       if (groupIndex !== -1) {
         const group = state.groups[groupIndex];
-        
-        // Фільтруємо учасників, залишаючи лише тих, чий ID не співпадає з видаленим
         group.members = group.members.filter((m) => m.id !== memberId);
 
-        // Якщо після цього масив учасників став повністю пустим — видаляємо групу
-        if (group.members.length === 0) {
-          state.groups.splice(groupIndex, 1); // Безпечне видалення конкретної групи зі списку
-
-          // Якщо ця група була активною, скидаємо вибір
-          if (state.selectedGroup?.id === groupId) {
-            state.selectedGroup = null;
-          }
+        if (state.selectedGroup?.id === groupId) {
+          state.selectedGroup = group;
         }
       }
     },
 
-    // Шерінг місця у групу
+    // Надання прав адміністратора учаснику [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
+    makeMemberAdmin: (
+      state,
+      _action: PayloadAction<{ groupId: string; memberId: string }>
+    ) => {
+      // Заготовка під логіку на майбутнє
+    },
+
+    // Шерінг місця у групу [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
     sharePlaceToGroup: (
       state,
-      action: PayloadAction<{ groupId: number; place: Place }>
+      action: PayloadAction<{ groupId: string; place: Place }>
     ) => {
       const { groupId, place } = action.payload;
       const group = state.groups.find((g) => g.id === groupId);
@@ -146,10 +182,10 @@ export const groupSlice = createSlice({
       }
     },
 
-    // Видалення місця з групи
+    // Видалення місця з групи [ПОТРІБНЕ ДОПРАЦЮВАННЯ БЕКЕНДУ ДЛЯ ГРУП]
     removePlaceFromGroup: (
       state,
-      action: PayloadAction<{ groupId: number; placeId: number }>
+      action: PayloadAction<{ groupId: string; placeId: string }>
     ) => {
       const { groupId, placeId } = action.payload;
       const group = state.groups.find((g) => g.id === groupId);
@@ -161,24 +197,49 @@ export const groupSlice = createSlice({
       }
     },
   },
+
+  extraReducers: (builder) => {
+    // Отримання груп
+    builder.addCase(fetchGroups.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      state.groups = action.payload;
+    });
+
+    // Створення групи
+    builder.addCase(createGroup.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      state.groups.push(action.payload);
+      state.selectedGroup = action.payload;
+    });
+
+    // Видалення групи
+    builder.addCase(deleteGroup.fulfilled, (state, action) => {
+      state.status = "succeeded";
+      const groupId = action.payload;
+      state.groups = state.groups.filter((g) => g.id !== groupId);
+      if (state.selectedGroup?.id === groupId) {
+        state.selectedGroup = state.groups[0] || null;
+      }
+    });
+  },
 });
 
-export const {
-  setGroups,
+// ==========================================
+// EXPORTS (ACTIONS & REDUCER)
+// ==========================================
+
+export const groupActions = {
+  ...groupSlice.actions,
+  fetchGroups,
   createGroup,
-  updateGroup,
   deleteGroup,
-  setSelectedGroup,
-  clearSelectedGroup,
-  addMemberToGroup,
-  removeMemberFromGroup,
-  sharePlaceToGroup,
-  removePlaceFromGroup,
-} = groupSlice.actions;
+};
 
 export default groupSlice.reducer;
-export const groupActions = groupSlice.actions;
 
-// Селектори
+// ==========================================
+// SELECTORS
+// ==========================================
+
 export const selectGroups = (state: RootState) => state.groups.groups;
 export const selectSelectedGroup = (state: RootState) => state.groups.selectedGroup;

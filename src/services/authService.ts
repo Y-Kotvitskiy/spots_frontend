@@ -2,6 +2,7 @@ import { authClient as client } from "../http/authClient";
 import { refreshTokenService } from "./refershTokenService";
 
 interface AuthData {
+  id: string;
   access_token: string;
   refresh_token: string;
   id: string;

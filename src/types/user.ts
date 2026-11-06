@@ -2,5 +2,5 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  avatar?: string | null; // Переглянути можливо переробити
+  avatar?: string | null;
 }

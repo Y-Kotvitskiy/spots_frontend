@@ -12,6 +12,7 @@ import Icon from "../shared/Icon/Icon";
 import GroupSettingsModal from "./GroupsSettings/GroupSettings";
 import CreateGroup from "./CreateGroup";
 import { usePlaceCardActions } from "@/modules/usePlaceCardActions";
+import type { Group, GroupMember, Place } from "@/types";
 
 const Groups: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -25,7 +26,7 @@ const Groups: React.FC = () => {
 
   // Стан для модалки видалення учасника
   const [memberToRemove, setMemberToRemove] = useState<{
-    id: number;
+    id: string;
     name: string;
   } | null>(null);
 
@@ -162,7 +163,7 @@ const Groups: React.FC = () => {
   };
 
   const filteredMembers =
-    selectedGroup?.members.filter((member) =>
+    selectedGroup?.members.filter((member: GroupMember) =>
       member.name.toLowerCase().includes(memberSearchQuery.toLowerCase()),
     ) || [];
 
@@ -212,7 +213,7 @@ const Groups: React.FC = () => {
           <div className={styles.myGroupsBlock}>
             <span className={styles.myGroupsTitle}>My groups</span>
             <div className={styles.groupsList}>
-              {groups.map((group) => (
+              {groups.map((group: Group) => (
                 <div
                   key={group.id}
                   className={`${styles.groupItem} ${
@@ -298,7 +299,7 @@ const Groups: React.FC = () => {
                     </div>
 
                     <div className={styles.groupHeader__avatars}>
-                      {selectedGroup.members.slice(0, 3).map((member) => (
+                      {selectedGroup.members.slice(0, 3).map((member: GroupMember) => (
                         <img
                           key={member.id}
                           src={
@@ -351,7 +352,7 @@ const Groups: React.FC = () => {
                       No places in this group yet.
                     </p>
                   ) : (
-                    selectedGroup.places.map((place) => (
+                    selectedGroup.places.map((place: Place) => (
                       <div key={place.id} className={styles.placeCardWrapper}>
                         <PlaceCard
                           image={
@@ -394,7 +395,7 @@ const Groups: React.FC = () => {
                     {filteredMembers.length === 0 ? (
                       <p className={styles.emptyText}>No members found.</p>
                     ) : (
-                      filteredMembers.map((member) => {
+                      filteredMembers.map((member: GroupMember) => {
                         const isMe = member.id === currentUser?.id;
                         const isMenuOpen = openMenuMemberId === member.id;
 
@@ -460,7 +461,7 @@ const Groups: React.FC = () => {
                                         }
                                         onClick={() =>
                                           handleRemoveMember(
-                                            member.id as number,
+                                            member.id as string,
                                             member.name,
                                           )
                                         }

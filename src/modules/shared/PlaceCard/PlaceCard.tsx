@@ -1,6 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./PlaceCard.module.scss";
 import Icon from "@/modules/shared/Icon";
+
+// ==========================================
+// TYPES & INTERFACES
+// ==========================================
 
 interface PlaceCardProps {
   image: string;
@@ -16,6 +20,10 @@ interface PlaceCardProps {
   onClick?: () => void;
 }
 
+// ==========================================
+// COMPONENT
+// ==========================================
+
 const PlaceCard: React.FC<PlaceCardProps> = ({
   image,
   title,
@@ -29,9 +37,17 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onDelete,
   onClick,
 }) => {
+  // ==========================================
+  // STATE & REFS
+  // ==========================================
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // ==========================================
+  // EFFECTS
+  // ==========================================
+
+  // Закриття випадаючого меню при кліку поза його межами
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -47,6 +63,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
     };
   }, [isMenuOpen]);
 
+  // ==========================================
+  // HELPERS
+  // ==========================================
+
   const hasActions = onEdit || onShare || onDelete;
 
   // Форматування тексту статусу поширення для персональної кімнати
@@ -59,6 +79,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
     }
     return isShared ? "Shared in groups" : "Not shared";
   };
+
+  // ==========================================
+  // RENDER
+  // ==========================================
 
   return (
     <div className={styles.placeCard} onClick={onClick}>
