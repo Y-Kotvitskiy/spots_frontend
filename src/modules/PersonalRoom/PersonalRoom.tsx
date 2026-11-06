@@ -4,9 +4,8 @@ import type { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { usePageError } from "../hooks.ts";
 import { useEffect, useState } from "react";
-import { selectSavedPlaces } from "@/store/slices/mapSlice";
 import { useSelector } from "react-redux";
-import { useAppDispatch, useAuthSelector } from "@/store/hooks";
+import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
 import { selectGroups } from "@/store/slices/groupSlice";
 import { usePlaceCardActions } from "../usePlaceCardActions";
 import { authActions } from "@/store";
@@ -21,11 +20,15 @@ const PersonalRoom = () => {
   const { currentUser } = useAuthSelector();
   const [error, setError] = usePageError("");
   const navigate = useNavigate();
+  const { savedPlaces } = useMapSelector();
 
-  const savedPlaces = useSelector(selectSavedPlaces);
+  const userPlaces = savedPlaces.filter(
+    (place) => place.creator_id === currentUser?.id,
+  );
+
   const groups = useSelector(selectGroups);
 
-  const placesCount = savedPlaces.length;
+  const placesCount = userPlaces.length;
   const groupsCount = groups.length;
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -80,9 +83,7 @@ const PersonalRoom = () => {
     (group.places || [])
       .filter((place: any) => {
         // Перевіряємо, чи цього місця НЕМАЄ в твоїх особистих збережених (savedPlaces)
-        const isNotMyPersonalPlace = !savedPlaces.some(
-          (p) => p.id === place.id,
-        );
+        const isNotMyPersonalPlace = !userPlaces.some((p) => p.id === place.id);
 
         // Перевіряємо по імені або ID автора (залежно від того, що зберігається в об'єкті місця)
         const isNotMyShare =
@@ -185,13 +186,13 @@ const PersonalRoom = () => {
         {/* Секція зі списком карток залежно від активної вкладки */}
         <section className={styles.placesSection}>
           {activeTab === "my-places" ? (
-            savedPlaces.length === 0 ? (
+            userPlaces.length === 0 ? (
               <p className={styles.placesSection__empty}>
                 You haven't added any places yet.
               </p>
             ) : (
               <div className={styles.placesGrid}>
-                {savedPlaces.map((place, index) => {
+                {userPlaces.map((place, index) => {
                   const sharedGroupsCount = groups.filter((group) =>
                     group.places?.some((p) => p.id === place.id),
                   ).length;
@@ -200,11 +201,11 @@ const PersonalRoom = () => {
                     <PlaceCard
                       key={place.id || index}
                       image={
-                        place.photo ||
+                        place.photos?.[0]?.url ||
                         "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
                       }
                       title={place.name}
-                      category={place.category}
+                      category={place.categoryName}
                       workingHours="08:00 - 20:00"
                       isShared={sharedGroupsCount}
                       deleteButtonText="Delete place"

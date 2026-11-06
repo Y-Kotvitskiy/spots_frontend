@@ -1,24 +1,22 @@
 import Button from "@/modules/shared/Button";
 import styles from "./MapPlaceDetail.module.scss";
 
-import { selectSelectedPlaces } from "@/store/slices/mapSlice";
-import { useSelector } from "react-redux";
-import { Category } from "@/types";
+import { useMapSelector } from "@/store/hooks";
 
 const MapPlaceDetail: React.FC = () => {
-  const place = useSelector(selectSelectedPlaces);
+  const { selectedPlace } = useMapSelector();
 
-  if (!place) {
+  if (!selectedPlace) {
     return null;
   }
 
   return (
     <section className={styles.MapPlaceDetail}>
       <div className={styles.MapPlaceDetail__leftPanel}>
-        {place.photo ? (
+        {selectedPlace.photos ? (
           <img
             className={styles.MapPlaceDetail__img}
-            src=""
+            src={selectedPlace.photos[0]?.url}
             alt="Place image"
           />
         ) : (
@@ -26,9 +24,9 @@ const MapPlaceDetail: React.FC = () => {
         )}
 
         <div className={styles.MapPlaceDetail__leftText}>
-          <h2 className={styles.MapPlaceDetail__title}>{place.name}</h2>
+          <h2 className={styles.MapPlaceDetail__title}>{selectedPlace.name}</h2>
           <p className={styles.MapPlaceDetail__description}>
-            <span>{Category[place.category]}</span>
+            <span>{selectedPlace.categoryName}</span>
             &middot;
             <span>8-00 - 20-00</span>
           </p>

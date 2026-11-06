@@ -1,8 +1,22 @@
 import { httpClient } from "../http/httpClient";
-import type { CreatePlace, Place } from "../types";
+import type { BackendPhoto, BackendPlace, CreatePlace } from "../types";
 
 export const placeService = {
-  getAll: (): Promise<Place[]> => httpClient.get("/places"),
-  create: (place: CreatePlace): Promise<Place> =>
+  getAll: (): Promise<BackendPlace[]> => httpClient.get("/places"),
+  create: (place: CreatePlace): Promise<BackendPlace> =>
     httpClient.post("/places", place),
+
+  delete: (placeId: string): Promise<void> =>
+    httpClient.delete(`/places/${placeId}`),
+
+  addPhoto: (placeId: string, photo: File): Promise<BackendPhoto> => {
+    const formData = new FormData();
+    formData.append("file", photo);
+
+    return httpClient.post(`/places/${placeId}/photos`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 };

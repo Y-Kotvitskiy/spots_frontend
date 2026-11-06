@@ -1,5 +1,5 @@
 import { mapActions } from "@/store";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useMapSelector } from "@/store/hooks";
 import type { CategoryKey, Place } from "@/types";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { memo } from "react";
@@ -11,16 +11,12 @@ interface PlaceMarkerProps {
   place: Place;
 }
 interface IconProps {
-  category: CategoryKey;
-  isSelected?: boolean;
-}
-interface IconProps {
-  category: CategoryKey;
+  categoryKey: CategoryKey;
   isSelected?: boolean;
 }
 
-const Icon: React.FC<IconProps> = ({ category }) => {
-  switch (category) {
+const Icon: React.FC<IconProps> = ({ categoryKey }) => {
+  switch (categoryKey) {
     case "shopping": {
       return (
         <svg
@@ -47,16 +43,16 @@ const Icon: React.FC<IconProps> = ({ category }) => {
           </mask>
           <path
             d="M22.9113 31.0148C22.9669 30.3221 23.2814 29.6757 23.7921 29.2044C24.3028 28.7332 24.9723 28.4715 25.6672 28.4717H42.3328C43.0277 28.4715 43.6972 28.7332 44.2079 29.2044C44.7186 29.6757 45.0331 30.3221 45.0887 31.0148L46.1985 44.8359C46.2291 45.2163 46.1805 45.5988 46.0559 45.9595C45.9314 46.3201 45.7335 46.6511 45.4747 46.9315C45.216 47.212 44.902 47.4358 44.5525 47.5889C44.203 47.742 43.8256 47.8212 43.444 47.8213H24.556C24.1744 47.8212 23.797 47.742 23.4475 47.5889C23.098 47.4358 22.784 47.212 22.5253 46.9315C22.2665 46.6511 22.0686 46.3201 21.9441 45.9595C21.8195 45.5988 21.7709 45.2163 21.8015 44.8359L22.9113 31.0148Z"
-            stroke-width="3.31707"
-            stroke-linecap="round"
+            strokeWidth="3.31707"
+            strokeLinecap="round"
             stroke-linejoin="round"
             stroke="#DE4FB7"
             mask="url(#stroke0_186_7259)"
           />
           <path
             d="M39.5285 32.6182V25.7077C39.5285 24.2414 38.946 22.8352 37.9092 21.7984C36.8724 20.7617 35.4662 20.1792 34 20.1792C32.5338 20.1792 31.1276 20.7617 30.0908 21.7984C29.054 22.8352 28.4716 24.2414 28.4716 25.7077V32.6182"
-            stroke-width="1.65854"
-            stroke-linecap="round"
+            strokeWidth="1.65854"
+            strokeLinecap="round"
             stroke-linejoin="round"
             stroke="#DE4FB7"
           />
@@ -176,8 +172,8 @@ const Icon: React.FC<IconProps> = ({ category }) => {
           />
           <path
             d="M26.3984 33.3094V42.2932M31.5813 33.3094V42.2932M36.4187 33.3094V42.2932M41.6016 33.3094V42.2932M21.9065 46.094H46.0935M23.0813 28.4306L32.8252 22.294C33.6084 21.8056 34.3916 21.8056 35.1748 22.294L44.9187 28.4306C45.7019 28.9189 45.6328 29.1631 44.7114 29.1631H23.2886C22.3672 29.1631 22.2981 28.9189 23.0813 28.4306Z"
-            stroke-width="1.65854"
-            stroke-linecap="round"
+            strokeWidth="1.65854"
+            strokeLinecap="round"
             stroke-linejoin="round"
             stroke="#7A99FF"
           />
@@ -271,22 +267,22 @@ const Icon: React.FC<IconProps> = ({ category }) => {
           />
           <path
             d="M43.3293 32.2729C44.1541 32.2729 44.9451 31.9453 45.5283 31.3621C46.1115 30.7789 46.4391 29.9879 46.4391 29.1632L44.0204 22.5981H23.9797L21.561 29.1632C21.561 29.9879 21.8887 30.7789 22.4719 31.3621C23.0551 31.9453 23.846 32.2729 24.6708 32.2729M43.3293 32.2729C42.5046 32.2729 41.7136 31.9453 41.1304 31.3621C40.5472 30.7789 40.2196 29.9879 40.2196 29.1632C40.2196 29.9879 39.8919 30.7789 39.3087 31.3621C38.7256 31.9453 37.9346 32.2729 37.1098 32.2729C36.2851 32.2729 35.4941 31.9453 34.9109 31.3621C34.3277 30.7789 34.0001 29.9879 34.0001 29.1632C34.0001 29.9879 33.6724 30.7789 33.0892 31.3621C32.506 31.9453 31.7151 32.2729 30.8903 32.2729C30.0655 32.2729 29.2746 31.9453 28.6914 31.3621C28.1082 30.7789 27.7805 29.9879 27.7805 29.1632C27.7805 29.9879 27.4529 30.7789 26.8697 31.3621C26.2865 31.9453 25.4955 32.2729 24.6708 32.2729M43.3293 32.2729V36.0738M24.6708 32.2729V36.0738"
-            stroke-width="1.65854"
-            stroke-linecap="round"
+            strokeWidth="1.65854"
+            strokeLinecap="round"
             stroke-linejoin="round"
             stroke="#E86710"
           />
           <path
             d="M23.2886 36.0737H44.7114C45.8564 36.0737 46.7846 37.0019 46.7846 38.1469V40.9111C46.7846 42.0561 45.8564 42.9843 44.7114 42.9843H23.2886C22.1436 42.9843 21.2155 42.0561 21.2155 40.9111V38.1469C21.2155 37.0019 22.1436 36.0737 23.2886 36.0737Z"
-            stroke-width="1.65854"
-            stroke-linecap="round"
+            strokeWidth="1.65854"
+            strokeLinecap="round"
             stroke-linejoin="round"
             stroke="#E86710"
           />
           <path
             d="M27.0895 42.9844V46.7852M40.9106 42.9844V46.7852"
-            stroke-width="1.65854"
-            stroke-linecap="round"
+            strokeWidth="1.65854"
+            strokeLinecap="round"
             stroke-linejoin="round"
             stroke="#E86710"
           />
@@ -334,9 +330,11 @@ const Icon: React.FC<IconProps> = ({ category }) => {
 
 const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
   const dispatch = useAppDispatch();
+  const { categories } = useMapSelector();
 
-  // const selectedPlace = useAppSelector(selectSelectedPlaces);
-  // const isSelected = selectedPlace?.id === place.id;
+  const getCategoryKey = (categoryId: string): CategoryKey =>
+    (categories[categoryId]?.toLowerCase().replace(" ", "_") ||
+      "park") as CategoryKey;
 
   return (
     <AdvancedMarker
@@ -347,7 +345,7 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
         dispatch(mapActions.setSelectedPlace(place));
       }}
     >
-      <Icon category={place.category} />
+      <Icon categoryKey={getCategoryKey(place.categoryId)} />
     </AdvancedMarker>
   );
 });

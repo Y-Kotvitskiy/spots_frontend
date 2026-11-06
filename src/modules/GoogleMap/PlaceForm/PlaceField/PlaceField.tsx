@@ -15,7 +15,7 @@ export interface FormFieldProps {
   touched?: boolean;
   required?: boolean;
   type?: "text" | "textarea" | "selectButtons" | "photo";
-  options?: typeof Category | typeof Tag;
+  options?: Record<string, string> | typeof Tag;
   className?: string;
 }
 

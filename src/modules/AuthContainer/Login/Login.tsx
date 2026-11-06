@@ -67,10 +67,13 @@ const Login = () => {
       const { email, password } = values;
 
       try {
-        await dispatch(authActions.login({ email, password })).unwrap();
+        await dispatch(
+          authActions.login({ emailLogin: email, password }),
+        ).unwrap();
         const state = location.state as { from?: Location };
         navigate(state?.from?.pathname ?? "/");
       } catch (err) {
+        debugger;
         setErrorMessages(err as LoginErrors, setFieldError, setError);
       } finally {
         setSubmitting(false);

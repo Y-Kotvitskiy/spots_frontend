@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import cn from "classnames";
-import { useFormik, type FormikHelpers } from "formik";
+import { useFormik } from "formik";
 
 import {
   MapMode,
@@ -10,7 +10,7 @@ import {
   selectSelectedCoords,
 } from "@/store/slices/mapSlice";
 import { mapActions } from "@/store";
-import { useAppDispatch, useAuthSelector } from "@/store/hooks";
+import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
 import Button from "@/modules/shared/Button/";
 import Loader from "@/modules/shared/Loader";
 
@@ -22,40 +22,66 @@ import { INITIAL_VALUES } from "./PlaceForm.types";
 import type { FormValues, FormPages } from "./PlaceForm.types";
 
 import { validatePlaceForm } from "./PlaceForm.utils";
-import { Category, Tag, type CategoryKey, type TagKey } from "@/types";
+import { Tag, type CreatePlace, type Place, type TagKey } from "@/types";
 import { getAddressFromCoords } from "../utils";
+import { placeService } from "@/services/placeService";
 
 const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);
   const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { currentUser } = useAuthSelector();
   const selectedCoords = useSelector(selectSelectedCoords);
+  const { categories } = useMapSelector();
 
   const formik = useFormik<FormValues>({
     initialValues: INITIAL_VALUES,
     enableReinitialize: true,
     validate: validatePlaceForm,
-    onSubmit: async (values, helpers: FormikHelpers<FormValues>) => {
+    onSubmit: async (values) => {
       if (!selectedCoords || !currentUser) return;
 
-      dispatch(
-        mapActions.addPlace({
-          id: Date.now(),
-          creator_id: 0,
-          name: values.name,
-          description: values.description,
-          category: values.category as CategoryKey,
-          tags: values.tags,
-          address: selectedCoords.address || "",
-          latitude: selectedCoords.lat || 0,
-          longitude: selectedCoords.lng || 0,
-          created_at: new Date().toISOString(),
-        }),
-      );
+      const CreatePlacePayload: CreatePlace = {
+        name: values.name,
+        description: values.description,
+        category_ids: [values.category || ""],
+        tags: values.tags,
+        address: selectedCoords.address || "",
+        latitude: selectedCoords.lat || 0,
+        longitude: selectedCoords.lng || 0,
+      };
+      setSaveError(false);
 
-      helpers.setSubmitting(false);
-      setActivePage(3);
+      try {
+        formik.setSubmitting(true);
+        const backendPlace: Place = await dispatch(
+          mapActions.addPlace(CreatePlacePayload),
+        ).unwrap();
+        if (values.photo) {
+          try {
+            const photoResult = await placeService.addPhoto(
+              backendPlace.id,
+              values.photo as File,
+            );
+
+            dispatch(
+              mapActions.updatePlace({
+                id: backendPlace.id,
+                photos: { [photoResult.position]: photoResult },
+              }),
+            );
+          } catch (error) {
+            console.error("Failed to upload photo:", error);
+          }
+        }
+
+        formik.setSubmitting(false);
+        setActivePage(3);
+      } catch (error) {
+        console.error("Failed to add place:", error);
+        setSaveError(true);
+      }
     },
   });
 
@@ -68,6 +94,8 @@ const PlaceForm: React.FC = () => {
 
   useEffect(() => {
     if (!isOpen) return;
+
+    setSaveError(false);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -84,6 +112,15 @@ const PlaceForm: React.FC = () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    const setTimeoutForError = setTimeout(() => {
+      formik.isSubmitting && formik.setSubmitting(false);
+      setSaveError(false);
+    }, 3000);
+
+    return () => clearTimeout(setTimeoutForError);
+  }, [saveError]);
 
   useEffect(() => {
     const getAddress = async () => {
@@ -108,15 +145,20 @@ const PlaceForm: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const handleCategoryClick = (newCategory: React.ChangeEvent<any> | string) => {
-    if (typeof newCategory !== "string" || !Object.keys(Category).includes(newCategory)) {
+  const handleCategoryClick = (
+    newCategory: React.ChangeEvent<any> | string,
+  ) => {
+    if (typeof newCategory !== "string" || !categories[newCategory]) {
       return;
     }
     formik.setFieldValue("category", newCategory);
   };
 
   const handleTagClick = (currentTag: React.ChangeEvent<any> | string) => {
-    if (typeof currentTag !== "string" || !Object.keys(Tag).includes(currentTag)) {
+    if (
+      typeof currentTag !== "string" ||
+      !Object.keys(Tag).includes(currentTag)
+    ) {
       return;
     }
 
@@ -130,10 +172,24 @@ const PlaceForm: React.FC = () => {
   };
 
   const isDisabledNext = () => {
-    if (isAddressLoading) return true;
+    if (isAddressLoading || formik.isSubmitting) return true;
     if (activePage === 1) return !formik.values.name || !formik.values.category;
-    if (activePage === 2) return !formik.values.description.trim() || !selectedCoords?.address;
+    if (activePage === 2)
+      return !formik.values.description.trim() || !selectedCoords?.address;
     return false;
+  };
+
+  const getNextButtonText = () => {
+    if (activePage > 2) {
+      return "Great";
+    }
+    if (isAddressLoading) {
+      return "Loading...";
+    }
+    if (saveError) {
+      return "Error! Try again";
+    }
+    return "Next";
   };
 
   const handleNextClick = () => {
@@ -202,7 +258,7 @@ const PlaceForm: React.FC = () => {
                 type="selectButtons"
                 required
                 value={formik.values.category || ""}
-                options={Category}
+                options={categories}
                 onChange={handleCategoryClick}
                 onBlur={formik.handleBlur}
               />
@@ -234,7 +290,7 @@ const PlaceForm: React.FC = () => {
                 error={formik.errors.description}
                 touched={formik.touched.description}
               />
-              
+
               {/* Поле локації з компонентом Loader */}
               <div style={{ position: "relative" }}>
                 <PlaceField
@@ -242,13 +298,25 @@ const PlaceForm: React.FC = () => {
                   name="address"
                   type="text"
                   required
-                  value={isAddressLoading ? "Loading address..." : selectedCoords?.address || ""}
+                  value={
+                    isAddressLoading
+                      ? "Loading address..."
+                      : selectedCoords?.address || ""
+                  }
                   onChange={() => {}}
                   onBlur={formik.handleBlur}
                   touched={false}
                 />
                 {isAddressLoading && (
-                  <div style={{ position: "absolute", right: 12, top: 36, display: "flex", alignItems: "center" }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: 12,
+                      top: 36,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
                     <Loader />
                   </div>
                 )}
@@ -278,7 +346,7 @@ const PlaceForm: React.FC = () => {
               type="button"
               disabled={isDisabledNext()}
               onClick={handleNextClick}
-              text={activePage < 3 ? (isAddressLoading ? "Loading..." : "Next") : "Great"}
+              text={getNextButtonText()}
             />
           </footer>
         </form>

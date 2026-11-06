@@ -4,6 +4,7 @@ import { refreshTokenService } from "./refershTokenService";
 interface AuthData {
   access_token: string;
   refresh_token: string;
+  id: string;
   display_name: string;
   email: string;
 }
@@ -11,6 +12,9 @@ interface AuthData {
 interface RefreshData {
   access_token: string;
   refresh_token: string;
+  id: string;
+  display_name: string;
+  email: string;
 }
 
 export const authService = {

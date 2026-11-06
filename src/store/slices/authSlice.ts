@@ -7,6 +7,8 @@ import type { User } from "../../types/user";
 import { authService } from "../../services/authService";
 import { accessTokenService } from "../../services/accessTokenService";
 import { refreshTokenService } from "../../services/refershTokenService";
+import type { ErrorResponse } from "@/types";
+import type { AxiosError } from "axios";
 
 interface AuthState {
   currentUser: User | null;
@@ -26,16 +28,17 @@ const initialState: AuthState = {
 export const login = createAsyncThunk(
   "auth/login",
   async (
-    { email, password }: { email: string; password: string },
+    { emailLogin, password }: { emailLogin: string; password: string },
     { rejectWithValue },
   ) => {
     try {
-      const data = await authService.login(email, password);
-      accessTokenService.save(data.access_token);
-      refreshTokenService.save(data.refresh_token);
-      return { name: data.display_name, email: data.email } as User;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Login failed");
+      const { id, display_name, email, access_token, refresh_token } =
+        await authService.login(emailLogin, password);
+      accessTokenService.save(access_token);
+      refreshTokenService.save(refresh_token);
+      return { id, name: display_name, email } as User;
+    } catch (err: any) {
+      return rejectWithValue(err as AxiosError<ErrorResponse>);
     }
   },
 );
@@ -56,10 +59,11 @@ export const activate = createAsyncThunk(
 
 export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
   try {
-    const data = await authService.refresh();
-    accessTokenService.save(data.access_token);
-    refreshTokenService.save(data.refresh_token);
-    return { name: "Display_name", email: "user@example.com" };
+    const { id, display_name, email, access_token, refresh_token } =
+      await authService.refresh();
+    accessTokenService.save(access_token);
+    refreshTokenService.save(refresh_token);
+    return { id, name: display_name, email: email };
   } catch (error) {
     console.log("User is not authenticated");
     throw error;
