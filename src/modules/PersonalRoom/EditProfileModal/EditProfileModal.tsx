@@ -8,7 +8,7 @@ interface EditProfileModalProps {
   onClose: () => void;
   currentName?: string;
   currentAvatar?: string;
-  onSave: (newName: string, newAvatar?: File) => void;
+  onSave: (newName: string, newAvatarBase64?: string) => void;
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({
@@ -19,39 +19,39 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   onSave,
 }) => {
   const [name, setName] = useState(currentName);
-  const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
+  const [avatarBase64, setAvatarBase64] = useState<string | undefined>(undefined);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(currentAvatar);
 
-  // Реф для прихованого файлового інпуту
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
-  // Обробник вибору файлу
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
-      // Створюємо локальний URL для миттєвого прев'ю картинки
-      setAvatarPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setAvatarBase64(base64String);
+        setAvatarPreview(base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Клік по кнопці або аватарці відкриває діалог вибору файлу
   const handleTriggerFileSelect = () => {
     fileInputRef.current?.click();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(name, avatarFile);
+    onSave(name, avatarBase64);
     onClose();
   };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        {/* Шапка модалки */}
         <div className={styles.modal__header}>
           <h3 className={styles.modal__title}>Edit profile</h3>
           <button className={styles.modal__closeBtn} onClick={onClose} type="button">
@@ -59,9 +59,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </button>
         </div>
 
-        {/* Форма */}
         <form onSubmit={handleSubmit} className={styles.modal__form}>
-          {/* Блок аватарки */}
           <div className={styles.modal__avatarSection}>
             <div 
               className={styles.modal__avatarWrapper} 
@@ -75,7 +73,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               />
             </div>
 
-            {/* Прихований інпут для завантаження файлу */}
             <input
               type="file"
               ref={fileInputRef}
@@ -93,7 +90,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </button>
           </div>
 
-          {/* Поле введення імені */}
           <div className={styles.modal__field}>
             <label className={styles.modal__label}>
               Name <span className={styles.modal__required}>*</span>
@@ -112,7 +108,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </div>
           </div>
 
-          {/* Використовуємо універсальний компонент кнопки */}
           <FormButton type="submit" text="Save changes" />
         </form>
       </div>

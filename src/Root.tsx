@@ -14,6 +14,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import ProtectedLayout from "./modules/ProtectedLayout/ProtectedLayout.tsx";
+import PlaceDetails from "./modules/PlaceDetails/PlaceDetails.tsx";
 
 const Root = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_DEV_KEY as string;
@@ -45,6 +46,7 @@ const Root = () => {
                   {/* Или заглушка, если на главной только карта */}
                   <Route path="/map" element={null} />
                   <Route path="/groups" element={<Groups />} />
+                  <Route path="/places/:id" element={<PlaceDetails />} />
                   <Route path="/personal-room" element={<PersonalRoom />} />
                 </Route>
               </Route>

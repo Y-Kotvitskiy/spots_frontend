@@ -1,6 +1,41 @@
+export interface OpeningHours {
+  opens_at: string;
+  closes_at: string;
+}
+
+export interface BackendPhoto {
+  id: string;
+  user_id?: string;
+  place_id?: string;
+  name?: string;
+  content_type?: string;
+  position: number;
+  created_at?: string;
+  url: string;
+}
+
+export interface BackendPlace {
+  id: string;
+  creator_id: string;
+  creator_name?: string;
+  name: string;
+  description: string;
+  categories: BackendCategory[];
+  tags: BackendTag[];
+  address: string;
+  latitude: number;
+  longitude: number;
+  opening_hours?: OpeningHours | null;
+  photos?: BackendPhoto[];
+  created_at: string;
+  updated_at?: string;
+  url?: string;
+}
+
 export interface Place {
   id: string;
   creator_id: string;
+  creator_name?: string;
   name: string;
   description: string;
   categoryId: string;
@@ -9,8 +44,20 @@ export interface Place {
   address: string;
   latitude: number;
   longitude: number;
+  opening_hours?: OpeningHours | null;
   photos?: PlacePhotos;
   created_at: string;
+}
+
+export interface UpdatePlace {
+  name?: string;
+  description?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  opening_hours?: OpeningHours;
+  category_ids?: string[];
+  tags?: string[];
 }
 
 export type PlacePhotos = Record<number, BackendPhoto>;

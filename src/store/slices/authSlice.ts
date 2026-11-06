@@ -7,6 +7,11 @@ import type { User } from "../../types/user";
 import { authService } from "../../services/authService";
 import { accessTokenService } from "../../services/accessTokenService";
 import { refreshTokenService } from "../../services/refershTokenService";
+import { userIdService } from "../../services/userIdService";
+
+// ==========================================
+// TYPES & INTERFACES
+// ==========================================
 
 interface AuthState {
   currentUser: User | null;
@@ -22,7 +27,10 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Асинхронные экшены (Thunks)
+// ==========================================
+// ASYNC THUNKS
+// ==========================================
+
 export const login = createAsyncThunk(
   "auth/login",
   async (
@@ -33,7 +41,13 @@ export const login = createAsyncThunk(
       const data = await authService.login(email, password);
       accessTokenService.save(data.access_token);
       refreshTokenService.save(data.refresh_token);
-      return { name: data.display_name, email: data.email } as User;
+      userIdService.save(data.id);
+      
+      return {
+        id: data.id, 
+        name: data.display_name, 
+        email: data.email,
+      } as User;
     } catch (error: any) {
       return rejectWithValue(error.message || "Login failed");
     }
@@ -47,7 +61,13 @@ export const activate = createAsyncThunk(
       const data = await authService.activate(token);
       accessTokenService.save(data.access_token);
       refreshTokenService.save(data.refresh_token);
-      return { name: data.display_name, email: data.email } as User;
+      userIdService.save(data.id);
+      
+      return {
+        id: data.id, 
+        name: data.display_name, 
+        email: data.email,
+      } as User;
     } catch (error: any) {
       return rejectWithValue(error.message || "Activation failed");
     }
@@ -59,7 +79,16 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
     const data = await authService.refresh();
     accessTokenService.save(data.access_token);
     refreshTokenService.save(data.refresh_token);
-    return { name: "Display_name", email: "user@example.com" };
+
+    if (data.id) { 
+      userIdService.save(data.id); 
+    }
+
+    return {
+      id: data.id || userIdService.get() || "", 
+      name: "Display_name", 
+      email: "user@example.com",
+    };
   } catch (error) {
     console.log("User is not authenticated");
     throw error;
@@ -74,6 +103,10 @@ export const logout = createAsyncThunk("auth/logout", async () => {
     refreshTokenService.remove();
   }
 });
+
+// ==========================================
+// SLICE & REDUCERS
+// ==========================================
 
 const authSlice = createSlice({
   name: "auth",
@@ -110,7 +143,9 @@ const authSlice = createSlice({
     builder
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isChecked = true;
-        action.payload && (state.currentUser = action.payload);
+        if (action.payload) {
+          state.currentUser = action.payload as User;
+        }
       })
       .addCase(checkAuth.rejected, (state) => {
         state.isChecked = true;
@@ -127,6 +162,10 @@ const authSlice = createSlice({
   },
 });
 
+// ==========================================
+// EXPORTS (ACTIONS & REDUCER)
+// ==========================================
+
 export const actions = {
   ...authSlice.actions,
   login,
@@ -134,4 +173,5 @@ export const actions = {
   checkAuth,
   logout,
 };
+
 export default authSlice.reducer;

@@ -1,0 +1,173 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+$bg-overlay-color: rgba(0, 0, 0, 0.4);
+$bg-modal-color: v.$grey-0-color;
+$text-main-color: v.$grey-90-color;
+$text-muted-color: v.$grey-60-color;
+$border-radius-modal: 32px;
+$padding-modal: 32px;
+$gap-content: 24px;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: $bg-overlay-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  background-color: $bg-modal-color;
+  border-radius: $border-radius-modal;
+  padding: $padding-modal;
+  gap: $gap-content;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.title {
+  @extend %h3;
+  color: $text-main-color;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: $text-muted-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.pickerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 12px;
+  background-color: v.$grey-10-color;
+  border-radius: 20px;
+  position: relative;
+}
+
+.columnGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Обгортка для створення ефекту iOS Picker */
+.wheelWrapper {
+  position: relative;
+  height: 140px; /* Висота ровно на 3-4 елементи */
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Центральна плашка (капсула виділення) */
+.selectionHighlight {
+  position: absolute;
+  top: 52px; /* Центрує виділення по вертикалі */
+  left: 0;
+  right: 0;
+  height: 36px;
+  background-color: v.$grey-20-color;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.scrollColumn {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory; /* Магнітний скрол як на iOS */
+  z-index: 2;
+
+  /* Повне приховування скроллбару */
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Відступи зверху і знизу, щоб перший і останній елементи могли ставати по центру */
+.paddingSpacer {
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.timeItem {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-muted-color;
+  cursor: pointer;
+  height: 36px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center; /* Центрування при зупинці скролу */
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $text-main-color;
+  }
+
+  &_active {
+    color: $text-main-color;
+    font-weight: 700;
+  }
+}
+
+.separator {
+  font-size: 18px;
+  font-weight: 600;
+  color: $text-main-color;
+  z-index: 3;
+}
+
+.dash {
+  font-size: 18px;
+  color: $text-muted-color;
+  margin-inline: 4px;
+}
+
+.footer {
+  display: flex;
+  width: 100%;
+  margin-top: 8px;
+}
