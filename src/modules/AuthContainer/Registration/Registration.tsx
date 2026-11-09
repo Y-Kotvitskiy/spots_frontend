@@ -22,6 +22,7 @@ interface FormValues {
   display_name: string;
   email: string;
   password: string;
+  password_confirmation: string;
 }
 
 const Registration = () => {
@@ -35,17 +36,23 @@ const Registration = () => {
       display_name: "",
       email: "",
       password: "",
+      password_confirmation: "",
     },
 
     validate: (values): FormikErrors<FormValues> | void => {
-      const { display_name, email, password } = values;
+      const { display_name, email, password, password_confirmation } = values;
 
-      const errors: { name?: string; email?: string; password?: string } = {};
+      const errors: {
+        display_name?: string;
+        email?: string;
+        password?: string;
+        password_confirmation?: string;
+      } = {};
 
       const nameError = validateName(display_name);
 
       if (nameError) {
-        errors.name = nameError;
+        errors.display_name = nameError;
       }
 
       const emailError = !email ? "Can`t be empty" : validateEmail(email);
@@ -62,6 +69,10 @@ const Registration = () => {
 
       if (passwordError) {
         errors.password = passwordError;
+      }
+
+      if (password !== password_confirmation) {
+        errors.password_confirmation = "Should be equal to password";
       }
 
       return errors;
@@ -125,6 +136,7 @@ const Registration = () => {
             label="Name"
             name="display_name"
             type="name"
+            required
             autoComplete="name"
             id="display_name"
             placeholder="e.g. John Doe"
@@ -139,6 +151,7 @@ const Registration = () => {
             label="Email"
             name="email"
             type="email"
+            required
             placeholder="e.g. bobsmith@gmail.com"
             value={formik.values.email}
             onChange={formik.handleChange}
@@ -152,12 +165,27 @@ const Registration = () => {
             name="password"
             type="password"
             id="password"
+            required
             placeholder="*******"
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={errors.password}
             touched={touched.password}
+          />
+
+          <FormField
+            label="Password confirmation"
+            name="password_confirmation"
+            type="password"
+            id="password_confirmation"
+            required
+            placeholder="*******"
+            value={formik.values.password_confirmation}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.password_confirmation}
+            touched={touched.password_confirmation}
           />
 
           {error && (
