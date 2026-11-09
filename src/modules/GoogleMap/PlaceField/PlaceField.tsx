@@ -1,7 +1,7 @@
 import styles from "./PlaceField.module.scss";
 
 import cn from "classnames";
-import type { Category, Tag } from "@/types/";
+import type { Tag } from "@/types/";
 
 export interface FormFieldProps {
   label?: string;

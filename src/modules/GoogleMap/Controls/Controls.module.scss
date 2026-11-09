@@ -25,6 +25,7 @@
     top: calc(v.$header-top + v.$header-height-tablet);
     grid-template-columns: 1fr auto auto;
     grid-auto-flow: row;
+    row-gap: 32px;
     height: auto;
     padding-top: 48px;
     padding-inline: 40px;
@@ -110,5 +111,10 @@
       font-size: 32px;
       line-height: 100%;
     }
+  }
+
+  &__mapFilter {
+    grid-column: 1 / -1;
+    justify-self: end;
   }
 }

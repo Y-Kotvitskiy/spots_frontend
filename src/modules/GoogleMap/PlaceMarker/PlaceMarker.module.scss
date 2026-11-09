@@ -1,0 +1,79 @@
+@use "@/scss/variables" as v;
+
+.PlaceMarker {
+  color: v.$secondary-forest-green-color;
+
+  &__park {
+    color: v.$secondary-forest-green-color;
+
+    &_active {
+      color: v.$secondary-states-dark-green-color;
+    }
+  }
+
+  &__shopping {
+    color: v.$secondary-mulberry-color;
+
+    &_active {
+      color: v.$secondary-states-classic-purple-color;
+    }
+  }
+
+  &__street_food {
+    color: v.$secondary-orange-color;
+
+    &_active {
+      color: v.$secondary-states-warm-brown-color;
+    }
+  }
+
+  &__museum {
+    color: v.$secondary-soft-royal-blue-color;
+
+    &_active {
+      color: v.$secondary-states-dark-blue-color;
+    }
+  }
+
+  &__cafe {
+    color: v.$secondary-brown-color;
+
+    &_active {
+      color: v.$secondary-states-chocolate-brown-color;
+    }
+  }
+
+  &__restaurant {
+    color: v.$secondary-vibrant-red-color;
+
+    &_active {
+      color: v.$secondary-states-deep-crimson-color;
+    }
+  }
+
+  &__bar {
+    color: v.$secondary-electric-purple-color;
+
+    &_active {
+      color: v.$secondary-states-deep-purple-color;
+    }
+  }
+
+  &__bakery {
+    color: v.$secondary-golden-yellow-color;
+
+    &_active {
+      color: v.$secondary-states-ochre-color;
+    }
+  }
+
+  &_active {
+    overflow: visible;
+    transform: scale(1.2);
+    transform-origin: center;
+    filter: brightness(1.2);
+    transition:
+      transform 0.3s ease,
+      filter 0.3s ease;
+  }
+}

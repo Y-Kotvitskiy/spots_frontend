@@ -32,7 +32,7 @@
     flex-direction: column;
     justify-content: space-between;
     width: 246px;
-    height: 72px;
+    height: 100%;
   }
 
   &__title {
@@ -48,6 +48,15 @@
     justify-content: start;
     gap: 20px;
     color: v.$grey-70-color;
+  }
+
+  &__creator {
+    @extend %p2;
+
+    display: flex;
+    justify-content: start;
+    gap: 20px;
+    color: v.$secondary-orange-color;
   }
 
   &__Buttons {

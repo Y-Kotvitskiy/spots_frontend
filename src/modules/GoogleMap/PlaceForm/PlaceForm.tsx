@@ -14,7 +14,7 @@ import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
 import Button from "@/modules/shared/Button/";
 import Loader from "@/modules/shared/Loader";
 
-import PlaceField from "./PlaceField/PlaceField";
+import PlaceField from "../PlaceField/PlaceField";
 import PlacePhotoField from "./PlacePhotoField";
 import styles from "./PlaceForm.module.scss";
 

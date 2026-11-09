@@ -1,6 +1,6 @@
 import styles from "./GoogleMap.module.scss";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Map, AdvancedMarker, Pin, useMap } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
 import Controls from "./Controls";
@@ -16,6 +16,7 @@ import { mapActions } from "@/store";
 import PlaceForm from "./PlaceForm";
 import MapPlaceDetail from "./MapPlaceDetail";
 import PlaceMarker from "./PlaceMarker";
+import { useGoogleMap } from "./GoogleMap.hooks";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -78,44 +79,15 @@ const MapCenterController: React.FC<{
 // ==========================================
 export const GoogleMap: React.FC = () => {
   const mapId = import.meta.env.VITE_MAP_ID as string;
-  const isPickingMode = useSelector(selectIsPickingMode);
-  const dispatch = useAppDispatch();
-  const places = useSelector(selectSavedPlaces);
 
-  const [center, setCenter] = useState({ lat: 50.4501, lng: 30.5234 });
-  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-
-  const isPickingModeRef = useRef(isPickingMode);
-
-  useEffect(() => {
-    dispatch(fetchInitialData());
-  }, []);
-
-  useEffect(() => {
-    isPickingModeRef.current = isPickingMode;
-  }, [isPickingMode]);
-
-  // 2. Запрашиваем геолокацию при монтировании
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCenter({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-          setIsLoadingLocation(false);
-        },
-        (error) => {
-          console.warn("Не удалось получить геолокацию:", error.message);
-          setIsLoadingLocation(false); // Остаемся на дефолтных координатах
-        },
-        { timeout: 10000 },
-      );
-    } else {
-      setIsLoadingLocation(false);
-    }
-  }, []);
+  const {
+    isPickingMode,
+    isPickingModeRef,
+    isLoadingLocation,
+    center,
+    places,
+    dispatch,
+  } = useGoogleMap();
 
   const handleMapClick = useCallback(
     async (event: MapMouseEvent) => {
@@ -140,7 +112,7 @@ export const GoogleMap: React.FC = () => {
       <PlaceForm />
       <MapPlaceDetail />
 
-      {isLoadingLocation && <div>Определяем ваше местоположение...</div>}
+      {isLoadingLocation && <div>Визначаємо ваше місцезнаходження...</div>}
 
       <div className={styles.GoogleMap__map}>
         <Map

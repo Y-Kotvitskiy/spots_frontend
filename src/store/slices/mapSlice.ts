@@ -8,6 +8,7 @@ import {
   type ErrorResponse,
   type Place,
   type PlacePhotos,
+  type TagKey,
 } from "@/types";
 import { taxonomyService } from "@/services/taxonomyService";
 import { placeService } from "@/services/placeService";
@@ -27,6 +28,7 @@ export enum MapMode {
   Show = "show",
   Select = "select",
   Add = "add",
+  Filter = "filter",
 }
 
 type CategoryRecord = Record<string, string>;
@@ -42,6 +44,10 @@ export interface MapState {
   tags: TagRecord;
   mapMode: MapMode;
   status: "idle" | "loading" | "succeeded" | "failed";
+  filters: {
+    categories: string[];
+    tags: TagKey[];
+  };
   error: ErrorResponse | null;
 }
 
@@ -166,6 +172,10 @@ const initialState: MapState = {
   tags: {},
   mapMode: MapMode.Show,
   status: "idle",
+  filters: {
+    categories: [],
+    tags: [],
+  },
   error: null,
 };
 
@@ -218,6 +228,31 @@ export const mapSlice = createSlice({
     resetAddPlaceStatus: (state) => {
       state.status = "idle";
       state.error = null;
+    },
+
+    toggleFilterCategory(state, action) {
+      const category = action.payload;
+      if (state.filters.categories.includes(category)) {
+        state.filters.categories = state.filters.categories.filter(
+          (t) => t !== category,
+        );
+      } else {
+        state.filters.categories.push(category);
+      }
+    },
+
+    toggleFilterTag(state, action) {
+      const tag = action.payload;
+      if (state.filters.tags.includes(tag)) {
+        state.filters.tags = state.filters.tags.filter((t) => t !== tag);
+      } else {
+        state.filters.tags.push(tag);
+      }
+    },
+
+    clearFilter(state) {
+      state.filters.categories = [];
+      state.filters.tags = [];
     },
   },
 
