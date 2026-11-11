@@ -93,6 +93,7 @@ export interface CreatePlace {
   address: string;
   latitude: number;
   longitude: number;
+  opening_hours?: OpeningHours;
 }
 
 export enum Category {

@@ -1,0 +1,41 @@
+.inputWrapper {
+  display: flex;
+  position: relative;
+  align-items: center;
+  width: 220px;
+  cursor: pointer;
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem; /* Оставляем место справа для кнопки */
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  outline: none;
+  background-color: #ffffff;
+  color: #1f2937;
+  font-size: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+
+  &:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+}
+
+/* Кнопка с иконкой, абсолютным позиционированием спрятанная внутрь справа */
+.iconButton {
+  position: absolute;
+  right: 12px;
+  width: 24px;
+  height: 23px;
+  padding: 0;
+  border: none;
+  background: url("./icons/arrow-down.svg") center center / cover no-repeat;
+  background-color: transparent;
+  cursor: pointer;
+}

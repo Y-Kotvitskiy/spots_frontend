@@ -15,6 +15,7 @@ import store from "./store";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import ProtectedLayout from "./modules/ProtectedLayout/ProtectedLayout.tsx";
 import PlaceDetails from "./modules/PlaceDetails/PlaceDetails.tsx";
+import WorkingHoursPicker from "./modules/GoogleMap/WorkingHoursPicker/";
 
 const Root = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_DEV_KEY as string;
@@ -29,6 +30,7 @@ const Root = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Registration />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/timepicker" element={<WorkingHoursPicker />} />
                 <Route
                   path="/reset-password/:email/:jwt"
                   element={<ResetPassword />}

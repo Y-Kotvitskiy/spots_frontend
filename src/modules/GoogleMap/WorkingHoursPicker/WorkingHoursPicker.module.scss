@@ -1,0 +1,129 @@
+@use "@/scss/variables" as v;
+@use "@/scss/typography" as t;
+
+.WorkingHoursPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &__title {
+    @extend %h4;
+  }
+
+  &__hours {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+
+:global {
+  .react-datepicker__tab-loop {
+    position: relative;
+  }
+
+  .react-datepicker-popper {
+    z-index: 9999;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .react-datepicker__triangle {
+    display: none;
+  }
+
+  .react-datepicker {
+    padding: 32px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    background-color: #ffffff;
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    font-family: inherit;
+
+    &__header {
+      padding: 0;
+      border: none;
+    }
+
+    &__time-box {
+      width: 100% !important;
+    }
+
+    &__time-container {
+      width: 190px;
+      background-color: #ffffff;
+    }
+
+    &__time-list {
+      width: 110px;
+      scrollbar-width: none !important;
+
+      &::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+    }
+
+    &__time-list-item {
+      @extend %h3;
+
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      height: 40px !important;
+      color: v.$grey-60-color;
+      font-size: 18px;
+
+      transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+
+      &:hover {
+        border-radius: 9px;
+        background-color: v.$grey-10-color !important;
+        color: v.$grey-90-color !important;
+      }
+
+      &--selected {
+        border-radius: 9px;
+        background-color: #6366f1 !important;
+        color: v.$grey-10-color !important;
+
+        &:hover {
+          background-color: #6366f1 !important;
+          color: v.$grey-10-color !important;
+        }
+      }
+
+      &--disabled {
+        background-color: transparent !important;
+        color: #d1d5db !important;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .react-datepicker-time {
+    &__header {
+      @extend %h3;
+      margin-bottom: 20px;
+      padding: 0;
+
+      border: none;
+      background-color: v.$grey-0-color !important;
+      color: v.$grey-90-color;
+
+      &--time {
+        padding: 0;
+        border: none;
+        background-color: v.$grey-0-color !important;
+      }
+    }
+  }
+}

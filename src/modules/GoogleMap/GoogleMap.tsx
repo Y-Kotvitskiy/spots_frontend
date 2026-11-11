@@ -17,6 +17,7 @@ import PlaceForm from "./PlaceForm";
 import MapPlaceDetail from "./MapPlaceDetail";
 import PlaceMarker from "./PlaceMarker";
 import { useGoogleMap } from "./GoogleMap.hooks";
+import { PlacesClusterer } from "./PlacesClusterer";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -132,9 +133,7 @@ export const GoogleMap: React.FC = () => {
           <MapMarker />
 
           {/* Маркеры из сохраненного списка */}
-          {places.map((place) => (
-            <PlaceMarker key={place.id} place={place} />
-          ))}
+          <PlacesClusterer places={places} />
         </Map>
       </div>
     </main>

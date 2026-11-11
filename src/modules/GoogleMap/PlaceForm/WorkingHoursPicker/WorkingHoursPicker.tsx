@@ -9,9 +9,14 @@ interface WorkingHoursPickerProps {
 }
 
 const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
+const minutes = Array.from({ length: 60 }, (_, i) =>
+  String(i).padStart(2, "0"),
+);
 
-const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({ onPick, onClose }) => {
+const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({
+  onPick,
+  onClose,
+}) => {
   const [startHour, setStartHour] = React.useState("18");
   const [startMinute, setStartMinute] = React.useState("00");
   const [endHour, setEndHour] = React.useState("18");
@@ -24,9 +29,9 @@ const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({ onPick, onClose
   };
 
   const renderColumn = (
-    items: string[], 
-    selectedItem: string, 
-    setSelectedItem: (val: string) => void
+    items: string[],
+    selectedItem: string,
+    setSelectedItem: (val: string) => void,
   ) => {
     const columnRef = useRef<HTMLDivElement>(null);
 
@@ -42,8 +47,8 @@ const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({ onPick, onClose
     return (
       <div className={styles.wheelWrapper}>
         <div className={styles.selectionHighlight} />
-        <div 
-          className={styles.scrollColumn} 
+        <div
+          className={styles.scrollColumn}
           ref={columnRef}
           onScroll={handleScrollEnd}
         >
@@ -57,7 +62,10 @@ const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({ onPick, onClose
                 setSelectedItem(item);
                 const itemHeight = 36;
                 const index = items.indexOf(item);
-                columnRef.current?.scrollTo({ top: index * itemHeight, behavior: "smooth" });
+                columnRef.current?.scrollTo({
+                  top: index * itemHeight,
+                  behavior: "smooth",
+                });
               }}
             >
               {item}
@@ -74,7 +82,12 @@ const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({ onPick, onClose
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h3 className={styles.title}>Select working hours</h3>
-          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close modal">
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close modal"
+          >
             <Icon name="close" size={24} />
           </button>
         </div>

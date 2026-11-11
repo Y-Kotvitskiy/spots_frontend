@@ -197,6 +197,10 @@ export const mapSlice = createSlice({
     // },
 
     setMapMode: (state, action: PayloadAction<MapMode>) => {
+      const newMode: MapMode = action.payload;
+      if (newMode != MapMode.Show) {
+        state.selectedPlace = null;
+      }
       state.mapMode = action.payload;
     },
 

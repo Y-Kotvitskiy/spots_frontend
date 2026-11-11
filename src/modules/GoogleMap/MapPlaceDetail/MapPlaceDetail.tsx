@@ -2,13 +2,20 @@ import Button from "@/modules/shared/Button";
 import styles from "./MapPlaceDetail.module.scss";
 
 import { useMapSelector } from "@/store/hooks";
+import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
+import { useNavigate } from "react-router-dom";
+import { placeCard } from "@/modules/shared/PlaceCard/PlaceCard.module.scss";
 
 const MapPlaceDetail: React.FC = () => {
   const { selectedPlace } = useMapSelector();
+  const navigate = useNavigate();
 
   if (!selectedPlace) {
     return null;
   }
+
+  const opens_at = selectedPlace.opening_hours?.opens_at || OPENS_AT;
+  const closes_at = selectedPlace.opening_hours?.closes_at || CLOSES_AT;
 
   return (
     <section className={styles.MapPlaceDetail}>
@@ -28,7 +35,9 @@ const MapPlaceDetail: React.FC = () => {
           <p className={styles.MapPlaceDetail__description}>
             <span>{selectedPlace.categoryName}</span>
             &middot;
-            <span>8-00 - 20-00</span>
+            <span>
+              {opens_at} - {closes_at}
+            </span>
           </p>
           <p className={styles.MapPlaceDetail__creator}>
             <span>Added by</span>
@@ -38,7 +47,10 @@ const MapPlaceDetail: React.FC = () => {
       </div>
       <div className={styles.MapPlaceDetail__Buttons}>
         <button className={styles.MapPlaceDetail__buttonShared}></button>
-        <Button text="Details" />
+        <Button
+          text="Details"
+          onClick={() => navigate(`/places/${selectedPlace.id}`)}
+        />
       </div>
     </section>
   );

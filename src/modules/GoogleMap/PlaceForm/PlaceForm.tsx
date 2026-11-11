@@ -25,6 +25,8 @@ import { validatePlaceForm } from "./PlaceForm.utils";
 import { Tag, type CreatePlace, type Place, type TagKey } from "@/types";
 import { getAddressFromCoords } from "../utils";
 import { placeService } from "@/services/placeService";
+import WorkingHoursPicker from "../WorkingHoursPicker";
+import { form } from "@/modules/Groups/CreateGroup/CreateGroup.module.scss";
 
 const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);
@@ -50,6 +52,10 @@ const PlaceForm: React.FC = () => {
         address: selectedCoords.address || "",
         latitude: selectedCoords.lat || 0,
         longitude: selectedCoords.lng || 0,
+        opening_hours: {
+          opens_at: values.opens_at,
+          closes_at: values.closes_at,
+        },
       };
       setSaveError(false);
 
@@ -77,7 +83,7 @@ const PlaceForm: React.FC = () => {
         }
 
         formik.setSubmitting(false);
-        setActivePage(3);
+        setActivePage(4);
       } catch (error) {
         console.error("Failed to add place:", error);
         setSaveError(true);
@@ -180,7 +186,7 @@ const PlaceForm: React.FC = () => {
   };
 
   const getNextButtonText = () => {
-    if (activePage > 2) {
+    if (activePage > 3) {
       return "Great";
     }
     if (isAddressLoading) {
@@ -193,9 +199,9 @@ const PlaceForm: React.FC = () => {
   };
 
   const handleNextClick = () => {
-    if (activePage === 2) {
+    if (activePage === 3) {
       formik.submitForm();
-    } else if (activePage === 3) {
+    } else if (activePage === 4) {
       onClose();
     } else {
       setActivePage((prev) => (prev + 1) as FormPages);
@@ -212,12 +218,12 @@ const PlaceForm: React.FC = () => {
         <form onSubmit={(e) => e.preventDefault()}>
           <header className={styles.PlaceForm__header}>
             <h1>
-              {activePage === 3
+              {activePage === 4
                 ? "Your place is now on the map"
                 : `Add place ${activePage}/3`}
             </h1>
 
-            {activePage === 2 && (
+            {activePage > 1 && activePage < 4 && (
               <button
                 className={styles.PlaceForm__headerPrevPageButton}
                 type="button"
@@ -329,10 +335,29 @@ const PlaceForm: React.FC = () => {
               />
             </fieldset>
 
-            {/* Шаг 3 (Успех) */}
-            <div
+            {/* Шаг 2 */}
+            <fieldset
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 3,
+              })}
+            >
+              <WorkingHoursPicker
+                startTime={formik.values.opens_at}
+                endTime={formik.values.closes_at}
+                setStartTime={(startTime) => {
+                  debugger;
+                  formik.setFieldValue("opens_at", startTime);
+                }}
+                setEndTime={(endTime) =>
+                  formik.setFieldValue("closes_at", endTime)
+                }
+              />
+            </fieldset>
+
+            {/* Шаг 4 (Успех) */}
+            <div
+              className={cn(styles.PlaceForm__fieldset, {
+                [styles.PlaceForm__fieldset_active]: activePage === 4,
               })}
             >
               <span className={styles.PlaceForm__finalMessage}>
