@@ -1,0 +1,53 @@
+@forward "global";
+@forward "fonts";
+@forward "typography";
+@forward "variables";
+@forward "mixins";
+
+@use "variables" as v;
+
+body,
+html {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-weight: 300;
+  font-family: Roboto, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+a,
+dl,
+ul,
+ol,
+button,
+picture {
+  margin: 0;
+  padding: 0;
+}
+
+menu,
+nav,
+ul {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body {
+  background-color: v.$body-background-color;
+  font-family: "Roboto", sans-serif;
+}

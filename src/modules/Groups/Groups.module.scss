@@ -1,0 +1,765 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+$offset-desktop: 40px;
+$offset-tablet: 30px;
+$offset-mobile: 16px;
+
+$transition-speed: 0.2s;
+$box-shadow-default: 0 2px 8px rgba(0, 0, 0, 0.04);
+$box-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12);
+$danger-hover-bg: rgba(234, 67, 53, 0.08);
+
+.GroupsPage {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-color: v.$grey-40-color;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: $offset-mobile;
+  padding-top: 30px;
+  gap: 20px;
+
+  @include m.on-tablet {
+    padding-top: 140px;
+    padding-inline: $offset-tablet;
+  }
+
+  @include m.on-desktop {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    padding-inline: $offset-desktop;
+  }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+
+  @include m.on-desktop {
+    width: auto;
+    flex-shrink: 0;
+  }
+}
+
+.sidebar_hasSelected {
+  display: none !important;
+}
+
+.mainContent_hidden {
+  display: none !important;
+}
+
+@include m.on-desktop {
+  .sidebar_hasSelected {
+    display: flex !important;
+  }
+
+  .mainContent_hidden {
+    display: flex !important;
+  }
+}
+
+.placesGrid {
+  gap: 20px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  @include m.on-desktop {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    justify-content: start;
+  }
+}
+
+.createBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 60px;
+  border-radius: 30px;
+  background-color: v.$primary-indigo-color;
+  color: v.$grey-0-color;
+  border: none;
+  cursor: pointer;
+  transition: opacity $transition-speed ease;
+
+  @extend %button_big;
+
+  &:hover {
+    background-color: v.$primary-states-hovered-color;
+  }
+
+  &:active {
+    background-color: v.$primary-states-clicked-color;
+  }
+}
+
+.myGroupsBlock {
+  display: flex;
+  flex-direction: column;
+  background: v.$grey-0-color;
+  border: none;
+  border-radius: 20px;
+  padding: 24px 16px;
+  justify-content: center;
+  gap: 20px;
+}
+
+.myGroupsTitle {
+  @extend %h4;
+  color: v.$grey-70-color;
+}
+
+.groupsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background-color: v.$grey-0-color;
+  cursor: pointer;
+  transition: background-color $transition-speed ease;
+  gap: 4px;
+
+  &_active {
+    background-color: v.$grey-10-color;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__name {
+    @extend %h4;
+    color: v.$grey-90-color;
+  }
+
+  &__stats {
+    @extend %p2;
+    color: v.$grey-70-color;
+  }
+
+  &__arrow {
+    color: v.$grey-70-color;
+
+    @include m.on-desktop {
+      display: none;
+    }
+  }
+}
+
+.emptyState {
+  flex: 1;
+  background-color: v.$grey-0-color;
+  border-radius: 24px;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+
+  h2 {
+    @extend %h2;
+    color: v.$grey-90-color;
+    margin: 0;
+  }
+
+  p {
+    @extend %p2;
+    color: v.$grey-60-color;
+    max-width: 440px;
+    margin: 0;
+  }
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @include m.on-tablet {
+    gap: 24px;
+  }
+}
+
+.groupHeader {
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+  padding: 0;
+  gap: 16px;
+
+  @include m.on-desktop {
+    background-color: v.$grey-0-color;
+    padding: 24px 32px;
+    border-radius: 20px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__topRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+
+    background-color: transparent;
+    padding: 0;
+
+    @include m.on-desktop {
+      display: none !important;
+    }
+  }
+
+  &__titleMobile {
+    @extend %h2;
+    margin: 0;
+    color: v.$grey-90-color;
+    text-align: center;
+    flex: 1;
+
+    @include m.on-desktop {
+      display: none !important;
+    }
+  }
+
+  &__desktopRow {
+    display: none;
+
+    @include m.on-desktop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+
+  &__titleDesktop {
+    display: none;
+    @extend %h1;
+
+    @include m.on-desktop {
+      display: block;
+      color: v.$grey-90-color;
+      margin: 0;
+    }
+  }
+
+  &__actionsDesktop {
+    display: none;
+
+    @include m.on-desktop {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    background-color: v.$grey-0-color;
+    padding: 20px 16px;
+    border-radius: 20px;
+    justify-content: space-between;
+
+    @include m.on-tablet {
+      padding: 24px;
+    }
+
+    @include m.on-desktop {
+      background-color: transparent;
+      padding: 0;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    &Group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    @extend %p2;
+    color: v.$grey-70-color;
+  }
+
+  &__avatars {
+    display: flex;
+    align-items: center;
+  }
+
+  &__avatar {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid v.$grey-0-color;
+    margin-left: -12px;
+    object-fit: cover;
+
+    &:first-child {
+      margin-left: 0;
+      z-index: 1;
+    }
+
+    &:nth-child(2) { z-index: 2; }
+    &:nth-child(3) { z-index: 3; }
+  }
+
+  &__avatarMore {
+    position: relative;
+    z-index: 4;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: v.$grey-20-color;
+    border: 2px solid v.$grey-0-color;
+    margin-left: -12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @extend %p2;
+    color: v.$grey-90-color;
+  }
+
+  &__actionsMobile {
+    display: flex;
+    width: auto;
+
+    @include m.on-desktop {
+      display: none !important;
+    }
+  }
+}
+
+.backBtn {
+  background: v.$grey-0-color;
+  border: none;
+  cursor: pointer;
+  color: v.$grey-90-color;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: $box-shadow-default;
+  transition: background-color $transition-speed ease;
+
+  &:hover {
+    background-color: v.$grey-10-color;
+  }
+
+  @include m.on-desktop {
+    display: none;
+  }
+}
+
+.settingsBtnMobile {
+  background: v.$grey-0-color;
+  border: none;
+  cursor: pointer;
+  color: v.$grey-90-color;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: $box-shadow-default;
+  transition: background-color $transition-speed ease;
+
+  &:hover {
+    background-color: v.$grey-10-color;
+  }
+
+  @include m.on-desktop {
+    display: none;
+  }
+}
+
+.inviteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 52px;
+  border-radius: 26px;
+  background-color: v.$grey-20-color;
+  border: none;
+  cursor: pointer;
+  color: v.$grey-90-color;
+  @extend %p2;
+  padding: 20px 16px;
+  transition: background-color $transition-speed ease;
+
+  @include m.on-desktop {
+    width: 160px;
+    height: 60px;
+    border-radius: 30px;
+  }
+
+  &:hover {
+    background-color: v.$grey-30-color;
+  }
+}
+
+.settingsBtn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: v.$grey-20-color;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: v.$grey-90-color;
+  transition: background-color $transition-speed ease;
+
+  &:hover {
+    background-color: v.$grey-30-color;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+}
+
+.tab {
+  padding: 16px 20px;
+  border-radius: 28px;
+  border: none;
+  background-color: transparent;
+  color: v.$grey-70-color;
+  @extend %p2;
+  cursor: pointer;
+
+  &_active {
+    background-color: v.$grey-20-color;
+    color: v.$grey-90-color;
+  }
+}
+
+.placeCardWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+
+  @include m.on-desktop {
+    align-items: normal;
+  }
+}
+
+.membersContainer {
+  background-color: v.$grey-0-color;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: v.$grey-10-color;
+  border-radius: 40px;
+  height: 60px;
+  padding-inline: 16px;
+}
+
+.searchIcon {
+  color: v.$grey-60-color;
+  position: absolute;
+  right: 16px;
+}
+
+.searchInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  @extend %p2;
+  color: v.$grey-90-color;
+
+  &::placeholder {
+    color: v.$grey-60-color;
+  }
+}
+
+.membersList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 16px;
+  transition: background-color $transition-speed ease;
+  gap: 28px;
+
+  &:hover {
+    background-color: v.$grey-10-color;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__name {
+    @extend %h4;
+    color: v.$grey-90-color;
+  }
+
+  &__role {
+    @extend %p2;
+    color: v.$grey-70-color;
+  }
+
+  &__youBadge {
+    @extend %p3;
+    color: v.$grey-70-color;
+  }
+
+  &__menuBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: v.$grey-70-color;
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: v.$grey-20-color;
+      color: v.$grey-90-color;
+    }
+  }
+}
+
+.memberActionWrapper {
+  position: relative;
+}
+
+.memberDropdown {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: max-content;
+  background-color: v.$grey-0-color;
+  border-radius: 16px;
+  box-shadow: $box-shadow-dropdown;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  z-index: 20;
+  animation: fadeIn 0.15s ease;
+}
+
+.memberDropdownItem,
+.memberDropdownItemDanger {
+  @extend %p2;
+  background: none;
+  border: none;
+  white-space: nowrap;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  transition: background-color $transition-speed ease;
+  color: v.$grey-90-color;
+
+  &:hover {
+    background-color: v.$grey-20-color;
+  }
+}
+
+.memberDropdownItemDanger {
+  color: v.$system-error-color;
+
+  &:hover {
+    background-color: $danger-hover-bg;
+  }
+}
+
+/* Стилі для кастомних модальних вікон підтвердження (видалення групи / учасника) */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.modal {
+  background-color: v.$grey-0-color;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: $box-shadow-dropdown;
+  animation: fadeIn 0.2s ease;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 16px;
+  }
+
+  &__title {
+    @extend %h3;
+    color: v.$grey-90-color;
+    margin: 0;
+  }
+
+  &__closeBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: v.$grey-70-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background-color $transition-speed ease;
+
+    &:hover {
+      background-color: v.$grey-10-color;
+      color: v.$grey-90-color;
+    }
+  }
+
+  &__confirmContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 12px 24px 24px;
+
+    @include m.on-tablet {
+      padding: 12px 32px 32px;
+      gap: 40px;
+    }
+  }
+
+  &__confirmTextWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    @extend %p2;
+    color: v.$grey-90-color;
+  }
+
+  &__confirmText {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__confirmActions {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+
+    button {
+      flex: 1;
+      height: 60px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      @extend %button_big;
+      transition: opacity $transition-speed ease, background-color $transition-speed ease;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
+
+  &__cancelBtn {
+    background-color: v.$grey-20-color;
+    color: v.$grey-90-color;
+  }
+
+  &__deleteBtn {
+    background-color: v.$primary-indigo-color;
+    color: v.$grey-0-color;
+  }
+}

@@ -1,0 +1,345 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+$offset-desktop: 40px;
+$offset-tablet: 30px;
+$offset-mobile: 16px;
+
+.PersonalRoom {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-color: v.$grey-40-color;
+
+  &__error {
+    margin-top: 16px;
+    color: v.$system-error-color;
+    text-align: center;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: $offset-mobile;
+  padding-top: 20px;
+
+  gap: 24px;
+
+  @include m.on-tablet {
+    gap: 30px;
+    padding-top: 140px;
+    padding-inline: $offset-tablet;
+  }
+
+  @include m.on-desktop {
+    padding-inline: $offset-desktop;
+  }
+}
+
+/* Галерея фотографій */
+.gallery {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+
+  @include m.on-tablet {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+.mainPhotoCard {
+  position: relative;
+  height: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: v.$grey-20-color;
+
+  @include m.on-tablet {
+    height: 380px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.backBtn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: v.$grey-0-color;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px v.$shadow-color;
+  z-index: 2;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: v.$grey-20-color;
+  }
+}
+
+.sidePhotosGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  height: 320px;
+
+  @include m.on-tablet {
+    height: 380px;
+  }
+}
+
+.smallPhotoCard {
+  position: relative;
+  border-radius: 20px;
+
+  overflow: hidden;
+  background: v.$grey-20-color; // для скелету
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.addPhotoCard {
+  background: v.$grey-20-color;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: v.$grey-50-color;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-color: transparent;
+
+  &:hover {
+    background-color: v.$grey-30-color;
+  }
+}
+
+.addPhotoCardFull {
+  width: 100%;
+  height: 100%;
+  background: v.$grey-20-color;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: v.$grey-50-color;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+
+  &:hover {
+    background-color: v.$grey-30-color;
+  }
+}
+
+.photoBadge {
+  @extend %p3;
+
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: v.$grey-0-color;
+  padding: 8px 12px;
+  border-radius: 40px;
+  box-shadow: 0 2px 6px v.$shadow-color;
+}
+
+/* Хедер місця */
+.placeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    @include m.on-tablet {
+      gap: 20px;
+    }
+  }
+
+  &__title {
+    @extend %h1;
+    color: v.$grey-90-color;
+  }
+
+  &__subtitle {
+    @extend %p1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: v.$grey-70-color;
+    margin: 0;
+  }
+
+  &__separator {
+    font-weight: bold;
+  }
+
+  &__actionBtn {
+    background: v.$grey-20-color;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: v.$grey-70-color;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: v.$grey-30-color;
+      color: v.$grey-90-color;
+    }
+  }
+}
+
+/* Теги / зручності */
+.tagsContainer {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  @include m.on-tablet {
+    gap: 16px;
+  }
+}
+
+.tag {
+  @extend %h4;
+
+  background: v.$grey-20-color;
+  padding: 12px 20px;
+  border-radius: 50px;
+  color: v.$grey-70-color;
+
+  @include m.on-tablet {
+    padding: 16px 24px;
+  }
+}
+
+/* Сітка нижніх блоків */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionCard {
+  display: flex;
+  flex-direction: column;
+  background: v.$grey-0-color;
+  padding: 16px 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px v.$shadow-color;
+
+  gap: 12px;
+
+  @include m.on-tablet {
+    padding: 28px;
+    border-radius: 20px;
+    gap: 24px;
+  }
+
+  &__title {
+    @extend %h3;
+    color: v.$grey-90-color;
+  }
+
+  &__text {
+    @extend %p1;
+    margin: 0;
+    color: v.$grey-70-color;
+  }
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @include m.on-tablet {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 100px;
+  }
+}
+
+.infoBlock {
+  // background: v.$grey-0-color;
+  // padding: 20px;
+  // border-radius: 16px;
+  // box-shadow: 0 4px 20px v.$shadow-color;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &__label {
+    @extend %h3;
+    color: v.$grey-90-color;
+  }
+
+  &__value {
+    @extend %p1;
+    color: v.$grey-70-color;
+    display: flex;
+    gap: 12px;
+  }
+}
+
+.mapPreview {
+  height: 220px;
+
+  background: v.$grey-20-color;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: v.$grey-60-color;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: v.$grey-60-color;
+}

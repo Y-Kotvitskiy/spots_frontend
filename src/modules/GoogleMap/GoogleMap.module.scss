@@ -1,0 +1,10 @@
+.GoogleMap {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  height: 100vh;
+
+  &__map {
+    flex-grow: 1;
+  }
+}

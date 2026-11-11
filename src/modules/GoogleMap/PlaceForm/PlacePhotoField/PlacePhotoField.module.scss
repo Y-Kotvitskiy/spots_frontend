@@ -1,0 +1,56 @@
+@use "@/scss/typography" as t;
+@use "@/scss/mixins" as m;
+@use "@/scss/variables" as v;
+
+.PlacePhotoField {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &__label {
+    @extend %h4;
+  }
+
+  &__required {
+    color: v.$system-error-color;
+  }
+
+  &__valueContainer {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 186px;
+  }
+
+  &__photoContainer {
+    position: relative;
+    width: 186px;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__loadButton {
+    width: 186px;
+    border: none;
+    background: url("/icons/add_photo.svg") center center no-repeat;
+    background-color: v.$grey-20-color;
+  }
+
+  &__clearButton {
+    display: block;
+    z-index: 10;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 20px;
+    background: url("/icons/clear_photo.svg") center center no-repeat;
+    background-color: v.$grey-0-color;
+  }
+}

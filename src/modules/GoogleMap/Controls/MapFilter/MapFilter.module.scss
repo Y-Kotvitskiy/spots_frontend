@@ -1,0 +1,53 @@
+@use "@/scss/typography" as t;
+@use "@/scss/variables" as v;
+
+.MapFilter {
+  width: 670px;
+  border-radius: 32px;
+
+  background-color: v.$grey-0-color;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &__header {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    padding-inline: 32px 20px;
+
+    &Clear {
+      @extend %button_big;
+
+      border: none;
+      background-color: transparent;
+      color: v.$grey-60-color;
+    }
+
+    &Title {
+      @extend %h3;
+
+      color: v.$grey-70-color;
+    }
+
+    &Close {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: url("/icons/place_close.svg") center center no-repeat;
+    }
+  }
+
+  &__fieldset {
+    display: flex;
+    flex-direction: column;
+    margin-inline: 32px;
+    gap: 60px;
+    border: none;
+  }
+
+  &__main {
+    margin-block: 32px 60px;
+  }
+}

@@ -1,0 +1,211 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+// ==========================================
+// LOCAL VARIABLES & MIXINS (Винесено сюди для зручності)
+// ==========================================
+
+$transition-speed: 0.2s;
+$box-shadow-card: 0 8px 24px v.$shadow-color;
+$box-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12);
+$box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+@mixin fade-in($duration: 0.15s) {
+  animation: fadeIn $duration ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ==========================================
+// COMPONENT STYLES
+// ==========================================
+
+.placeCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  min-width: 300px;
+  background-color: v.$grey-0-color;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $box-shadow-card;
+
+    .placeCard__menuContainer {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  // --- IMAGE & MEDIA SECTION ---
+
+  &__imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    padding: 16px;
+
+    @include m.on-tablet {
+      height: 200px;
+      padding: 20px;
+    }
+
+    @include m.on-desktop {
+      height: 240px;
+    }
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    border-radius: 14px;
+
+    @include m.on-tablet {
+      border-radius: 18px;
+    }
+  }
+
+  // --- MENU & DROPDOWN ---
+
+  &__menuContainer {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    opacity: 1;
+
+    @include m.on-desktop {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity $transition-speed ease;
+    }
+
+    &:has(.placeCard__dropdown) {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  &__menuBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: v.$grey-0-color;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: v.$grey-90-color;
+    box-shadow: $box-shadow-button;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: max-content;
+    background-color: v.$grey-0-color;
+    border-radius: 20px;
+    box-shadow: $box-shadow-dropdown;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    z-index: 10;
+    
+    @include fade-in(0.15s);
+  }
+
+  &__dropdownItem,
+  &__dropdownItemDanger {
+    @extend %p2;
+    background: none;
+    border: none;
+    white-space: nowrap;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color $transition-speed ease;
+    color: v.$grey-90-color;
+
+    &:hover {
+      background-color: v.$grey-20-color;
+    }
+  }
+
+  &__dropdownItemDanger {
+    color: v.$system-error-color;
+    
+    &:hover {
+      background-color: rgba(234, 67, 53, 0.08);
+    }
+  }
+
+  // --- CONTENT & METADATA SECTION ---
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 20px;
+    gap: 8px;
+  }
+
+  &__title {
+    @extend %h3;
+    color: v.$grey-90-color;
+    margin: 0;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    @extend %p3;
+    color: v.$grey-60-color;
+  }
+
+  &__separator {
+    font-weight: bold;
+  }
+
+  &__hours {
+    color: v.$grey-60-color;
+  }
+
+  &__statusWrapper {
+    margin-top: 4px;
+  }
+
+  &__notShared,
+  &__shared,
+  &.addedByTag,
+  .addedByTag {
+    margin-top: 4px;
+    @extend %p1;
+    color: v.$secondary-orange-color;
+  }
+}
