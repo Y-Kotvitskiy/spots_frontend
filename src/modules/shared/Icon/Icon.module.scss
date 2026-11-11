@@ -1,3 +1,5 @@
+@use "@/scss/mixins.scss" as m;
+
 .Icon {
   display: inline-flex;
   align-items: center;
@@ -12,5 +14,15 @@
 
   &_clickable {
     cursor: pointer;
+  }
+
+  &_navigation {
+    width: 28px;
+    height: 28px;
+
+    @include m.on-tablet {
+      width: 40px;
+      height: 40px;
+    }
   }
 }

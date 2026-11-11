@@ -9,15 +9,15 @@ import {
   selectSelectedPlaces,
 } from "@/store/slices/mapSlice";
 import { Tag } from "@/types";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80";
+import { useBreakpoint } from "../useBreakpoint";
 
 const PlaceDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { isMobile } = useBreakpoint();
 
   const savedPlaces = useAppSelector(selectSavedPlaces);
   const selectedPlace = useAppSelector(selectSelectedPlaces);
@@ -37,7 +37,6 @@ const PlaceDetails: React.FC = () => {
     : [];
 
   const mainPhoto = photosList[0];
-  const sidePhotos = photosList.slice(1, 4);
 
   const handleAddPhotoClick = () => {
     fileInputRef.current?.click();
@@ -52,12 +51,17 @@ const PlaceDetails: React.FC = () => {
   };
 
   const formattedHours = place?.opening_hours
-    ? `${place.opening_hours.opens_at} - ${place.opening_hours.closes_at}`
+    ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
     : "08:00 - 20:00";
 
   if (!place) {
     return <div className={styles.loading}>Loading place details...</div>;
   }
+
+  // Визначаємо, в якому саме індексі (від 0 до 4) має стояти кнопка плюс (+)
+  // Якщо фотографій немає (0), то плюс стоїть на позиції 0 (головне фото)
+  // Якщо є N фотографій (і їх менше 5), то плюс стоїть на позиції N
+  const addBtnIndex = photosList.length < 5 ? photosList.length : -1;
 
   return (
     <main className={styles.PlaceDetails}>
@@ -71,6 +75,7 @@ const PlaceDetails: React.FC = () => {
         />
 
         <div className={styles.gallery}>
+          {/* Головне фото (індекс 0) */}
           <div className={styles.mainPhotoCard}>
             <button
               className={styles.backBtn}
@@ -78,30 +83,59 @@ const PlaceDetails: React.FC = () => {
               type="button"
               aria-label="Back"
             >
-              <Icon name="back" size={20} />
+              <Icon name="back" />
             </button>
-            <img src={mainPhoto?.url || FALLBACK_IMAGE} alt={place.name} />
-            {photosList.length > 0 && (
-              <span className={styles.photoBadge}>1 photo</span>
-            )}
+
+            {mainPhoto ? (
+              <>
+                <img src={mainPhoto.url} alt={place.name} />
+                <span className={styles.photoBadge}>1 photo</span>
+              </>
+            ) : addBtnIndex === 0 ? (
+              <button
+                type="button"
+                className={styles.addPhotoCardFull}
+                onClick={handleAddPhotoClick}
+                aria-label="Add photo"
+              >
+                <Icon name="plus" size={isMobile ? 48 : 100} />
+              </button>
+            ) : null}
           </div>
 
+          {/* Бічна сітка для індексів від 1 до 4 */}
           <div className={styles.sidePhotosGrid}>
-            {sidePhotos.map((photo, index) => (
-              <div key={photo.id} className={styles.smallPhotoCard}>
-                <img src={photo.url} alt={`${place.name} ${index + 2}`} />
-                <span className={styles.photoBadge}>{index + 2} photo</span>
-              </div>
-            ))}
+            {[1, 2, 3, 4].map((gridIndex) => {
+              const photo = photosList[gridIndex];
+              const isAddButton = addBtnIndex === gridIndex;
 
-            <button
-              type="button"
-              className={styles.addPhotoCard}
-              onClick={handleAddPhotoClick}
-              aria-label="Add photo"
-            >
-              <Icon name="plus" size={28} />
-            </button>
+              if (photo) {
+                return (
+                  <div key={photo.id} className={styles.smallPhotoCard}>
+                    <img src={photo.url} alt={`${place.name} ${gridIndex + 1}`} />
+                    <span className={styles.photoBadge}>{gridIndex + 1} photo</span>
+                  </div>
+                );
+              }
+
+              if (isAddButton) {
+                return (
+                  <button
+                    key="add-photo"
+                    type="button"
+                    className={styles.addPhotoCard}
+                    onClick={handleAddPhotoClick}
+                    aria-label="Add photo"
+                  >
+                    <Icon name="plus" size={isMobile ? 48 : 100} />
+                  </button>
+                );
+              }
+
+              return (
+                <div key={`empty-${gridIndex}`} className={styles.smallPhotoCard} />
+              );
+            })}
           </div>
         </div>
 
@@ -109,7 +143,7 @@ const PlaceDetails: React.FC = () => {
           <div className={styles.placeHeader__info}>
             <h1 className={styles.placeHeader__title}>{place.name}</h1>
             <p className={styles.placeHeader__subtitle}>
-              <span>{place.category}</span>
+              <span>{place.categoryName}</span>
               {place.address && (
                 <>
                   <span className={styles.placeHeader__separator}>•</span>
@@ -148,13 +182,15 @@ const PlaceDetails: React.FC = () => {
 
             <div className={styles.infoRow}>
               <div className={styles.infoBlock}>
-                <h4 className={styles.infoBlock__label}>Working hours</h4>
-                <p className={styles.infoBlock__value}>{formattedHours}</p>
+                <h3 className={styles.infoBlock__label}>
+                  Working hours
+                </h3>
+                <p className={styles.infoBlock__value}><Icon name="time" size={24} color={styles.placeDetaislIcon}/>{formattedHours}</p>
               </div>
               {place.creator_name && (
                 <div className={styles.infoBlock}>
-                  <h4 className={styles.infoBlock__label}>Added by</h4>
-                  <p className={styles.infoBlock__value}>{place.creator_name}</p>
+                  <h3 className={styles.infoBlock__label}>Added by</h3>
+                  <p className={styles.infoBlock__value}><Icon name="check" size={24} color={styles.placeDetaislIcon}/>{place.creator_name}</p>
                 </div>
               )}
             </div>

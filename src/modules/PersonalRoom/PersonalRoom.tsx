@@ -5,14 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
 import { usePlaceCardActions } from "../usePlaceCardActions";
-import { authActions } from "@/store";
-import { placeService } from "@/services/placeService";
+import { authActions, mapActions } from "@/store";
 import { usePageError } from "../hooks.ts";
 
 import PlaceCard from "../shared/PlaceCard";
 import type { Place } from "@/types/index.ts";
 import ConfirmForm from "../shared/ConfirmForm/ConfirmForm.tsx";
 import Icon from "../shared/Icon";
+import EditProfileModal from "./EditProfileModal/EditProfileModal.tsx";
+import EditPlaceModal from "../shared/EditPlace";
+import { userService } from "@/services/userService.ts";
 
 const PersonalRoom = () => {
   const dispatch = useAppDispatch();
@@ -24,6 +26,9 @@ const PersonalRoom = () => {
   const [myPlaces, setMyPlaces] = useState<Place[]>([]);
   const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  const [placeToEdit, setPlaceToEdit] = useState<Place | null>(null);
+
   const [activeTab, setActiveTab] = useState<"my-places" | "shared-to-me">(
     "my-places",
   );
@@ -34,7 +39,6 @@ const PersonalRoom = () => {
     handleDeletePersonal,
     handleConfirmDeletePersonal,
     handleCancelDelete,
-    handleEdit: handleCardEdit,
   } = usePlaceCardActions((deletedId) => {
     setMyPlaces((prev) => prev.filter((p) => p.id !== deletedId));
   });
@@ -42,11 +46,24 @@ const PersonalRoom = () => {
   const { savedPlaces } = useMapSelector();
 
   useEffect(() => {
+    const fetchUserIfNeeded = async () => {
+      if (!currentUser?.name || !currentUser?.avatar) {
+        try {
+          const userProfile = await userService.getMe();
+          dispatch(authActions.updateUser(userProfile));
+        } catch (err) {
+          console.error("Failed to fetch user profile:", err);
+        }
+      }
+    };
+    fetchUserIfNeeded();
+  }, [currentUser, dispatch]);
+
+  useEffect(() => {
     const fetchMyPlaces = async () => {
       if (!currentUser?.id) return;
       try {
         setIsLoadingMyPlaces(true);
-
         const userPersonalPlaces = savedPlaces.filter(
           (place) => place.creator_id === currentUser.id,
         );
@@ -59,7 +76,18 @@ const PersonalRoom = () => {
     };
 
     fetchMyPlaces();
-  }, [currentUser?.id]);
+  }, [currentUser?.id, savedPlaces]);
+
+  // Функція для оновлення місця в локальному стейті та Redux
+  const handlePlaceUpdated = (updatedPlace: Place) => {
+    // 1. Оновлюємо локальний стейт кімнати
+    setMyPlaces((prevPlaces) =>
+      prevPlaces.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
+    );
+
+    // 2. Оновлюємо стан у Redux (якщо твій стор мапи має таку дію)
+    dispatch(mapActions.updatePlace(updatedPlace));
+  };
 
   const placesCount = myPlaces.length;
 
@@ -80,11 +108,25 @@ const PersonalRoom = () => {
     }
   };
 
+  const handleSaveProfile = async (newName: string, avatarFile?: File) => {
+    try {
+      const updatedUser = await userService.updateMe({
+        display_name: newName,
+        file: avatarFile,
+      });
+      dispatch(authActions.updateUser(updatedUser));
+      setIsEditModalOpen(false);
+    } catch (err: any) {
+      console.error("Failed to update profile:", err);
+      setError(err.response?.data?.message || "Failed to update profile");
+      throw err;
+    }
+  };
+
   return (
     <main className={styles.PersonalRoom}>
       <div className={styles.container}>
         <div className={styles.personalInfo}>
-          {/* Інформація про користувача */}
           <div className={styles.personalInfo__top}>
             <div className={styles.personalInfo__avatarWrapper}>
               <img
@@ -101,6 +143,12 @@ const PersonalRoom = () => {
                 <h2 className={styles.personalInfo__name}>
                   {currentUser?.name || "Error: Name does not exist"}
                 </h2>
+                <button
+                  className={styles.personalInfo__EditBtn}
+                  onClick={() => setIsEditModalOpen(true)}
+                >
+                  Edit name
+                </button>
               </div>
               <div className={styles.personalInfo__stats}>
                 <span className={styles.personalInfo__statItem}>
@@ -180,12 +228,12 @@ const PersonalRoom = () => {
                     category={place.categoryName}
                     workingHours={
                       place.opening_hours
-                        ? `${place.opening_hours.opens_at} - ${place.opening_hours.closes_at}`
-                        : "08:00 - 20:00"
+                        ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
+                        : "none"
                     }
                     isShared={0}
                     deleteButtonText="Delete place"
-                    onEdit={() => handleCardEdit(place)}
+                    onEdit={() => setPlaceToEdit(place)}
                     onShare={() => handleOpenShare(place)}
                     onDelete={() => handleDeletePersonal(place)}
                     onClick={() => navigate(`/places/${place.id}`)}
@@ -194,21 +242,49 @@ const PersonalRoom = () => {
               </div>
             )
           ) : (
-            <p className={styles.placesSection__empty}>
-              No places have been shared to you yet.
-            </p>
+            savedPlaces.length === 0 ? (
+              <p className={styles.placesSection__empty}>
+                No places available on the map yet.
+              </p>
+            ) : (
+              <div className={styles.placesGrid}>
+                {savedPlaces.map((place, index) => (
+                  <PlaceCard
+                    key={place.id || index}
+                    image={
+                      place.photos?.[0]?.url ||
+                      "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
+                    }
+                    title={place.name}
+                    category={place.categoryName}
+                    workingHours={
+                      place.opening_hours
+                        ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
+                        : "none"
+                    }
+                    addedBy={place.creator_name}
+                    deleteButtonText="Delete place"
+                    onEdit={() => setPlaceToEdit(place)}
+                    onShare={() => handleOpenShare(place)}
+                    onDelete={() => handleDeletePersonal(place)}
+                    onClick={() => navigate(`/places/${place.id}`)}
+                  />
+                ))}
+              </div>
+            )
           )}
         </section>
       </div>
 
-      {/* Універсальне модальне вікно підтвердження видалення */}
       <ConfirmForm
         isOpen={!!placeToDelete}
         title="Delete place"
         message={
           <>
-            Are you sure you want to delete{" "}
-            <strong>{placeToDelete?.name}</strong>?
+            <strong>{placeToDelete?.name}</strong>
+            {" "}will be removed from the map and from all groups it was shared with.
+            <br/>
+            <p>This can’t be undone.</p>
           </>
         }
         confirmText="Delete"
@@ -217,6 +293,24 @@ const PersonalRoom = () => {
         onConfirm={handleConfirmDeletePersonal}
         onClose={handleCancelDelete}
       />
+
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        currentName={currentUser?.name || ""}
+        currentAvatar={currentUser?.avatar}
+        onSave={handleSaveProfile}
+      />
+
+      {/* Передаємо хендлер onUpdate у модалку */}
+      {placeToEdit && (
+        <EditPlaceModal
+          isOpen={!!placeToEdit}
+          onClose={() => setPlaceToEdit(null)}
+          place={placeToEdit}
+          onUpdate={handlePlaceUpdated}
+        />
+      )}
 
       {error && <p className={styles.PersonalRoom__error}>{error}</p>}
     </main>

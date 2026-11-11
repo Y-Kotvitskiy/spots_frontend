@@ -1,5 +1,6 @@
 @use "@/scss/main.scss" as *;
 @use "@/scss/mixins.scss" as m;
+@use "@/scss/modals.scss" as ex;
 @use "@/scss/variables.scss" as v;
 @use "@/scss/typography.scss" as t;
 
@@ -9,69 +10,41 @@ $box-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12);
 $danger-hover-bg: rgba(234, 67, 53, 0.08);
 
 .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: 16px;
+  @include ex.overlay;
 }
 
 .modal {
-  background-color: v.$grey-0-color;
-  border-radius: 24px;
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: $box-shadow-dropdown;
-  animation: fadeIn 0.2s ease;
+  @include ex.modal;
+
+  @include m.on-tablet {
+    padding-inline: 0;
+    padding-bottom: 40px;
+  }
 
   &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 24px 16px;
+    display: grid;
+    position: unset;
+    grid-template-columns: 1fr auto 1fr;
   }
 
   &__title {
-    @extend %h3;
-    color: v.$grey-90-color;
-    margin: 0;
+    grid-column: 2;
   }
 
   &__closeBtn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: v.$grey-70-color;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    border-radius: 50%;
-    transition: background-color $transition-speed ease;
-
-    &:hover {
-      background-color: v.$grey-10-color;
-      color: v.$grey-90-color;
-    }
+    grid-column: 3;
+    justify-self: end;
+    position: unset;
   }
 
   &__confirmContainer {
     display: flex;
     flex-direction: column;
     gap: 32px;
-    padding: 12px 24px 24px;
 
     @include m.on-tablet {
-      padding: 12px 32px 32px;
       gap: 40px;
+      padding-inline: 32px;
     }
   }
 
@@ -85,42 +58,13 @@ $danger-hover-bg: rgba(234, 67, 53, 0.08);
   }
 
   &__confirmText {
-    margin: 0;
-    line-height: 1.5;
+    @extend %p2;
+    color: v.$grey-70-color;
   }
 
   &__confirmActions {
     display: flex;
     gap: 16px;
     width: 100%;
-
-    button {
-      flex: 1;
-      height: 60px;
-      border-radius: 30px;
-      border: none;
-      cursor: pointer;
-      @extend %button_big;
-      transition: opacity $transition-speed ease, background-color $transition-speed ease;
-
-      &:hover {
-        opacity: 0.9;
-      }
-    }
-  }
-
-  &__cancelBtn {
-    background-color: v.$grey-20-color;
-    color: v.$grey-90-color;
-  }
-
-  &__deleteBtn {
-    background-color: v.$primary-indigo-color;
-    color: v.$grey-0-color;
-  }
-
-  &__primaryBtn {
-    background-color: v.$primary-indigo-color;
-    color: v.$grey-0-color;
   }
 }

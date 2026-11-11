@@ -1,0 +1,141 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+
+
+
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(4px);
+
+  @include m.on-tablet {
+    padding: 16px;
+  }
+}
+
+.modal {
+  background-color: v.$grey-0-color;
+  width: 100%;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+
+
+  position: absolute;
+  bottom: 0;
+
+  border-radius: 20px 20px 0 0;
+
+  padding: 20px 16px;
+
+  gap: 10px;
+
+  @include on-tablet {
+    position: unset;
+
+    max-width: 480px;
+
+    border-radius: 40px;
+    padding: 32px;
+    gap: 20px;
+  }
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  @extend %h3;
+  color: v.$grey-90-color;
+  margin: 0;
+}
+
+.pickerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    right: 12px;
+    transform: translateY(-50%);
+    height: 28px;
+    background-color: v.$grey-10-color;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @include m.on-tablet {
+    height: 180px;
+  }
+}
+
+.column {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  pointer-events: auto;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  z-index: 2;
+}
+
+.scrollList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 70px 0;
+}
+
+.item {
+  @extend %p1;
+  color: v.$grey-40-color;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  scroll-snap-align: center;
+  user-select: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &.active {
+    color: v.$grey-90-color;
+  }
+}
+
+.separator,
+.dash {
+  @extend %h4;
+  color: v.$grey-60-color;
+  z-index: 2;
+  user-select: none;
+}
+
+.footer {
+  margin-top: 8px;
+}
