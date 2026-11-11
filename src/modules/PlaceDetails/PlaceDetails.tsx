@@ -9,15 +9,12 @@ import {
   selectSelectedPlaces,
 } from "@/store/slices/mapSlice";
 import { Tag } from "@/types";
-import { useBreakpoint } from "../useBreakpoint";
 
 const PlaceDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { isMobile } = useBreakpoint();
 
   const savedPlaces = useAppSelector(selectSavedPlaces);
   const selectedPlace = useAppSelector(selectSelectedPlaces);
@@ -98,7 +95,7 @@ const PlaceDetails: React.FC = () => {
                 onClick={handleAddPhotoClick}
                 aria-label="Add photo"
               >
-                <Icon name="plus" size={isMobile ? 48 : 100} />
+                <Icon name="plus" size={48} />
               </button>
             ) : null}
           </div>
@@ -127,7 +124,7 @@ const PlaceDetails: React.FC = () => {
                     onClick={handleAddPhotoClick}
                     aria-label="Add photo"
                   >
-                    <Icon name="plus" size={isMobile ? 48 : 100} />
+                    <Icon name="plus" size={48} />
                   </button>
                 );
               }
