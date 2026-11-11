@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./ConfirmForm.module.scss";
 import Icon from "@/modules/shared/Icon";
+import FormButton from "../Button";
 
 interface ConfirmFormProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const ConfirmForm: React.FC<ConfirmFormProps> = ({
   onConfirm,
   onClose,
 }) => {
+
   if (!isOpen) return null;
 
   return (
@@ -36,7 +38,7 @@ export const ConfirmForm: React.FC<ConfirmFormProps> = ({
             type="button"
             aria-label="Close modal"
           >
-            <Icon name="close" size={24} />
+            <Icon name="close" />
           </button>
         </div>
 
@@ -46,27 +48,23 @@ export const ConfirmForm: React.FC<ConfirmFormProps> = ({
           </div>
 
           <div className={styles.modal__confirmActions}>
-            <button
+
+            <FormButton
               type="button"
-              className={styles.modal__cancelBtn}
+              text={cancelText}
+              variant="grey"
               onClick={onClose}
-            >
-              {cancelText}
-            </button>
-            <button
+            />
+
+            <FormButton
               type="button"
-              className={
-                confirmVariant === "danger"
-                  ? styles.modal__deleteBtn
-                  : styles.modal__primaryBtn
-              }
+              text={confirmText}
+              variant={confirmVariant === "danger" ? "danger" : "default"}
               onClick={() => {
                 onConfirm();
                 onClose();
               }}
-            >
-              {confirmText}
-            </button>
+            />
           </div>
         </div>
       </div>

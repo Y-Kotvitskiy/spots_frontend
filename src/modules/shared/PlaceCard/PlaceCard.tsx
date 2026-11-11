@@ -11,8 +11,8 @@ interface PlaceCardProps {
   title: string;
   category: string;
   workingHours?: string;
-  isShared?: boolean | number | string; // Може бути булевим, числом або рядком
-  addedBy?: string; // Мітка «Added by...» для груп
+  isShared?: boolean | number | string;
+  addedBy?: string;
   deleteButtonText?: string;
   onEdit?: () => void;
   onShare?: () => void;
@@ -143,12 +143,16 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         
         <div className={styles.placeCard__info}>
           <span className={styles.placeCard__category}>{category}</span>
-          <span className={styles.placeCard__separator}>•</span>
-          <span className={styles.placeCard__hours}>{workingHours}</span>
+          {workingHours !== "none" &&
+            <>
+              <span className={styles.placeCard__separator}>•</span>
+              <span className={styles.placeCard__hours}>{workingHours}</span>
+            </>
+          }
         </div>
 
         {addedBy ? (
-          <span className={styles.addedByTag}>{addedBy}</span>
+          <span className={styles.addedByTag}>Added by {addedBy}</span>
         ) : (
           isShared !== undefined && (
             <div className={styles.placeCard__statusWrapper}>

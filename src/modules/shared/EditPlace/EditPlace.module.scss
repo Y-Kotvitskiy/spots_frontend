@@ -1,0 +1,168 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/modals.scss" as ex;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+.overlay {
+  @include ex.overlay;
+}
+
+.modal {
+  @include ex.modal;
+
+  @include m.on-tablet {
+    padding-inline: v.$desktop-padding-inline;
+    padding-bottom: 40px;
+  }
+
+  &__backBtn {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    background: none;
+    border: none;
+
+    color: v.$grey-60-color;
+    cursor: pointer;
+
+    &:hover {
+      color: v.$grey-90-color;
+    }
+  }
+
+  &__setField {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    @include m.on-tablet {
+      gap: 24px;
+    }
+  }
+
+  &__chipsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    @include on-tablet {
+      gap: 16px;
+    }
+  }
+
+  &__chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    background-color: v.$grey-20-color;
+    color: v.$grey-70-color;
+    border: none;
+    border-radius: 50px;
+    @extend %p2;
+    cursor: pointer;
+    transition: all v.$animation-time ease;
+
+    &:hover {
+      background-color: v.$grey-30-color;
+    }
+
+    &Active {
+      background-color: v.$secondary-orange-color;
+      color: v.$grey-0-color;
+
+      &:hover {
+        background-color: v.$secondary-orange-color;
+      }
+    }
+  }
+
+  &__textareaWrapper {
+    position: relative;
+    display: flex;
+  }
+
+  &__textarea {
+    width: 100%;
+    height: 57px;
+    padding: 16px 20px;
+    background-color: v.$grey-10-color;
+    color: v.$grey-90-color;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    @extend %p2;
+    outline: none;
+    resize: vertical;
+    transition: border-color v.$animation-time ease;
+
+    &:focus {
+      border-color: v.$grey-20-color;
+    }
+  }
+
+  &__photosGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  &__photoCard {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background-color: v.$grey-20-color;
+    border-radius: 16px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__deletePhotoBtn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #ffffff;
+    color: v.$grey-90-color;
+    border: none;
+    border-radius: 50%;
+    box-shadow: v.$button-shadow;
+    cursor: pointer;
+    transition: background-color v.$animation-time;
+
+    &:hover {
+      background-color: v.$grey-20-color;
+    }
+  }
+
+  &__addPhotoCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+
+    background-color: v.$grey-20-color;
+    color: v.$grey-60-color;
+
+    border: 2px dashed v.$grey-40-color;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all v.$animation-time ease;
+
+    &:hover {
+      background-color: v.$grey-30-color;
+      border-color: v.$grey-60-color;
+    }
+  }
+}

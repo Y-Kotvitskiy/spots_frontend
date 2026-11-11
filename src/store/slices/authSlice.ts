@@ -9,6 +9,7 @@ import { accessTokenService } from "../../services/accessTokenService";
 import { refreshTokenService } from "../../services/refershTokenService";
 import type { ErrorResponse } from "@/types";
 import type { AxiosError } from "axios";
+import { userIdService } from "@/services/userIdService";
 
 interface AuthState {
   currentUser: User | null;
@@ -24,6 +25,15 @@ const initialState: AuthState = {
   error: null,
 };
 
+// Helper for avatar URL
+const getAvatarUrl = (avatarId?: string | null): string | null => {
+  if (!avatarId) return null;
+  if (avatarId.startsWith("http") || avatarId.startsWith("blob:")) {
+    return avatarId;
+  }
+  return `https://spots.pp.ua/api/v2/users/avatars/${avatarId}`;
+};
+
 // ==========================================
 // ASYNC THUNKS
 // ==========================================
@@ -35,11 +45,19 @@ export const login = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const { id, display_name, email, access_token, refresh_token } =
-        await authService.login(emailLogin, password);
-      accessTokenService.save(access_token);
-      refreshTokenService.save(refresh_token);
-      return { id, name: display_name, email } as User;
+      const data = await authService.login(emailLogin, password);
+      accessTokenService.save(data.access_token);
+      refreshTokenService.save(data.refresh_token);
+      
+      const rawData = data as any;
+      const avatarField = rawData.avatar_url || rawData.avatar;
+
+      return {
+        id: rawData.id,
+        name: rawData.display_name || rawData.name,
+        email: rawData.email,
+        avatar: getAvatarUrl(avatarField),
+      } as User;
     } catch (err: any) {
       return rejectWithValue(err as AxiosError<ErrorResponse>);
     }
@@ -55,10 +73,14 @@ export const activate = createAsyncThunk(
       refreshTokenService.save(data.refresh_token);
       userIdService.save(data.id);
 
+      const rawData = data as any;
+      const avatarField = rawData.avatar_url || rawData.avatar;
+
       return {
-        id: data.id,
-        name: data.display_name,
-        email: data.email,
+        id: rawData.id,
+        name: rawData.display_name || rawData.name,
+        email: rawData.email,
+        avatar: getAvatarUrl(avatarField),
       } as User;
     } catch (error: any) {
       return rejectWithValue(error.message || "Activation failed");
@@ -68,11 +90,19 @@ export const activate = createAsyncThunk(
 
 export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
   try {
-    const { id, display_name, email, access_token, refresh_token } =
-      await authService.refresh();
-    accessTokenService.save(access_token);
-    refreshTokenService.save(refresh_token);
-    return { id, name: display_name, email: email };
+    const data = await authService.refresh();
+    accessTokenService.save(data.access_token);
+    refreshTokenService.save(data.refresh_token);
+
+    const rawData = data as any;
+    const avatarField = rawData.avatar_url || rawData.avatar;
+
+    return {
+      id: rawData.id,
+      name: rawData.display_name || rawData.name,
+      email: rawData.email,
+      avatar: getAvatarUrl(avatarField),
+    } as User;
   } catch (error) {
     console.log("User is not authenticated");
     throw error;
@@ -96,14 +126,22 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    updateUser: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.currentUser) {
-        state.currentUser = { ...state.currentUser, ...action.payload };
+    updateUser: (state, action: PayloadAction<Partial<User> & { display_name?: string; avatar_url?: string }>) => {
+      if (state.currentUser && action.payload) {
+        const raw = action.payload as any;
+        const mappedName = raw.display_name || raw.name;
+        const avatarField = raw.avatar_url || raw.avatar;
+
+        state.currentUser = {
+          ...state.currentUser,
+          ...(mappedName !== undefined ? { name: mappedName } : {}),
+          ...(raw.email !== undefined ? { email: raw.email } : {}),
+          ...(avatarField !== undefined ? { avatar: getAvatarUrl(avatarField) } : {}),
+        };
       }
     },
   },
   extraReducers: (builder) => {
-    // Login
     builder
       .addCase(login.pending, (state) => {
         state.loading = true;
@@ -118,12 +156,10 @@ const authSlice = createSlice({
         state.error = action.error.message || "Login failed";
       });
 
-    // Activate
     builder.addCase(activate.fulfilled, (state, action) => {
       state.currentUser = action.payload;
     });
 
-    // Check Auth
     builder
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isChecked = true;
@@ -135,7 +171,6 @@ const authSlice = createSlice({
         state.isChecked = true;
       });
 
-    // Logout
     builder
       .addCase(logout.fulfilled, (state) => {
         state.currentUser = null;

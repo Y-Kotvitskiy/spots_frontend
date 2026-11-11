@@ -103,29 +103,6 @@ $offset-mobile: 16px;
     gap: 12px;
   }
 
-  &__editNameBtn {
-    @extend %button_big;
-    display: none;
-    padding: 0;
-    border: none;
-
-    background: none;
-    color: v.$grey-60-color;
-    cursor: pointer;
-
-    &:hover {
-      color: v.$grey-70-color;
-    }
-
-    &:active {
-      color: v.$grey-90-color;
-    }
-
-    @include m.on-tablet {
-      display: inline-block;
-    }
-  }
-
   &__stats {
     display: flex;
     align-items: center;
@@ -239,6 +216,29 @@ $offset-mobile: 16px;
   &_active {
     background-color: v.$grey-20-color;
     color: v.$grey-90-color;
+  }
+}
+
+.personalInfo__EditBtn {
+  @extend %button_big;
+  display: none;
+  padding: 0;
+  border: none;
+
+  background: none;
+  color: v.$grey-60-color;
+  cursor: pointer;
+
+  &:hover {
+    color: v.$grey-70-color;
+  }
+
+  &:active {
+    color: v.$grey-90-color;
+  }
+
+  @include m.on-tablet {
+    display: inline-block;
   }
 }
 

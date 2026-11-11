@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "./EditProfileModal.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
@@ -7,8 +7,8 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentName?: string;
-  currentAvatar?: string;
-  onSave: (newName: string, newAvatarBase64?: string) => void;
+  currentAvatar?: string | null;
+  onSave: (newName: string, avatarFile?: File) => Promise<void> | void;
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({
@@ -18,24 +18,30 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   currentAvatar,
   onSave,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [name, setName] = useState(currentName);
-  const [avatarBase64, setAvatarBase64] = useState<string | undefined>(undefined);
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(currentAvatar);
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined | null>(
+    currentAvatar
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Синхронізуємо локальний стейт при відкритті або зміні пропсів
+  useEffect(() => {
+    setName(currentName);
+    setAvatarPreview(currentAvatar);
+    setSelectedFile(undefined);
+  }, [currentName, currentAvatar, isOpen]);
 
   if (!isOpen) return null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setAvatarBase64(base64String);
-        setAvatarPreview(base64String);
-      };
-      reader.readAsDataURL(file);
+      setSelectedFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
     }
   };
 
@@ -43,10 +49,16 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(name, avatarBase64);
-    onClose();
+    try {
+      setIsLoading(true);
+      await onSave(name, selectedFile);
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -55,7 +67,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         <div className={styles.modal__header}>
           <h3 className={styles.modal__title}>Edit profile</h3>
           <button className={styles.modal__closeBtn} onClick={onClose} type="button">
-            <Icon name="close" size={20} />
+            <Icon name="close" />
           </button>
         </div>
 
@@ -67,7 +79,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               style={{ cursor: "pointer" }}
             >
               <img
-                src={avatarPreview || "https://images.unsplash.com/photo-1534528741775-53994a69daeb"}
+                src={
+                  avatarPreview ||
+                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
+                }
                 alt="Profile avatar"
                 className={styles.modal__avatar}
               />
@@ -108,7 +123,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </div>
           </div>
 
-          <FormButton type="submit" text="Save changes" />
+          <FormButton type="submit" text={isLoading ? "Saving..." : "Save changes"} />
         </form>
       </div>
     </div>

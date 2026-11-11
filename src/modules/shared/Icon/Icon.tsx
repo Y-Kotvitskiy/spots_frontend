@@ -734,11 +734,15 @@ const Icon: React.FC<IconProps> = ({
     return null;
   }
 
+  const isNavigationIcon = name === "back" || name === "close";
+
   return (
     <span
       className={cn(
         styles.Icon,
-        { [styles.Icon_clickable]: Boolean(onClick) },
+        { [styles.Icon_clickable]: Boolean(onClick),
+          [styles.Icon_navigation]: isNavigationIcon,
+        },
         className,
       )}
       onClick={onClick}
