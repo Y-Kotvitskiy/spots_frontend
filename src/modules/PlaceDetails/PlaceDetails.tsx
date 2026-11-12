@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./PlaceDetails.module.scss";
 import Icon from "@/modules/shared/Icon";
+import Loader from "@/modules/shared/Loader";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   actions as mapActions,
@@ -9,7 +10,6 @@ import {
   selectSelectedPlaces,
 } from "@/store/slices/mapSlice";
 import { Tag } from "@/types";
-import { useBreakpoint } from "../useBreakpoint";
 
 const PlaceDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,14 +17,15 @@ const PlaceDetails: React.FC = () => {
   const dispatch = useAppDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { isMobile } = useBreakpoint();
-
   const savedPlaces = useAppSelector(selectSavedPlaces);
   const selectedPlace = useAppSelector(selectSelectedPlaces);
 
   const place =
     (selectedPlace?.id === id ? selectedPlace : null) ||
     savedPlaces.find((p) => p.id === id);
+
+  const [isMainImageLoaded, setIsMainImageLoaded] = useState(false);
+  const mainImgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (id) {
@@ -37,6 +38,13 @@ const PlaceDetails: React.FC = () => {
     : [];
 
   const mainPhoto = photosList[0];
+
+  useEffect(() => {
+    setIsMainImageLoaded(false);
+    if (mainImgRef.current && mainImgRef.current.complete) {
+      setIsMainImageLoaded(true);
+    }
+  }, [mainPhoto?.url]);
 
   const handleAddPhotoClick = () => {
     fileInputRef.current?.click();
@@ -58,10 +66,22 @@ const PlaceDetails: React.FC = () => {
     return <div className={styles.loading}>Loading place details...</div>;
   }
 
-  // Визначаємо, в якому саме індексі (від 0 до 4) має стояти кнопка плюс (+)
-  // Якщо фотографій немає (0), то плюс стоїть на позиції 0 (головне фото)
-  // Якщо є N фотографій (і їх менше 5), то плюс стоїть на позиції N
   const addBtnIndex = photosList.length < 5 ? photosList.length : -1;
+  const placeName = place.name || "Place";
+
+  const renderPattern = (classNamePrefix: string) => (
+    <div className={styles[`${classNamePrefix}__patternPlaceholder`]}>
+      <div className={styles[`${classNamePrefix}__patternContent`]}>
+        {[...Array(12)].map((_, i) => (
+          <div key={i} className={styles[`${classNamePrefix}__patternRow`]}>
+            {[...Array(12)].map((_, j) => (
+              <span key={j}>{placeName}</span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <main className={styles.PlaceDetails}>
@@ -75,7 +95,9 @@ const PlaceDetails: React.FC = () => {
         />
 
         <div className={styles.gallery}>
-          {/* Головне фото (індекс 0) */}
+
+          {/* Головне фото або патерн-заглушка */}
+
           <div className={styles.mainPhotoCard}>
             <button
               className={styles.backBtn}
@@ -88,7 +110,26 @@ const PlaceDetails: React.FC = () => {
 
             {mainPhoto ? (
               <>
-                <img src={mainPhoto.url} alt={place.name} />
+                {(!mainPhoto.url || !isMainImageLoaded) && (
+                  <>
+                    {renderPattern("mainPhotoCard")}
+                    {mainPhoto.url && (
+                      <Loader className={styles.mainPhotoCard__loaderOverlay} />
+                    )}
+                  </>
+                )}
+
+                <img
+                  ref={mainImgRef}
+                  src={mainPhoto.url}
+                  alt={place.name}
+                  className={`${styles.mainPhotoCard__image} ${
+                    isMainImageLoaded
+                      ? styles.mainPhotoCard__imageLoaded
+                      : styles.mainPhotoCard__imageHidden
+                  }`}
+                  onLoad={() => setIsMainImageLoaded(true)}
+                />
                 <span className={styles.photoBadge}>1 photo</span>
               </>
             ) : addBtnIndex === 0 ? (
@@ -98,12 +139,18 @@ const PlaceDetails: React.FC = () => {
                 onClick={handleAddPhotoClick}
                 aria-label="Add photo"
               >
-                <Icon name="plus" size={isMobile ? 48 : 100} />
+                {renderPattern("addPhotoCardFull")}
+                <div className={styles.addPhotoCardFull__blurOverlay}>
+                  <Icon name="plus" size={48} />
+                </div>
               </button>
-            ) : null}
+            ) : (
+              renderPattern("mainPhotoCard")
+            )}
           </div>
 
           {/* Бічна сітка для індексів від 1 до 4 */}
+
           <div className={styles.sidePhotosGrid}>
             {[1, 2, 3, 4].map((gridIndex) => {
               const photo = photosList[gridIndex];
@@ -127,13 +174,18 @@ const PlaceDetails: React.FC = () => {
                     onClick={handleAddPhotoClick}
                     aria-label="Add photo"
                   >
-                    <Icon name="plus" size={isMobile ? 48 : 100} />
+                    {renderPattern("addPhotoCard")}
+                    <div className={styles.addPhotoCard__blurOverlay}>
+                      <Icon name="plus" size={48} />
+                    </div>
                   </button>
                 );
               }
 
               return (
-                <div key={`empty-${gridIndex}`} className={styles.smallPhotoCard} />
+                <div key={`empty-${gridIndex}`} className={styles.smallPhotoCard}>
+                  {renderPattern("smallPhotoCard")}
+                </div>
               );
             })}
           </div>
@@ -185,12 +237,18 @@ const PlaceDetails: React.FC = () => {
                 <h3 className={styles.infoBlock__label}>
                   Working hours
                 </h3>
-                <p className={styles.infoBlock__value}><Icon name="time" size={24} color={styles.placeDetaislIcon}/>{formattedHours}</p>
+                <p className={styles.infoBlock__value}>
+                  <Icon name="time" size={24} />
+                  {formattedHours}
+                </p>
               </div>
               {place.creator_name && (
                 <div className={styles.infoBlock}>
                   <h3 className={styles.infoBlock__label}>Added by</h3>
-                  <p className={styles.infoBlock__value}><Icon name="check" size={24} color={styles.placeDetaislIcon}/>{place.creator_name}</p>
+                  <p className={styles.infoBlock__value}>
+                    <Icon name="check" size={24} />
+                    {place.creator_name}
+                  </p>
                 </div>
               )}
             </div>

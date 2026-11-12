@@ -3,19 +3,15 @@
 @use "@/scss/variables.scss" as v;
 @use "@/scss/typography.scss" as t;
 
-
-
-
-
 .overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: v.$background-modal-color;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1100;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(v.$blur-base);
 
   @include m.on-tablet {
     padding: 16px;
@@ -25,7 +21,7 @@
 .modal {
   background-color: v.$grey-0-color;
   width: 100%;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: v.$module-shadow;
   display: flex;
   flex-direction: column;
 

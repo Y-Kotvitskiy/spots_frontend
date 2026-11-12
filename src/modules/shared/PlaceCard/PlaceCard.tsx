@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./PlaceCard.module.scss";
 import Icon from "@/modules/shared/Icon";
+import Loader from "@/modules/shared/Loader";
 
 // ==========================================
 // TYPES & INTERFACES
 // ==========================================
 
 interface PlaceCardProps {
-  image: string;
+  image?: string;
   title: string;
   category: string;
   workingHours?: string;
@@ -37,31 +38,23 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onDelete,
   onClick,
 }) => {
+
   // ==========================================
   // STATE & REFS
   // ==========================================
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // ==========================================
-  // EFFECTS
-  // ==========================================
-
-  // Закриття випадаючого меню при кліку поза його межами
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
+    setIsImageLoaded(false);
 
-    if (isMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+    if (imgRef.current && imgRef.current.complete) {
+      setIsImageLoaded(true);
     }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMenuOpen]);
+  }, [image]);
 
   // ==========================================
   // HELPERS
@@ -69,7 +62,6 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
   const hasActions = onEdit || onShare || onDelete;
 
-  // Форматування тексту статусу поширення для персональної кімнати
   const renderShareStatus = () => {
     if (typeof isShared === "string") return isShared;
     if (typeof isShared === "number") {
@@ -87,7 +79,34 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   return (
     <div className={styles.placeCard} onClick={onClick}>
       <div className={styles.placeCard__imageWrapper}>
-        <img src={image} alt={title} className={styles.placeCard__image} />
+        {/* Патерн-заглушка */}
+        {(!image || !isImageLoaded) && (
+          <div className={styles.placeCard__patternPlaceholder}>
+            <div className={styles.placeCard__patternContent}>
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className={styles.placeCard__patternRow}>
+                  {[...Array(8)].map((_) => (
+                    <span>{title}</span>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {image && <Loader className={styles.placeCard__loaderOverlay} />}
+          </div>
+        )}
+
+        {/* Картинка */}
+        {image && (
+          <img
+            ref={imgRef}
+            src={image}
+            alt={title}
+            className={`${styles.placeCard__image} ${
+              isImageLoaded ? styles.placeCard__imageLoaded : styles.placeCard__imageHidden
+            }`}
+            onLoad={() => setIsImageLoaded(true)}
+          />
+        )}
         
         {hasActions && (
           <div className={styles.placeCard__menuContainer} ref={menuRef}>

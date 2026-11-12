@@ -40,14 +40,19 @@ $menu-color: #6b6666;
 $header-background-color: #fff;
 $shadow-color: rgba(#cfbfbf, 20%);
 
-$background-modal-color: $grey-90-color 0.4;
+// New styles
+
+$background-modal-color: rgba($grey-90-color, 0.4);
 
 $module-shadow: 0 10px 30px $grey-90-color;
 
-$button-shadow: 0 2px 6px $grey-90-color 0.2;
-
+$button-shadow: 0 2px 6px rgba($grey-90-color, 0.2);
 
 $animation-time: 0.2s;
+
+$blur-base: 4px;
+
+
 // #region Colors
 
 // #region Global Layout Variables

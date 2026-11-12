@@ -24,6 +24,7 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 }) => {
   const [activePage, setActivePage] = useState<1 | 2 | 3>(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); // Стейт для помилки збереження
   const { categories } = useMapSelector();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,6 +61,7 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
     }
     if (isOpen) {
       setActivePage(1);
+      setErrorMessage(""); // Очищуємо помилку при відкритті
     }
   }, [place, isOpen]);
 
@@ -82,14 +84,16 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
     const file = e.target.files?.[0];
     if (file && place?.id) {
       try {
+        setErrorMessage("");
         const newPhoto = await placeService.addPhoto(place.id, file);
         const updatedPhotos = [...photos, newPhoto];
         setPhotos(updatedPhotos);
         if (onUpdate) {
           onUpdate({ ...place, photos: updatedPhotos });
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to add photo:", err);
+        setErrorMessage(err.response?.data?.message || "Failed to add photo");
       }
     }
   };
@@ -98,19 +102,22 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
   const handleDeletePhoto = async (photoId: string) => {
     if (!place?.id) return;
     try {
+      setErrorMessage("");
       await placeService.deletePhoto(place.id, photoId);
       const updatedPhotos = photos.filter((p) => p.id !== photoId);
       setPhotos(updatedPhotos);
       if (onUpdate) {
         onUpdate({ ...place, photos: updatedPhotos });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to delete photo:", err);
+      setErrorMessage(err.response?.data?.message || "Failed to delete photo");
     }
   };
 
   const handleNextOrSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
 
     if (activePage < 3) {
       setActivePage((prev) => (prev + 1) as 1 | 2 | 3);
@@ -149,8 +156,19 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
         onUpdate(mappedPlace);
       }
       onClose();
-    } catch (error) {
+      } catch (error: any) {
       console.error("Failed to update place:", error);
+
+      const errData = error.response?.data;
+      let backendMessage = "";
+
+      if (Array.isArray(errData?.detail) && errData.detail.length > 0) {
+        backendMessage = errData.detail[0].msg;
+      } else {
+        backendMessage = errData?.message || error.message;
+      }
+
+      setErrorMessage(backendMessage || "Failed to update place");
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +181,10 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
           {activePage > 1 ? (
             <button
               className={styles.modal__backBtn}
-              onClick={() => setActivePage((prev) => (prev - 1) as 1 | 2)}
+              onClick={() => {
+                setActivePage((prev) => (prev - 1) as 1 | 2);
+                setErrorMessage("");
+              }}
               type="button"
               aria-label="Previous page"
             >
@@ -183,7 +204,9 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
         <form onSubmit={handleNextOrSubmit} className={styles.modal__form}>
           {activePage === 1 && (
             <>
+
               {/* КРОК 1: Назва, Категорія, Теги */}
+
               <div className={styles.modal__field}>
                 <label className={styles.modal__label}>
                   Place name <span className={styles.modal__required}>*</span>
@@ -246,7 +269,9 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 
           {activePage === 2 && (
             <>
+
               {/* КРОК 2: Опис, Локація, Фото */}
+
               <div className={styles.modal__setField}>
                 <label className={styles.modal__label}>
                   Description <span className={styles.modal__required}>*</span>
@@ -291,7 +316,7 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
                         onClick={() => handleDeletePhoto(photo.id)}
                         aria-label="Delete photo"
                       >
-                        <Icon name="close" />
+                        <Icon name="close" className={styles.icon__close}/>
                       </button>
                     </div>
                   ))}
@@ -320,7 +345,9 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 
           {activePage === 3 && (
             <>
+
               {/* КРОК 3: Робочі години */}
+
               <div className={styles.modal__setField}>
                 <label className={styles.markLabel || styles.modal__label}>
                   Working hours <span className={styles.modal__required}>*</span>
@@ -352,6 +379,10 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
               />
             </>
           )}
+
+          {/* Виведення рядка помилки, якщо вона є */}
+
+          {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
 
           <FormButton
             type="submit"

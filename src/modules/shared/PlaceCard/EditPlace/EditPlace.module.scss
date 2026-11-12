@@ -131,8 +131,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background-color: #ffffff;
     color: v.$grey-90-color;
     border: none;
@@ -140,6 +140,11 @@
     box-shadow: v.$button-shadow;
     cursor: pointer;
     transition: background-color v.$animation-time;
+
+    @include m.on-tablet {
+      width: 40px;
+      height: 40px;
+    }
 
     &:hover {
       background-color: v.$grey-20-color;
@@ -165,4 +170,16 @@
       border-color: v.$grey-60-color;
     }
   }
+}
+
+.errorMessage {
+  @extend %p3;
+  color: v.$system-error-color;
+  margin: 0;
+  text-align: center;
+}
+
+.icon__close {
+  width: 28px !important;
+  height: 28px !important;
 }
