@@ -1,3 +1,7 @@
+// ==========================================
+// IMPORTS & VARIABLES
+// ==========================================
+
 @use "@/scss/main.scss" as *;
 @use "@/scss/mixins.scss" as m;
 @use "@/scss/variables.scss" as v;
@@ -7,19 +11,21 @@ $offset-desktop: 40px;
 $offset-tablet: 30px;
 $offset-mobile: 16px;
 
-.PersonalRoom {
+// ==========================================
+// MAIN PAGE LAYOUT
+// ==========================================
+
+.PlaceDetails {
   display: flex;
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
   background-color: v.$grey-40-color;
-
-  &__error {
-    margin-top: 16px;
-    color: v.$system-error-color;
-    text-align: center;
-  }
 }
+
+// ==========================================
+// CONTAINER WRAPPER
+// ==========================================
 
 .container {
   display: flex;
@@ -28,7 +34,6 @@ $offset-mobile: 16px;
   margin-inline: auto;
   padding-inline: $offset-mobile;
   padding-top: 20px;
-
   gap: 24px;
 
   @include m.on-tablet {
@@ -42,7 +47,10 @@ $offset-mobile: 16px;
   }
 }
 
-/* Галерея фотографій */
+// ==========================================
+// PHOTO GALLERY SECTION
+// ==========================================
+
 .gallery {
   display: grid;
   grid-template-columns: 1fr;
@@ -53,6 +61,10 @@ $offset-mobile: 16px;
     gap: 20px;
   }
 }
+
+// ==========================================
+// MAIN PHOTO CARD
+// ==========================================
 
 .mainPhotoCard {
   position: relative;
@@ -65,12 +77,74 @@ $offset-mobile: 16px;
     height: 380px;
   }
 
-  img {
+  &__image {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: opacity v.$animation-time ease;
+  }
+
+  &__imageHidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__imageLoaded {
+    opacity: 1;
+  }
+
+  &__loaderOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-color: v.$background-modal-color;
+    backdrop-filter: blur(v.$blur-base);
+  }
+
+  &__patternPlaceholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: v.$grey-10-color;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__patternContent {
+    position: absolute;
+    inset: -50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transform: rotate(-45deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__patternRow {
+    display: flex;
+    white-space: nowrap;
+    gap: 10px;
+    justify-content: center;
+    opacity: 0.31415;
+
+    span {
+      color: v.$grey-90-color;
+      @extend %h2;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
   }
 }
+
+// ==========================================
+// BACK BUTTON
+// ==========================================
 
 .backBtn {
   position: absolute;
@@ -85,14 +159,18 @@ $offset-mobile: 16px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px v.$shadow-color;
-  z-index: 2;
-  transition: background-color 0.2s ease;
+  box-shadow: v.$button-shadow;
+  z-index: 3;
+  transition: background-color v.$animation-time ease;
 
   &:hover {
     background-color: v.$grey-20-color;
   }
 }
+
+// ==========================================
+// SIDE PHOTOS GRID
+// ==========================================
 
 .sidePhotosGrid {
   display: grid;
@@ -106,10 +184,13 @@ $offset-mobile: 16px;
   }
 }
 
+// ==========================================
+// SMALL PHOTO CARD
+// ==========================================
+
 .smallPhotoCard {
   position: relative;
   border-radius: 20px;
-
   overflow: hidden;
   background: v.$grey-20-color; // для скелету
 
@@ -118,25 +199,122 @@ $offset-mobile: 16px;
     height: 100%;
     object-fit: cover;
   }
+
+  &__patternPlaceholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: v.$grey-10-color;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__patternContent {
+    position: absolute;
+    inset: -50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transform: rotate(-45deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__patternRow {
+    display: flex;
+    white-space: nowrap;
+    gap: 6px;
+    justify-content: center;
+    opacity: 0.25;
+
+    span {
+      color: v.$grey-90-color;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
 }
 
+// ==========================================
+// ADD PHOTO CARD (SMALL)
+// ==========================================
+
 .addPhotoCard {
-  background: v.$grey-20-color;
+  position: relative;
+  background: transparent;
   border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: v.$grey-50-color;
+  color: v.$grey-70-color;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-color: transparent;
+  overflow: hidden;
+  border: none;
+  transition: opacity 0.2s ease;
 
   &:hover {
-    background-color: v.$grey-30-color;
+    opacity: 0.9;
+  }
+
+  &__patternPlaceholder {
+    position: absolute;
+    inset: 0;
+    background-color: v.$grey-10-color;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__patternContent {
+    position: absolute;
+    inset: -60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transform: rotate(-45deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__patternRow {
+    display: flex;
+    white-space: nowrap;
+    gap: 4px;
+    justify-content: center;
+    opacity: 0.25;
+
+    span {
+      color: v.$grey-90-color;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  &__blurOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: v.$background-modal-color;
+    backdrop-filter: blur(v.$blur-base);
+    z-index: 2;
   }
 }
 
+// ==========================================
+// ADD PHOTO CARD (FULL / MAIN)
+// ==========================================
+
 .addPhotoCardFull {
+  position: relative;
   width: 100%;
   height: 100%;
   background: v.$grey-20-color;
@@ -144,19 +322,72 @@ $offset-mobile: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: v.$grey-50-color;
+  color: v.$grey-70-color;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  overflow: hidden;
   border: none;
+  z-index: 2;
+  transition: opacity 0.2s ease;
 
   &:hover {
-    background-color: v.$grey-30-color;
+    opacity: 0.9;
+  }
+
+  &__patternPlaceholder {
+    position: absolute;
+    inset: 0;
+    background-color: v.$grey-10-color;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__patternContent {
+    position: absolute;
+    inset: -50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transform: rotate(-45deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__patternRow {
+    display: flex;
+    white-space: nowrap;
+    gap: 10px;
+    justify-content: center;
+    opacity: 0.31415;
+
+    span {
+      color: v.$grey-90-color;
+      @extend %h2;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+
+  &__blurOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(6px);
+    z-index: 2;
   }
 }
 
+// ==========================================
+// PHOTO BADGE
+// ==========================================
+
 .photoBadge {
   @extend %p3;
-
   position: absolute;
   bottom: 12px;
   left: 12px;
@@ -164,9 +395,13 @@ $offset-mobile: 16px;
   padding: 8px 12px;
   border-radius: 40px;
   box-shadow: 0 2px 6px v.$shadow-color;
+  z-index: 2;
 }
 
-/* Хедер місця */
+// ==========================================
+// PLACE HEADER SECTION
+// ==========================================
+
 .placeHeader {
   display: flex;
   justify-content: space-between;
@@ -220,7 +455,10 @@ $offset-mobile: 16px;
   }
 }
 
-/* Теги / зручності */
+// ==========================================
+// TAGS CONTAINER SECTION
+// ==========================================
+
 .tagsContainer {
   display: flex;
   gap: 12px;
@@ -233,7 +471,6 @@ $offset-mobile: 16px;
 
 .tag {
   @extend %h4;
-
   background: v.$grey-20-color;
   padding: 12px 20px;
   border-radius: 50px;
@@ -244,7 +481,10 @@ $offset-mobile: 16px;
   }
 }
 
-/* Сітка нижніх блоків */
+// ==========================================
+// DETAILS GRID & COLUMNS
+// ==========================================
+
 .detailsGrid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -261,6 +501,10 @@ $offset-mobile: 16px;
   gap: 24px;
 }
 
+// ==========================================
+// SECTION CARD (ABOUT LOCATION)
+// ==========================================
+
 .sectionCard {
   display: flex;
   flex-direction: column;
@@ -268,7 +512,6 @@ $offset-mobile: 16px;
   padding: 16px 20px;
   border-radius: 20px;
   box-shadow: 0 4px 20px v.$shadow-color;
-
   gap: 12px;
 
   @include m.on-tablet {
@@ -289,24 +532,22 @@ $offset-mobile: 16px;
   }
 }
 
+// ==========================================
+// INFO ROW & BLOCKS (HOURS / CREATOR)
+// ==========================================
+
 .infoRow {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
 
   @include m.on-tablet {
-    display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 100px;
   }
 }
 
 .infoBlock {
-  // background: v.$grey-0-color;
-  // padding: 20px;
-  // border-radius: 16px;
-  // box-shadow: 0 4px 20px v.$shadow-color;
-
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -324,6 +565,10 @@ $offset-mobile: 16px;
   }
 }
 
+// ==========================================
+// MAP PREVIEW SECTION
+// ==========================================
+
 .mapPreview {
   height: 220px;
 
@@ -334,6 +579,10 @@ $offset-mobile: 16px;
   justify-content: center;
   color: v.$grey-60-color;
 }
+
+// ==========================================
+// LOADING STATE
+// ==========================================
 
 .loading {
   display: flex;

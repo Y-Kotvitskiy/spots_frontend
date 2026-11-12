@@ -2,7 +2,7 @@ import styles from "./PersonalRoom.module.scss";
 
 import type { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
 import { usePlaceCardActions } from "../usePlaceCardActions";
 import { authActions, mapActions } from "@/store";
@@ -12,26 +12,49 @@ import PlaceCard from "../shared/PlaceCard";
 import type { Place } from "@/types/index.ts";
 import ConfirmForm from "../shared/ConfirmForm/ConfirmForm.tsx";
 import Icon from "../shared/Icon";
-import EditProfileModal from "./EditProfileModal/EditProfileModal.tsx";
-import EditPlaceModal from "../shared/EditPlace";
+import Loader from "@/modules/shared/Loader";
+import EditProfile from "./EditProfileModal/EditProfileModal.tsx";
+import EditPlaceModal from "../shared/PlaceCard/EditPlace/index.ts";
 import { userService } from "@/services/userService.ts";
 
 const PersonalRoom = () => {
+
+  // ==========================================
+  // HOOKS & SELECTORS
+  // ==========================================
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { currentUser } = useAuthSelector();
   const [error, setError] = usePageError("");
 
+  // ==========================================
+  // STATES & REFS
+  // ==========================================
+
   const groupsCount = 0;
   const [myPlaces, setMyPlaces] = useState<Place[]>([]);
   const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
   
+  const imgRef = useRef<HTMLImageElement>(null);
   const [placeToEdit, setPlaceToEdit] = useState<Place | null>(null);
 
   const [activeTab, setActiveTab] = useState<"my-places" | "shared-to-me">(
     "my-places",
   );
+
+  useEffect(() => {
+    setIsAvatarLoaded(false);
+    if (imgRef.current && imgRef.current.complete) {
+      setIsAvatarLoaded(true);
+    }
+  }, [currentUser?.avatar]);
+
+  // ==========================================
+  // CARD ACTIONS & SELECTORS
+  // ==========================================
 
   const {
     placeToDelete,
@@ -44,6 +67,24 @@ const PersonalRoom = () => {
   });
 
   const { savedPlaces } = useMapSelector();
+
+  // ==========================================
+  // EFFECTS (DATA FETCHING & TIMERS)
+  // ==========================================
+
+  useEffect(() => {
+    const fetchUserIfNeeded = async () => {
+      if (!currentUser?.id || !currentUser?.name || !currentUser?.avatar) {
+        try {
+          const userProfile = await userService.getMe();
+          dispatch(authActions.updateUser(userProfile));
+        } catch (err) {
+          console.error("Failed to fetch user profile:", err);
+        }
+      }
+    };
+    fetchUserIfNeeded();
+  }, [currentUser?.id, currentUser?.name, currentUser?.avatar, dispatch]);
 
   useEffect(() => {
     const fetchUserIfNeeded = async () => {
@@ -78,19 +119,6 @@ const PersonalRoom = () => {
     fetchMyPlaces();
   }, [currentUser?.id, savedPlaces]);
 
-  // Функція для оновлення місця в локальному стейті та Redux
-  const handlePlaceUpdated = (updatedPlace: Place) => {
-    // 1. Оновлюємо локальний стейт кімнати
-    setMyPlaces((prevPlaces) =>
-      prevPlaces.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
-    );
-
-    // 2. Оновлюємо стан у Redux (якщо твій стор мапи має таку дію)
-    dispatch(mapActions.updatePlace(updatedPlace));
-  };
-
-  const placesCount = myPlaces.length;
-
   useEffect(() => {
     if (!error) return;
     const timerId = setTimeout(() => {
@@ -98,6 +126,20 @@ const PersonalRoom = () => {
     }, 3000);
     return () => clearTimeout(timerId);
   }, [navigate, error]);
+
+  // ==========================================
+  // EVENT HANDLERS
+  // ==========================================
+
+  const handlePlaceUpdated = (updatedPlace: Place) => {
+    setMyPlaces((prevPlaces) =>
+      prevPlaces.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
+    );
+
+    dispatch(mapActions.updatePlace(updatedPlace));
+  };
+
+  const placesCount = myPlaces.length;
 
   const handleLogout = async () => {
     try {
@@ -123,20 +165,56 @@ const PersonalRoom = () => {
     }
   };
 
+  const userName = currentUser?.name || "User";
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
     <main className={styles.PersonalRoom}>
       <div className={styles.container}>
+
+        {/* User Info Section */}
+
         <div className={styles.personalInfo}>
           <div className={styles.personalInfo__top}>
             <div className={styles.personalInfo__avatarWrapper}>
-              <img
-                src={
-                  currentUser?.avatar ||
-                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
-                }
-                alt="User avatar"
-                className={styles.personalInfo__avatar}
-              />
+
+              {/* Патерн-заглушка */}
+
+              {(!currentUser?.avatar || !isAvatarLoaded) && (
+                <div className={styles.personalInfo__patternPlaceholder}>
+                  <div className={styles.personalInfo__patternContent}>
+                    {[...Array(8)].map((_, i) => (
+                      <div key={i} className={styles.personalInfo__patternRow}>
+                        {[...Array(8)].map((_, j) => (
+                          <span key={j}>{userName}</span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                  {currentUser?.avatar && (
+                    <Loader className={styles.personalInfo__avatarLoader} />
+                  )}
+                </div>
+              )}
+
+              {/* Реальна картинка аватара */}
+
+              {currentUser?.avatar && (
+                <img
+                  ref={imgRef}
+                  src={currentUser.avatar}
+                  alt="User avatar"
+                  className={`${styles.personalInfo__avatar} ${
+                    isAvatarLoaded
+                      ? styles.personalInfo__avatarLoaded
+                      : styles.personalInfo__avatarHidden
+                  }`}
+                  onLoad={() => setIsAvatarLoaded(true)}
+                />
+              )}
             </div>
             <div className={styles.personalInfo__content}>
               <div className={styles.personalInfo__nameRow}>
@@ -190,6 +268,8 @@ const PersonalRoom = () => {
           </div>
         </div>
 
+        {/* Tabs Navigation */}
+
         <div className={styles.tabs}>
           <button
             className={`${styles.tab} ${activeTab === "my-places" ? styles.tab_active : ""}`}
@@ -204,6 +284,8 @@ const PersonalRoom = () => {
             Shared to me
           </button>
         </div>
+
+        {/* Places Section */}
 
         <section className={styles.placesSection}>
           {activeTab === "my-places" ? (
@@ -221,8 +303,7 @@ const PersonalRoom = () => {
                   <PlaceCard
                     key={place.id || index}
                     image={
-                      place.photos?.[0]?.url ||
-                      "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
+                      place.photos?.[0]?.url || ""
                     }
                     title={place.name}
                     category={place.categoryName}
@@ -253,7 +334,7 @@ const PersonalRoom = () => {
                     key={place.id || index}
                     image={
                       place.photos?.[0]?.url ||
-                      "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?auto=format&fit=crop&w=600&q=80"
+                      ""
                     }
                     title={place.name}
                     category={place.categoryName}
@@ -276,6 +357,8 @@ const PersonalRoom = () => {
         </section>
       </div>
 
+      {/* Modals & Notifications */}
+
       <ConfirmForm
         isOpen={!!placeToDelete}
         title="Delete place"
@@ -294,7 +377,7 @@ const PersonalRoom = () => {
         onClose={handleCancelDelete}
       />
 
-      <EditProfileModal
+      <EditProfile
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         currentName={currentUser?.name || ""}
@@ -302,7 +385,6 @@ const PersonalRoom = () => {
         onSave={handleSaveProfile}
       />
 
-      {/* Передаємо хендлер onUpdate у модалку */}
       {placeToEdit && (
         <EditPlaceModal
           isOpen={!!placeToEdit}

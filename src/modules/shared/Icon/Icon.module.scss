@@ -17,12 +17,12 @@
   }
 
   &_navigation {
-    width: 28px;
-    height: 28px;
+    width: 28px !important;
+    height: 28px !important;
 
     @include m.on-tablet {
-      width: 40px;
-      height: 40px;
+      width: 40px !important;
+      height: 40px !important;
     }
   }
 }

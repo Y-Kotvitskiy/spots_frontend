@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "./EditProfileModal.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
+import Loader from "@/modules/shared/Loader";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -18,7 +19,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   currentAvatar,
   onSave,
 }) => {
+
+  // ==========================================
+  // STATES & REFS
+  // ==========================================
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
 
   const [name, setName] = useState(currentName);
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
@@ -27,6 +34,24 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // ==========================================
+  // EFFECTS
+  // ==========================================
+
+  useEffect(() => {
+    setName(currentName);
+    setAvatarPreview(currentAvatar);
+    setSelectedFile(undefined);
+  }, [currentName, currentAvatar, isOpen]);
+
+  useEffect(() => {
+    setIsAvatarLoaded(false);
+    if (imgRef.current && imgRef.current.complete) {
+      setIsAvatarLoaded(true);
+    }
+  }, [avatarPreview]);
 
   // Синхронізуємо локальний стейт при відкритті або зміні пропсів
   useEffect(() => {
@@ -36,6 +61,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   }, [currentName, currentAvatar, isOpen]);
 
   if (!isOpen) return null;
+
+  // ==========================================
+  // EVENT HANDLERS
+  // ==========================================
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -61,9 +90,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     }
   };
 
+  const profileNameForPattern = name.trim() || "User";
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        
+        {/* Header Section */}
+
         <div className={styles.modal__header}>
           <h3 className={styles.modal__title}>Edit profile</h3>
           <button className={styles.modal__closeBtn} onClick={onClose} type="button">
@@ -71,21 +109,52 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </button>
         </div>
 
+        {/* Form Section */}
+
         <form onSubmit={handleSubmit} className={styles.modal__form}>
+
+          {/* Avatar Section */}
+
           <div className={styles.modal__avatarSection}>
             <div 
               className={styles.modal__avatarWrapper} 
               onClick={handleTriggerFileSelect}
               style={{ cursor: "pointer" }}
             >
-              <img
-                src={
-                  avatarPreview ||
-                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
-                }
-                alt="Profile avatar"
-                className={styles.modal__avatar}
-              />
+              {/* Патерн-заглушка з ім'ям під 45°, якщо аватара немає або він ще вантажиться */}
+
+              {(!avatarPreview || !isAvatarLoaded) && (
+                <div className={styles.modal__patternPlaceholder}>
+                  <div className={styles.modal__patternContent}>
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className={styles.modal__patternRow}>
+                        {[...Array(6)].map((_, j) => (
+                          <span key={j}>{profileNameForPattern}</span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                  {avatarPreview && (
+                    <Loader className={styles.modal__avatarLoader} />
+                  )}
+                </div>
+              )}
+
+              {/* Реальна картинка аватара */}
+
+              {avatarPreview && (
+                <img
+                  ref={imgRef}
+                  src={avatarPreview}
+                  alt="Profile avatar"
+                  className={`${styles.modal__avatar} ${
+                    isAvatarLoaded
+                      ? styles.modal__avatarLoaded
+                      : styles.modal__avatarHidden
+                  }`}
+                  onLoad={() => setIsAvatarLoaded(true)}
+                />
+              )}
             </div>
 
             <input
@@ -105,6 +174,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </button>
           </div>
 
+          {/* Name Field Section */}
+
           <div className={styles.modal__field}>
             <label className={styles.modal__label}>
               Name <span className={styles.modal__required}>*</span>
@@ -122,6 +193,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               </span>
             </div>
           </div>
+
+          {/* Submit Button */}
 
           <FormButton type="submit" text={isLoading ? "Saving..." : "Save changes"} />
         </form>

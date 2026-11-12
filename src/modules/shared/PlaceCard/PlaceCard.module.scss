@@ -4,15 +4,13 @@
 @use "@/scss/typography.scss" as t;
 
 // ==========================================
-// LOCAL VARIABLES & MIXINS (Винесено сюди для зручності)
+// LOCAL VARIABLES & MIXINS
 // ==========================================
 
-$transition-speed: 0.2s;
-$box-shadow-card: 0 8px 24px v.$shadow-color;
-$box-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12);
-$box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
+$card-max-width: 500px;
+$card-min-width: 300px;
 
-@mixin fade-in($duration: 0.15s) {
+@mixin fade-in($duration: v.$animation-time) {
   animation: fadeIn $duration ease;
 }
 
@@ -28,7 +26,7 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 // ==========================================
-// COMPONENT STYLES
+// COMPONENT: PLACE CARD
 // ==========================================
 
 .placeCard {
@@ -36,17 +34,17 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 500px;
-  min-width: 300px;
+  max-width: $card-max-width;
+  min-width: $card-min-width;
   background-color: v.$grey-0-color;
-  border-radius: 20px;
+  border-radius: calc(($card-max-width + $card-min-width) / 2 * 0.05);
   overflow: hidden;
   cursor: pointer;
-  transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+  transition: transform v.$animation-time ease, box-shadow v.$animation-time ease;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: $box-shadow-card;
+    box-shadow: v.$module-shadow;
 
     .placeCard__menuContainer {
       opacity: 1;
@@ -54,13 +52,16 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
   }
 
-  // --- IMAGE & MEDIA SECTION ---
+  // ==========================================
+  // IMAGE & MEDIA SECTION
+  // ==========================================
 
   &__imageWrapper {
     position: relative;
     width: 100%;
     height: 180px;
     padding: 16px;
+    overflow: hidden;
 
     @include m.on-tablet {
       height: 200px;
@@ -73,18 +74,91 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   &__image {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 16px;
+    width: calc(100% - 32px);
+    height: calc(100% - 32px);
     object-fit: cover;
     border: none;
     border-radius: 14px;
+    transition: opacity v.$animation-time ease;
+
+    @include m.on-tablet {
+      inset: 20px;
+      width: calc(100% - 40px);
+      height: calc(100% - 40px);
+      border-radius: 18px;
+    }
+  }
+
+  &__imageHidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__imageLoaded {
+    opacity: 1;
+  }
+
+  &__loaderOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-color: v.$background-modal-color;
+    backdrop-filter: blur(v.$blur-base);
+  }
+
+  // ==========================================
+  // PATTERN PLACEHOLDER (FALLBACK)
+  // ==========================================
+
+  &__patternPlaceholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: v.$grey-10-color;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @include m.on-tablet {
       border-radius: 18px;
     }
   }
 
-  // --- MENU & DROPDOWN ---
+  &__patternContent {
+    position: absolute;
+    inset: -50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transform: rotate(-45deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__patternRow {
+    display: flex;
+    white-space: nowrap;
+    gap: 10px;
+    justify-content: center;
+    opacity: 0.31415;
+
+    span {
+      color: v.$grey-90-color;
+
+      @extend %h2;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+
+  // ==========================================
+  // MENU & DROPDOWN
+  // ==========================================
 
   &__menuContainer {
     position: absolute;
@@ -96,7 +170,7 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
     @include m.on-desktop {
       opacity: 0;
       pointer-events: none;
-      transition: opacity $transition-speed ease;
+      transition: opacity v.$animation-time ease;
     }
 
     &:has(.placeCard__dropdown) {
@@ -116,7 +190,7 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
     justify-content: center;
     cursor: pointer;
     color: v.$grey-90-color;
-    box-shadow: $box-shadow-button;
+    box-shadow: v.$button-shadow;
   }
 
   &__dropdown {
@@ -126,13 +200,13 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
     width: max-content;
     background-color: v.$grey-0-color;
     border-radius: 20px;
-    box-shadow: $box-shadow-dropdown;
+    box-shadow: v.$button-shadow;
     display: flex;
     flex-direction: column;
     padding: 12px;
     z-index: 10;
     
-    @include fade-in(0.15s);
+    @include fade-in(v.$animation-time);
   }
 
   &__dropdownItem,
@@ -149,7 +223,7 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    transition: background-color $transition-speed ease;
+    transition: background-color v.$animation-time ease;
     color: v.$grey-90-color;
 
     &:hover {
@@ -161,11 +235,13 @@ $box-shadow-button: 0 2px 8px rgba(0, 0, 0, 0.15);
     color: v.$system-error-color;
     
     &:hover {
-      background-color: rgba(234, 67, 53, 0.08);
+      background-color: v.$grey-20-color;
     }
   }
 
-  // --- CONTENT & METADATA SECTION ---
+  // ==========================================
+  // CONTENT & METADATA SECTION
+  // ==========================================
 
   &__content {
     display: flex;
