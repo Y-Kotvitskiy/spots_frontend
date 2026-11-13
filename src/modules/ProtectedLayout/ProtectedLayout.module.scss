@@ -1,8 +1,15 @@
+@use "@/scss/mixins" as m;
+
 .layout {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  @include m.on-tablet {
+    overflow-y: hidden;
+  }
 }
 
 .mapContainer {

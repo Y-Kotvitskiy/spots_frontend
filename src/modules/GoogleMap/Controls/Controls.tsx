@@ -76,7 +76,8 @@ const Controls: React.FC = () => {
           "Save"
         ) : (
           <>
-            <span className={styles.Controls__addButtonPlus}>+</span> Add place
+            <span className={styles.Controls__addButtonPlus}>+</span>
+            <span className={styles.Controls__addButtonText}>Add place</span>
           </>
         )}
       </button>

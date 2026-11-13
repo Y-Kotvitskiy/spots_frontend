@@ -12,8 +12,9 @@
   column-gap: 28px;
   align-items: start;
   justify-content: center;
+  width: 100%;
   width: 100vw;
-  height: calc(100dvh - v.$header-height-phone);
+  min-height: calc(100dvh - v.$header-height-phone - 40px);
   padding-top: 20px;
   padding-bottom: 40px;
   padding-inline: 16px;
@@ -78,6 +79,7 @@
     @extend %button_big;
 
     display: flex;
+    grid-row: 3 / 3;
     grid-column: 1 / -1;
     place-self: end end;
     align-items: center;
@@ -94,7 +96,9 @@
     pointer-events: auto;
 
     @include m.on-tablet {
+      grid-row: auto;
       grid-column: auto;
+      place-self: auto;
       width: 184px;
       height: 60px;
     }
@@ -110,6 +114,14 @@
     &Plus {
       font-size: 32px;
       line-height: 100%;
+    }
+
+    &Text {
+      display: none;
+
+      @include m.on-tablet {
+        display: inline;
+      }
     }
   }
 

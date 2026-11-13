@@ -1,13 +1,18 @@
 @use "@/scss/typography" as t;
 @use "@/scss/variables" as v;
+@use "@/scss/mixins" as m;
 
 .MapFilter {
-  width: 670px;
+  width: auto;
   border-radius: 32px;
 
   background-color: v.$grey-0-color;
   cursor: pointer;
   pointer-events: auto;
+
+  @include m.on-tablet() {
+    width: 670px;
+  }
 
   &__header {
     display: flex;
