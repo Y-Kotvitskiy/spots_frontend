@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import styles from "./EditProfileModal.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
 import Loader from "@/modules/shared/Loader";
-import Placeholder from "@/modules/shared/Placeholder"; // Імпортуємо спільний компонент
+import Placeholder from "@/modules/shared/Placeholder";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -27,6 +27,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
+  const [error, setError] = useState<string>("");
 
   const [name, setName] = useState(currentName);
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
@@ -40,19 +41,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   // ==========================================
   // EFFECTS
   // ==========================================
-
-  useEffect(() => {
-    setName(currentName);
-    setAvatarPreview(currentAvatar);
-    setSelectedFile(undefined);
-  }, [currentName, currentAvatar, isOpen]);
-
-  useEffect(() => {
-    setIsAvatarLoaded(false);
-    if (imgRef.current && imgRef.current.complete) {
-      setIsAvatarLoaded(true);
-    }
-  }, [avatarPreview]);
 
   if (!isOpen) return null;
 
@@ -72,13 +60,17 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setIsLoading(true);
+      setError("");
       await onSave(name, selectedFile);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to update profile:", err);
+
+      const errorResponse = err as { response?: { data?: { message?: string } } };
+      setError(errorResponse.response?.data?.message || "Failed to update profile");
     } finally {
       setIsLoading(false);
     }
@@ -179,6 +171,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               </span>
             </div>
           </div>
+
+
+          {error && <p className={styles.modal__error}>{error}</p>}
 
           {/* Submit Button */}
 

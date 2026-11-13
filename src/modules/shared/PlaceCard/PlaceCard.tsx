@@ -65,7 +65,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   // HELPERS
   // ==========================================
 
-  const hasActions = onEdit || onShare || onDelete;
+const hasActions = onEdit || onShare || onDelete;
 
   const renderShareStatus = () => {
     if (typeof isShared === "string") return isShared;
@@ -158,7 +158,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         <h3 className={styles.placeCard__title}>{title}</h3>
         
         <div className={styles.placeCard__info}>
-          <span className={styles.placeCard__category}>{category}</span>
+          <span>{category}</span>
           {workingHours !== "none" &&
             <>
               <span className={styles.placeCard__separator}>•</span>

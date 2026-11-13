@@ -38,6 +38,7 @@ const PersonalRoom = () => {
   const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
+  const hasFetchedRef = useRef(false);
   
   const imgRef = useRef<HTMLImageElement>(null);
   const [placeToEdit, setPlaceToEdit] = useState<Place | null>(null);
@@ -47,7 +48,6 @@ const PersonalRoom = () => {
   );
 
   useEffect(() => {
-    setIsAvatarLoaded(false);
     if (imgRef.current && imgRef.current.complete) {
       setIsAvatarLoaded(true);
     }
@@ -73,33 +73,30 @@ const PersonalRoom = () => {
   // EFFECTS (DATA FETCHING & TIMERS)
   // ==========================================
 
-  useEffect(() => {
-    const fetchUserIfNeeded = async () => {
-      if (!currentUser?.id || !currentUser?.name || !currentUser?.avatar) {
-        try {
-          const userProfile = await userService.getMe();
-          dispatch(authActions.updateUser(userProfile));
-        } catch (err) {
-          console.error("Failed to fetch user profile:", err);
-        }
-      }
-    };
-    fetchUserIfNeeded();
-  }, [currentUser?.id, currentUser?.name, currentUser?.avatar, dispatch]);
 
   useEffect(() => {
-    const fetchUserIfNeeded = async () => {
-      if (!currentUser?.name || !currentUser?.avatar) {
-        try {
-          const userProfile = await userService.getMe();
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
+    let isMounted = true;
+
+    const fetchUserOnce = async () => {
+      try {
+        const userProfile = await userService.getMe();
+        if (isMounted) {
           dispatch(authActions.updateUser(userProfile));
-        } catch (err) {
-          console.error("Failed to fetch user profile:", err);
         }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
       }
     };
-    fetchUserIfNeeded();
-  }, [currentUser, dispatch]);
+
+    fetchUserOnce();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchMyPlaces = async () => {
@@ -159,10 +156,9 @@ const PersonalRoom = () => {
       });
       dispatch(authActions.updateUser(updatedUser));
       setIsEditModalOpen(false);
-    } catch (err: any) {
-      console.error("Failed to update profile:", err);
-      setError(err.response?.data?.message || "Failed to update profile");
-      throw err;
+    } catch (error: unknown) {
+      console.error("Failed to update profile:", error);
+      throw error;
     }
   };
 
@@ -222,11 +218,11 @@ const PersonalRoom = () => {
                 </button>
               </div>
               <div className={styles.personalInfo__stats}>
-                <span className={styles.personalInfo__statItem}>
+                <span>
                   {placesCount} {placesCount === 1 ? "place" : "places"}
                 </span>
                 <span className={styles.personalInfo__separator}>•</span>
-                <span className={styles.personalInfo__statItem}>
+                <span>
                   {groupsCount} groups
                 </span>
               </div>
@@ -241,9 +237,8 @@ const PersonalRoom = () => {
               <Icon
                 name="edit"
                 size={20}
-                className={styles.personalInfo__buttons__icon}
               />
-              <span className={styles.personalInfo__buttons__text}>Edit</span>
+              <span>Edit</span>
             </button>
             <button
               className={styles.personalInfo__buttons__logout}
@@ -252,9 +247,8 @@ const PersonalRoom = () => {
               <Icon
                 name="exit"
                 size={20}
-                className={styles.personalInfo__buttons__icon}
               />
-              <span className={styles.personalInfo__buttons__text}>
+              <span>
                 Log out
               </span>
             </button>
@@ -292,12 +286,10 @@ const PersonalRoom = () => {
               </p>
             ) : (
               <div className={styles.placesGrid}>
-                {myPlaces.map((place, index) => (
+                {myPlaces.map((place) => (
                   <PlaceCard
-                    key={place.id || index}
-                    image={
-                      place.photos?.[0]?.url || ""
-                    }
+                    key={`${place.id}_${place.photos?.[0]?.url || 'no-photo'}`}
+                    image={place.photos?.[0]?.url || ""}
                     title={place.name}
                     category={place.categoryName}
                     workingHours={
@@ -322,28 +314,31 @@ const PersonalRoom = () => {
               </p>
             ) : (
               <div className={styles.placesGrid}>
-                {savedPlaces.map((place, index) => (
-                  <PlaceCard
-                    key={place.id || index}
-                    image={
-                      place.photos?.[0]?.url ||
-                      ""
-                    }
-                    title={place.name}
-                    category={place.categoryName}
-                    workingHours={
-                      place.opening_hours
-                        ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
-                        : "none"
-                    }
-                    addedBy={place.creator_name}
-                    deleteButtonText="Delete place"
-                    onEdit={() => setPlaceToEdit(place)}
-                    onShare={() => handleOpenShare(place)}
-                    onDelete={() => handleDeletePersonal(place)}
-                    onClick={() => navigate(`/places/${place.id}`)}
-                  />
-                ))}
+                {savedPlaces.map((place) => {
+                  const isMyPlace = currentUser?.id && place.creator_id === currentUser.id;
+
+                  return (
+                    <PlaceCard
+                      key={`${place.id}_${place.photos?.[0]?.url || 'no-photo'}`}
+                      image={place.photos?.[0]?.url || ""}
+                      title={place.name}
+                      category={place.categoryName}
+                      workingHours={
+                        place.opening_hours
+                          ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
+                          : "none"
+                      }
+                      addedBy={place.creator_name} 
+                      deleteButtonText="Delete place"
+                      
+                      onEdit={isMyPlace ? () => setPlaceToEdit(place) : undefined}
+                      onShare={isMyPlace ? () => handleOpenShare(place) : undefined}
+                      onDelete={isMyPlace ? () => handleDeletePersonal(place) : undefined}
+                      
+                      onClick={() => navigate(`/places/${place.id}`)}
+                    />
+                  );
+                })}
               </div>
             )
           )}
@@ -371,6 +366,7 @@ const PersonalRoom = () => {
       />
 
       <EditProfile
+        key={currentUser?.avatar + (isEditModalOpen ? "_open" : "_closed")}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         currentName={currentUser?.name || ""}
@@ -380,6 +376,7 @@ const PersonalRoom = () => {
 
       {placeToEdit && (
         <EditPlaceModal
+          key={placeToEdit.id}
           isOpen={!!placeToEdit}
           onClose={() => setPlaceToEdit(null)}
           place={placeToEdit}
