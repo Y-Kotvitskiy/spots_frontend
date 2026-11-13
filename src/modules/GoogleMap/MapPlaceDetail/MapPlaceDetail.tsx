@@ -4,7 +4,6 @@ import styles from "./MapPlaceDetail.module.scss";
 import { useMapSelector } from "@/store/hooks";
 import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
 import { useNavigate } from "react-router-dom";
-import { placeCard } from "@/modules/shared/PlaceCard/PlaceCard.module.scss";
 
 const MapPlaceDetail: React.FC = () => {
   const { selectedPlace } = useMapSelector();

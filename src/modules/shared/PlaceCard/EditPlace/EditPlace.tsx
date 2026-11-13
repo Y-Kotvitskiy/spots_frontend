@@ -1,22 +1,98 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import styles from "./EditPlace.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
-import { Tag, type Place, type TagKey } from "@/types";
+import Loader from "@/modules/shared/Loader";
+import Placeholder from "@/modules/shared/Placeholder";
+import { Tag, type Place, type TagKey, type BackendPhoto } from "@/types";
 import { useMapSelector } from "@/store/hooks";
 import { placeService } from "@/services/placeService";
 import cn from "classnames";
 import WorkingHoursPicker from "./WorkingHoursPicker";
 import { createPortal } from "react-dom";
 
-interface EditPlaceModalProps {
+// ==========================================
+// SUB-COMPONENT FOR MODAL PHOTO CARD
+// ==========================================
+
+interface ModalPhotoCardProps {
+  photo: BackendPhoto;
+  placeName: string;
+  isDeleting: boolean;
+  isDisabled: boolean;
+  onDelete: (id: string) => void;
+}
+
+const ModalPhotoCard: React.FC<ModalPhotoCardProps> = ({
+  photo,
+  placeName,
+  isDeleting,
+  isDisabled,
+  onDelete,
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <div
+      className={cn(styles.modal__photoCard, {
+        [styles.cardDimmed]: isDisabled && !isDeleting,
+        [styles.cardLoading]: isDeleting,
+      })}
+    >
+      {/* плейсхолдер */}
+      {(!photo.url || !isLoaded) && (
+        <div className={styles.modal__placeholderWrapper}>
+          <Placeholder text={placeName} />
+          {photo.url && <Loader className={styles.modal__photoLoaderOverlay} />}
+        </div>
+      )}
+
+      {/* Зображення */}
+      {photo.url && (
+        <img
+          key={photo.url}
+          src={photo.url}
+          alt="Place photo"
+          className={cn(styles.modal__photoImage, {
+            [styles.modal__photoImageLoaded]: isLoaded,
+            [styles.modal__photoImageHidden]: !isLoaded,
+          })}
+          onLoad={() => setIsLoaded(true)}
+        />
+      )}
+
+      {/* Оверлей */}
+      {isDeleting && (
+        <div className={styles.modal__photoLoaderOverlay}>
+          <Loader />
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={styles.modal__deletePhotoBtn}
+        onClick={() => onDelete(photo.id)}
+        disabled={isDisabled}
+        aria-label="Delete photo"
+      >
+        <Icon name="close" className={styles.icon__close} />
+      </button>
+    </div>
+  );
+};
+
+// ==========================================
+// MAIN COMPONENT
+// ==========================================
+
+interface EditPlaceProps {
   isOpen: boolean;
   onClose: () => void;
   place: Place;
   onUpdate?: (updatedPlace: Place) => void;
 }
 
-const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
+const EditPlace: React.FC<EditPlaceProps> = ({
   isOpen,
   onClose,
   place,
@@ -24,11 +100,11 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 }) => {
   const [activePage, setActivePage] = useState<1 | 2 | 3>(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // Стейт для помилки збереження
+  const [loadingPhotoId, setLoadingPhotoId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const { categories } = useMapSelector();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Локальний стейт для всіх полів (зберігається в пам'яті до натискання "Save changes")
   const [name, setName] = useState(place?.name || "");
   const [selectedCategory, setSelectedCategory] = useState<string>(
     place?.categoryId || ""
@@ -36,34 +112,17 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
   const [selectedTags, setSelectedTags] = useState<TagKey[]>(place?.tags || []);
   const [description, setDescription] = useState(place?.description || "");
   const [address, setAddress] = useState(place?.address || "");
-  const [photos, setPhotos] = useState<any[]>([]);
+  
+  const [photos, setPhotos] = useState<BackendPhoto[]>(
+    place?.photos ? Object.values(place.photos) : []
+  );
+
   const [workingHours, setWorkingHours] = useState(
     place?.opening_hours
       ? `${place.opening_hours.opens_at}-${place.opening_hours.closes_at}`
       : "08:00-20:00"
   );
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-
-  // Синхронізація даних при відкритті або зміні місця
-  useEffect(() => {
-    if (place) {
-      setName(place.name || "");
-      setSelectedCategory(place.categoryId || "");
-      setSelectedTags(place.tags || []);
-      setDescription(place.description || "");
-      setAddress(place.address || "");
-      setPhotos(place?.photos ? Object.values(place.photos) : []);
-      setWorkingHours(
-        place.opening_hours
-          ? `${place.opening_hours.opens_at}-${place.opening_hours.closes_at}`
-          : "08:00-20:00"
-      );
-    }
-    if (isOpen) {
-      setActivePage(1);
-      setErrorMessage(""); // Очищуємо помилку при відкритті
-    }
-  }, [place, isOpen]);
 
   if (!isOpen) return null;
 
@@ -79,39 +138,46 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
     setSelectedTags(updatedTags);
   };
 
-  // Додавання фото відразу на сервер (локально вирішив не зберігати)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && place?.id) {
       try {
         setErrorMessage("");
-        const newPhoto = await placeService.addPhoto(place.id, file);
+        setLoadingPhotoId("adding");
+        const newPhoto: BackendPhoto = await placeService.addPhoto(place.id, file);
         const updatedPhotos = [...photos, newPhoto];
         setPhotos(updatedPhotos);
         if (onUpdate) {
-          onUpdate({ ...place, photos: updatedPhotos });
+          onUpdate({ ...place, photos: updatedPhotos as unknown as Place["photos"] });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to add photo:", err);
-        setErrorMessage(err.response?.data?.message || "Failed to add photo");
+        const error = err as { response?: { data?: { message?: string } } };
+        setErrorMessage(error.response?.data?.message || "Failed to add photo");
+      } finally {
+        setLoadingPhotoId(null);
+        if (e.target) e.target.value = "";
       }
     }
   };
 
-  // Видалення фото за ID
   const handleDeletePhoto = async (photoId: string) => {
-    if (!place?.id) return;
+    if (!place?.id || loadingPhotoId) return;
     try {
       setErrorMessage("");
+      setLoadingPhotoId(photoId);
       await placeService.deletePhoto(place.id, photoId);
       const updatedPhotos = photos.filter((p) => p.id !== photoId);
       setPhotos(updatedPhotos);
       if (onUpdate) {
-        onUpdate({ ...place, photos: updatedPhotos });
+        onUpdate({ ...place, photos: updatedPhotos as unknown as Place["photos"] });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to delete photo:", err);
-      setErrorMessage(err.response?.data?.message || "Failed to delete photo");
+      const error = err as { response?: { data?: { message?: string } } };
+      setErrorMessage(error.response?.data?.message || "Failed to delete photo");
+    } finally {
+      setLoadingPhotoId(null);
     }
   };
 
@@ -156,23 +222,36 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
         onUpdate(mappedPlace);
       }
       onClose();
-      } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update place:", error);
 
-      const errData = error.response?.data;
-      let backendMessage = "";
+      const err = error as {
+        response?: {
+          data?: {
+            message?: string;
+            detail?: Array<{ msg: string }>;
+          };
+        };
+        message?: string;
+      };
+
+      const errData = err.response?.data;
+      let backendMessage: string;
 
       if (Array.isArray(errData?.detail) && errData.detail.length > 0) {
         backendMessage = errData.detail[0].msg;
       } else {
-        backendMessage = errData?.message || error.message;
+        backendMessage = errData?.message || err.message || "Failed to update place";
       }
 
-      setErrorMessage(backendMessage || "Failed to update place");
+      setErrorMessage(backendMessage);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const isPhotosActionActive = loadingPhotoId !== null;
+  const placeNameForPlaceholder = name.trim() || "Place";
 
   return createPortal(
     <div className={styles.overlay} onClick={onClose}>
@@ -204,9 +283,6 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
         <form onSubmit={handleNextOrSubmit} className={styles.modal__form}>
           {activePage === 1 && (
             <>
-
-              {/* КРОК 1: Назва, Категорія, Теги */}
-
               <div className={styles.modal__field}>
                 <label className={styles.modal__label}>
                   Place name <span className={styles.modal__required}>*</span>
@@ -269,9 +345,6 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 
           {activePage === 2 && (
             <>
-
-              {/* КРОК 2: Опис, Локація, Фото */}
-
               <div className={styles.modal__setField}>
                 <label className={styles.modal__label}>
                   Description <span className={styles.modal__required}>*</span>
@@ -308,27 +381,34 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
                 <label className={styles.modal__label}>Photos</label>
                 <div className={styles.modal__photosGrid}>
                   {photos.map((photo) => (
-                    <div key={photo.id} className={styles.modal__photoCard}>
-                      <img src={photo.url} alt="Place photo" />
-                      <button
-                        type="button"
-                        className={styles.modal__deletePhotoBtn}
-                        onClick={() => handleDeletePhoto(photo.id)}
-                        aria-label="Delete photo"
-                      >
-                        <Icon name="close" className={styles.icon__close}/>
-                      </button>
-                    </div>
+                    <ModalPhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      placeName={placeNameForPlaceholder}
+                      isDeleting={loadingPhotoId === photo.id}
+                      isDisabled={isPhotosActionActive}
+                      onDelete={handleDeletePhoto}
+                    />
                   ))}
 
                   {photos.length < 5 && (
                     <button
                       type="button"
-                      className={styles.modal__addPhotoCard}
+                      className={cn(styles.modal__addPhotoCard, {
+                        [styles.cardDimmed]: isPhotosActionActive && loadingPhotoId !== "adding",
+                        [styles.cardLoading]: loadingPhotoId === "adding",
+                      })}
                       onClick={() => fileInputRef.current?.click()}
+                      disabled={isPhotosActionActive}
                       aria-label="Add photo"
                     >
-                      <Icon name="plus" size={28} />
+                      {loadingPhotoId === "adding" ? (
+                        <div className={styles.modal__photoLoaderOverlay}>
+                          <Loader />
+                        </div>
+                      ) : (
+                        <Icon name="plus" size={28} />
+                      )}
                     </button>
                   )}
                 </div>
@@ -345,11 +425,8 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 
           {activePage === 3 && (
             <>
-
-              {/* КРОК 3: Робочі години */}
-
               <div className={styles.modal__setField}>
-                <label className={styles.markLabel || styles.modal__label}>
+                <label className={styles.modal__label}>
                   Working hours <span className={styles.modal__required}>*</span>
                 </label>
                 <div 
@@ -380,8 +457,6 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
             </>
           )}
 
-          {/* Виведення рядка помилки, якщо вона є */}
-
           {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
 
           <FormButton
@@ -401,4 +476,4 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
   );
 };
 
-export default EditPlaceModal;
+export default EditPlace;

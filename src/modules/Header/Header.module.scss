@@ -6,26 +6,12 @@
 // 1. ЗМІННІ ТА РОЗМІРИ (Variables & Constants)
 // ==========================================
 
-$header-height-desktop: 80px;
-$header-height-tablet: 80px;
-$header-height-phone: 65px;
-
-$header-height-login-desktop: 100px;
-$header-height-login-tablet: 80px;
-$header-height-login-phone: 65px;
-
-$offset-desktop: 40px;
-$offset-tablet: 30px;
-$offset-mobile: 16px;
-
-$header-backdrop: blur(12px);
-$header-bg: v.$grey-0-alpha-65-color;
-$header-shadow: 0 4px 15px v.$shadow-color;
 $header-z-index: 10;
 
 // ==========================================
 // 2. ДОПОМІЖНІ МІКСИНИ ДЛЯ ХЕДЕРА
 // ==========================================
+
 @mixin header-size($height, $offset) {
   left: $offset;
   width: calc(100% - (#{$offset} * 2));
@@ -48,12 +34,12 @@ $header-z-index: 10;
   align-items: center;
   justify-content: space-between;
 
-  backdrop-filter: $header-backdrop;
-  -webkit-backdrop-filter: $header-backdrop;
-  background-color: $header-bg;
-  box-shadow: $header-shadow;
+  backdrop-filter: v.$blur-base;
+  -webkit-backdrop-filter: v.$blur-base;
+  background-color: v.$grey-0-color-menu;
+  box-shadow: v.$big-shadow;
 
-  @include header-size($header-height-phone, $offset-mobile);
+  @include header-size(v.$header-height-phone, v.$offset-mobile);
 
   &__logo {
     display: none;
@@ -65,24 +51,24 @@ $header-z-index: 10;
   }
 
   &_loginPage {
-    @include header-size($header-height-login-phone, $offset-mobile);
+    @include header-size(v.$header-height-login-phone, v.$offset-mobile);
   }
 
   @include m.on-tablet {
-    top: 32px;
-    @include header-size($header-height-tablet, $offset-tablet);
+    top: v.$header-top;
+    @include header-size(v.$header-height-tablet, v.$offset-tablet);
 
     &.Header_loginPage {
-      @include header-size($header-height-login-tablet, $offset-tablet);
+      @include header-size(v.$header-height-login-tablet, v.$offset-tablet);
     }
   }
 
   @include m.on-desktop {
-    top: 32px;
-    @include header-size($header-height-desktop, $offset-desktop);
+    top: v.$header-top;
+    @include header-size(v.$header-height-desktop, v.$offset-desktop);
 
     &.Header_loginPage {
-      @include header-size($header-height-login-desktop, $offset-desktop);
+      @include header-size(v.$header-height-login-desktop, v.$offset-desktop);
     }
   }
 }

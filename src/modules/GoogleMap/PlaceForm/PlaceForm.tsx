@@ -26,7 +26,7 @@ import { Tag, type CreatePlace, type Place, type TagKey } from "@/types";
 import { getAddressFromCoords } from "../utils";
 import { placeService } from "@/services/placeService";
 import WorkingHoursPicker from "../WorkingHoursPicker";
-import { form } from "@/modules/Groups/CreateGroup/CreateGroup.module.scss";
+// import { form } from "@/modules/Groups/CreateGroup/CreateGroup.module.scss";
 
 const PlaceForm: React.FC = () => {
   const [activePage, setActivePage] = useState<FormPages>(1);

@@ -3,6 +3,7 @@ import styles from "./EditProfileModal.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
 import Loader from "@/modules/shared/Loader";
+import Placeholder from "@/modules/shared/Placeholder"; // Імпортуємо спільний компонент
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -52,13 +53,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       setIsAvatarLoaded(true);
     }
   }, [avatarPreview]);
-
-  // Синхронізуємо локальний стейт при відкритті або зміні пропсів
-  useEffect(() => {
-    setName(currentName);
-    setAvatarPreview(currentAvatar);
-    setSelectedFile(undefined);
-  }, [currentName, currentAvatar, isOpen]);
 
   if (!isOpen) return null;
 
@@ -121,19 +115,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               onClick={handleTriggerFileSelect}
               style={{ cursor: "pointer" }}
             >
-              {/* Патерн-заглушка з ім'ям під 45°, якщо аватара немає або він ще вантажиться */}
+              {/* Патерн-заглушка через спільний компонент Placeholder */}
 
               {(!avatarPreview || !isAvatarLoaded) && (
                 <div className={styles.modal__patternPlaceholder}>
-                  <div className={styles.modal__patternContent}>
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} className={styles.modal__patternRow}>
-                        {[...Array(6)].map((_, j) => (
-                          <span key={j}>{profileNameForPattern}</span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                  <Placeholder text={profileNameForPattern} rows={6} cols={6} />
                   {avatarPreview && (
                     <Loader className={styles.modal__avatarLoader} />
                   )}

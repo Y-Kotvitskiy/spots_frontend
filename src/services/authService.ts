@@ -5,7 +5,6 @@ interface AuthData {
   id: string;
   access_token: string;
   refresh_token: string;
-  id: string;
   display_name: string;
   email: string;
 }

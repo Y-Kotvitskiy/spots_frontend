@@ -1,56 +1,16 @@
-import { configureStore, type Middleware } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import mapReducer from "./slices/mapSlice";
-import groupReducer, { groupActions } from "./slices/groupSlice";
 import authReducer from "./slices/authSlice";
 import { useSelector, type TypedUseSelectorHook } from "react-redux";
-
-const LOCAL_STORAGE_GROUPS_KEY = "app_groups";
-
-const loadState = () => {
-  if (typeof window === "undefined") return undefined;
-
-  try {
-    const serializedGroups = localStorage.getItem(LOCAL_STORAGE_GROUPS_KEY);
-
-    return {
-      groups: {
-        groups: serializedGroups ? JSON.parse(serializedGroups) : [],
-        selectedGroup: null,
-      },
-    };
-  } catch (e) {
-    console.error("Помилка читання з localStorage", e);
-    return undefined;
-  }
-};
-
-const saveStateMiddleware: Middleware = (store) => (next) => (action) => {
-  const result = next(action);
-
-  if (typeof window !== "undefined") {
-    try {
-      const state = store.getState();
-      localStorage.setItem(
-        LOCAL_STORAGE_GROUPS_KEY,
-        JSON.stringify(state.groups.groups),
-      );
-    } catch (e) {
-      console.error("Помилка збереження в localStorage", e);
-    }
-  }
-
-  return result;
-};
 
 const store = configureStore({
   reducer: {
     map: mapReducer,
     auth: authReducer,
-    groups: groupReducer,
+    // groups: groupReducer, // Закоментовано на час відсутності бекенду
   },
-  preloadedState: loadState(),
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(saveStateMiddleware),
+  // preloadedState та middleware для збереження груп також прибрано,
+  // оскільки вони залежали виключно від локального сховища груп.
 });
 
 export default store;
@@ -61,4 +21,4 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export { actions as mapActions } from "./slices/mapSlice";
 export { actions as authActions } from "./slices/authSlice";
-export { groupActions };
+// export { groupActions }; // Експорт груп також закоментовано

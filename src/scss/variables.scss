@@ -1,5 +1,5 @@
 // #region Colors
-
+$primary-color: #000000;
 $grey-90-color: #292221;
 $grey-70-color: #665f5e;
 $grey-60-color: #969190;
@@ -9,6 +9,7 @@ $grey-30-color: #e0dcdc;
 $grey-20-color: #edebeb;
 $grey-10-color: #f6f6f6;
 $grey-0-color: #ffffff;
+$grey-0-color-menu: rgba(#fff, 0.65);
 $primary-indigo-color: #6366f1;
 $system-error-color: #ff0000;
 $primary-states-hovered-color: #5053c5;
@@ -31,66 +32,62 @@ $secondary-states-deep-purple-color: #65128c;
 $secondary-states-deep-crimson-color: #8f1919;
 $secondary-states-chocolate-brown-color: #553300;
 
-$grey-0-alpha-65-color: rgba(#fff, 0.65);
-$grey-0-alpha-70-color: rgba(#fff, 0.70);
-
-$primary-color: #000;
-$body-background-color: #f2f2f2;
-$menu-color: #6b6666;
-$header-background-color: #fff;
-$shadow-color: rgba(#cfbfbf, 20%);
-
-// New styles
-
 $background-modal-color: rgba($grey-90-color, 0.4);
+$big-shadow: 0 10px 30px rgba($grey-90-color, 0.3);
+$small-shadow: 0 2px 6px rgba($grey-90-color, 0.2);
 
-$module-shadow: 0 10px 30px $grey-90-color;
+// #endregion Colors
 
-$button-shadow: 0 2px 6px rgba($grey-90-color, 0.2);
+// #region Additional variables
 
 $animation-time: 0.2s;
-
 $blur-base: 4px;
 
-
-// #region Colors
+// #endregion Additional variables
 
 // #region Global Layout Variables
-$header-max-width: 1440px;
-$body-min-width: 320px;
-$grid-column-desktop: 32px;
-$grid-gap-mobile: 16px;
-$grid-gap-desktop: 16px;
-$grid-column-mobile: 68px;
+
+$offset-mobile: 16px;
+$offset-tablet: 30px;
+$offset-desktop: 40px;
 
 $mobile-max-width: 320px;
-
 $tablet-min-width: 640px;
-
 $desktop-min-width: 1200px;
 
 $mobile-padding-inline: 16px;
 $tablet-padding-inline: 24px;
 $desktop-padding-inline: 32px;
-$image_hover_transform: 1.1;
-$text_hover_transform: 1.07;
-
 
 // #endregion Global Layout Variables
 
-$hover_time_transition: 0.3s;
-
 // #region Header
 $header-top: 32px;
+$button-min-width-basePages: auto;
+
+// Phone
+
+$header-height-phone: 65px;
+$button-height-mobile: 40px;
+$button-min-width-mobile: auto;
+$header-height-login-phone: 65px;
+$button-height-login-mobile: 40px;
+
+// Tablet
+
+$header-height-tablet: 80px;
+$header-height-login-tablet: 80px;
+$button-min-width-tablet: 150px;
+$button-height-login-tablet: 50px;
+$button-height-tablet: 50px;
+
+// Desktop
 
 $header-height-desktop: 80px;
-$header-height-tablet: 80px;
-$header-height-phone: 65px;
+$header-height-login-desktop: 100px;
+$button-min-width-desktop: 200px;
+$button-height-login-desktop: 60px;
+$button-height-desktop: 22px;
 
-// endregion Header
 
-:export {
-  tabletWidth: $tablet-min-width;
-  desktopWidth: $desktop-min-width;
-  placeDetaislIcon: $primary-states-hovered-color;
-}
+// #endregion Header

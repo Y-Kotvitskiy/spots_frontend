@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import styles from "./EditPlace.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
-import { Tag, type Place, type TagKey } from "@/types";
+import { Tag, type BackendPhoto, type Place, type TagKey } from "@/types";
 import { useMapSelector } from "@/store/hooks";
 import { placeService } from "@/services/placeService";
 import cn from "classnames";
@@ -35,33 +35,13 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
   const [selectedTags, setSelectedTags] = useState<TagKey[]>(place?.tags || []);
   const [description, setDescription] = useState(place?.description || "");
   const [address, setAddress] = useState(place?.address || "");
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<BackendPhoto[]>([]);
   const [workingHours, setWorkingHours] = useState(
     place?.opening_hours
       ? `${place.opening_hours.opens_at}-${place.opening_hours.closes_at}`
       : "08:00-20:00"
   );
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-
-  // Синхронізація даних при відкритті або зміні місця
-  useEffect(() => {
-    if (place) {
-      setName(place.name || "");
-      setSelectedCategory(place.categoryId || "");
-      setSelectedTags(place.tags || []);
-      setDescription(place.description || "");
-      setAddress(place.address || "");
-      setPhotos(place?.photos ? Object.values(place.photos) : []);
-      setWorkingHours(
-        place.opening_hours
-          ? `${place.opening_hours.opens_at}-${place.opening_hours.closes_at}`
-          : "08:00-20:00"
-      );
-    }
-    if (isOpen) {
-      setActivePage(1);
-    }
-  }, [place, isOpen]);
 
   if (!isOpen) return null;
 
@@ -77,7 +57,6 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
     setSelectedTags(updatedTags);
   };
 
-  // Додавання фото відразу на сервер (локально вирішив не зберігати)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && place?.id) {
@@ -94,7 +73,6 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
     }
   };
 
-  // Видалення фото за ID
   const handleDeletePhoto = async (photoId: string) => {
     if (!place?.id) return;
     try {
@@ -183,7 +161,9 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
         <form onSubmit={handleNextOrSubmit} className={styles.modal__form}>
           {activePage === 1 && (
             <>
+
               {/* КРОК 1: Назва, Категорія, Теги */}
+
               <div className={styles.modal__field}>
                 <label className={styles.modal__label}>
                   Place name <span className={styles.modal__required}>*</span>
@@ -246,7 +226,9 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 
           {activePage === 2 && (
             <>
+
               {/* КРОК 2: Опис, Локація, Фото */}
+
               <div className={styles.modal__setField}>
                 <label className={styles.modal__label}>
                   Description <span className={styles.modal__required}>*</span>
@@ -320,7 +302,9 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
 
           {activePage === 3 && (
             <>
+
               {/* КРОК 3: Робочі години */}
+
               <div className={styles.modal__setField}>
                 <label className={styles.markLabel || styles.modal__label}>
                   Working hours <span className={styles.modal__required}>*</span>

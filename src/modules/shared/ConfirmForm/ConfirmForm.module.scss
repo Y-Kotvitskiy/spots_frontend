@@ -4,11 +4,6 @@
 @use "@/scss/variables.scss" as v;
 @use "@/scss/typography.scss" as t;
 
-$transition-speed: 0.2s;
-$box-shadow-default: 0 2px 8px rgba(0, 0, 0, 0.04);
-$box-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12);
-$danger-hover-bg: rgba(234, 67, 53, 0.08);
-
 .overlay {
   @include ex.overlay;
 }

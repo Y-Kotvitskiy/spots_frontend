@@ -65,26 +65,6 @@ export type PlacePhotos = Record<number, BackendPhoto>;
 export type BackendCategory = { id: string; name: string };
 export type BackendTag = { id: string; name: string };
 
-export interface BackendPlace {
-  id: string;
-  creator_id: string;
-  name: string;
-  description: string;
-  categories: BackendCategory[];
-  tags: BackendTag[];
-  address: string;
-  latitude: number;
-  longitude: number;
-  photos?: BackendPhoto[];
-  created_at: string;
-}
-
-export interface BackendPhoto {
-  id: string;
-  url: string;
-  position: number;
-}
-
 export interface CreatePlace {
   name: string;
   description: string;
