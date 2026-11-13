@@ -10,6 +10,63 @@ import {
   selectSelectedPlaces,
 } from "@/store/slices/mapSlice";
 import { Tag } from "@/types";
+import Placeholder from "../shared/Placeholder";
+
+// ==========================================
+// SUB-COMPONENT FOR SMALL PHOTO CARD
+// ==========================================
+
+interface SmallPhotoCardProps {
+  url?: string;
+  alt: string;
+  placeName: string;
+  badgeText: string;
+}
+
+const SmallPhotoCard: React.FC<SmallPhotoCardProps> = ({
+  url,
+  alt,
+  placeName,
+  badgeText,
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setIsLoaded(true);
+    }
+  }, [url]);
+
+  return (
+    <div className={styles.smallPhotoCard}>
+      {(!url || !isLoaded) && <Placeholder text={placeName} />}
+
+      {url && !isLoaded && <Loader className={styles.smallPhotoCard__loaderOverlay} />}
+
+      {url && (
+        <img
+          key={url}
+          ref={imgRef}
+          src={url}
+          alt={alt}
+          className={`${styles.smallPhotoCard__image} ${
+            isLoaded
+              ? styles.smallPhotoCard__imageLoaded
+              : styles.smallPhotoCard__imageHidden
+          }`}
+          onLoad={() => setIsLoaded(true)}
+        />
+      )}
+
+      <span className={styles.photoBadge}>{badgeText}</span>
+    </div>
+  );
+};
+
+// ==========================================
+// MAIN COMPONENT
+// ==========================================
 
 const PlaceDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +97,6 @@ const PlaceDetails: React.FC = () => {
   const mainPhoto = photosList[0];
 
   useEffect(() => {
-    setIsMainImageLoaded(false);
     if (mainImgRef.current && mainImgRef.current.complete) {
       setIsMainImageLoaded(true);
     }
@@ -58,9 +114,14 @@ const PlaceDetails: React.FC = () => {
     }
   };
 
-  const formattedHours = place?.opening_hours
-    ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
-    : "08:00 - 20:00";
+  const formatHours = (hours?: { opens_at: string; closes_at: string } | null) => {
+    if (!hours?.opens_at || !hours.closes_at) return null;
+    const [start] = hours.opens_at.trim().split(/\s+/);
+    const [end] = hours.closes_at.trim().split(/\s+/);
+    return end ? `${start} - ${end}` : start;
+  };
+
+  const formattedHours = formatHours(place?.opening_hours);
 
   if (!place) {
     return <div className={styles.loading}>Loading place details...</div>;
@@ -68,20 +129,6 @@ const PlaceDetails: React.FC = () => {
 
   const addBtnIndex = photosList.length < 5 ? photosList.length : -1;
   const placeName = place.name || "Place";
-
-  const renderPattern = (classNamePrefix: string) => (
-    <div className={styles[`${classNamePrefix}__patternPlaceholder`]}>
-      <div className={styles[`${classNamePrefix}__patternContent`]}>
-        {[...Array(12)].map((_, i) => (
-          <div key={i} className={styles[`${classNamePrefix}__patternRow`]}>
-            {[...Array(12)].map((_, j) => (
-              <span key={j}>{placeName}</span>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <main className={styles.PlaceDetails}>
@@ -95,9 +142,7 @@ const PlaceDetails: React.FC = () => {
         />
 
         <div className={styles.gallery}>
-
           {/* Головне фото або патерн-заглушка */}
-
           <div className={styles.mainPhotoCard}>
             <button
               className={styles.backBtn}
@@ -112,7 +157,7 @@ const PlaceDetails: React.FC = () => {
               <>
                 {(!mainPhoto.url || !isMainImageLoaded) && (
                   <>
-                    {renderPattern("mainPhotoCard")}
+                    <Placeholder text={placeName} />
                     {mainPhoto.url && (
                       <Loader className={styles.mainPhotoCard__loaderOverlay} />
                     )}
@@ -120,6 +165,7 @@ const PlaceDetails: React.FC = () => {
                 )}
 
                 <img
+                  key={mainPhoto.url}
                   ref={mainImgRef}
                   src={mainPhoto.url}
                   alt={place.name}
@@ -139,18 +185,17 @@ const PlaceDetails: React.FC = () => {
                 onClick={handleAddPhotoClick}
                 aria-label="Add photo"
               >
-                {renderPattern("addPhotoCardFull")}
+                <Placeholder text={placeName} />
                 <div className={styles.addPhotoCardFull__blurOverlay}>
                   <Icon name="plus" size={48} />
                 </div>
               </button>
             ) : (
-              renderPattern("mainPhotoCard")
+              <Placeholder text={placeName} />
             )}
           </div>
 
           {/* Бічна сітка для індексів від 1 до 4 */}
-
           <div className={styles.sidePhotosGrid}>
             {[1, 2, 3, 4].map((gridIndex) => {
               const photo = photosList[gridIndex];
@@ -158,10 +203,13 @@ const PlaceDetails: React.FC = () => {
 
               if (photo) {
                 return (
-                  <div key={photo.id} className={styles.smallPhotoCard}>
-                    <img src={photo.url} alt={`${place.name} ${gridIndex + 1}`} />
-                    <span className={styles.photoBadge}>{gridIndex + 1} photo</span>
-                  </div>
+                  <SmallPhotoCard
+                    key={photo.id}
+                    url={photo.url}
+                    alt={`${place.name} ${gridIndex + 1}`}
+                    placeName={placeName}
+                    badgeText={`${gridIndex + 1} photo`}
+                  />
                 );
               }
 
@@ -174,7 +222,7 @@ const PlaceDetails: React.FC = () => {
                     onClick={handleAddPhotoClick}
                     aria-label="Add photo"
                   >
-                    {renderPattern("addPhotoCard")}
+                    <Placeholder text={placeName} />
                     <div className={styles.addPhotoCard__blurOverlay}>
                       <Icon name="plus" size={48} />
                     </div>
@@ -184,7 +232,7 @@ const PlaceDetails: React.FC = () => {
 
               return (
                 <div key={`empty-${gridIndex}`} className={styles.smallPhotoCard}>
-                  {renderPattern("smallPhotoCard")}
+                  <Placeholder text={placeName} />
                 </div>
               );
             })}
@@ -233,20 +281,20 @@ const PlaceDetails: React.FC = () => {
             </section>
 
             <div className={styles.infoRow}>
+              {formatHours !== null &&
               <div className={styles.infoBlock}>
-                <h3 className={styles.infoBlock__label}>
-                  Working hours
-                </h3>
+                <h3 className={styles.infoBlock__label}>Working hours</h3>
                 <p className={styles.infoBlock__value}>
-                  <Icon name="time" size={24} />
+                  <Icon name="time" size={24} className={styles.infoBlock__icon} />
                   {formattedHours}
                 </p>
               </div>
+              }
               {place.creator_name && (
                 <div className={styles.infoBlock}>
                   <h3 className={styles.infoBlock__label}>Added by</h3>
                   <p className={styles.infoBlock__value}>
-                    <Icon name="check" size={24} />
+                    <Icon name="check" size={24} className={styles.infoBlock__icon}/>
                     {place.creator_name}
                   </p>
                 </div>

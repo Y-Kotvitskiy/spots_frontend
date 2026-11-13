@@ -13,6 +13,7 @@ import type { Place } from "@/types/index.ts";
 import ConfirmForm from "../shared/ConfirmForm/ConfirmForm.tsx";
 import Icon from "../shared/Icon";
 import Loader from "@/modules/shared/Loader";
+import Placeholder from "../shared/Placeholder";
 import EditProfile from "./EditProfileModal/EditProfileModal.tsx";
 import EditPlaceModal from "../shared/PlaceCard/EditPlace/index.ts";
 import { userService } from "@/services/userService.ts";
@@ -185,15 +186,7 @@ const PersonalRoom = () => {
 
               {(!currentUser?.avatar || !isAvatarLoaded) && (
                 <div className={styles.personalInfo__patternPlaceholder}>
-                  <div className={styles.personalInfo__patternContent}>
-                    {[...Array(8)].map((_, i) => (
-                      <div key={i} className={styles.personalInfo__patternRow}>
-                        {[...Array(8)].map((_, j) => (
-                          <span key={j}>{userName}</span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                  <Placeholder text={userName} rows={8} cols={8} />
                   {currentUser?.avatar && (
                     <Loader className={styles.personalInfo__avatarLoader} />
                   )}

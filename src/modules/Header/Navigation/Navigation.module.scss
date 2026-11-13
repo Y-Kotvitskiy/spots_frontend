@@ -3,30 +3,7 @@
 @use "@/scss/typography.scss" as *;
 
 // ==========================================
-// 1. ЗМІННІ ТА РОЗМІРИ
-// ==========================================
-$button-min-width-desktop: 200px;
-$button-min-width-tablet: 150px;
-$button-min-width-mobile: auto;
-$button-min-width-basePages: auto;
-
-$button-height-login-desktop: 60px;
-$button-height-login-tablet: 50px;
-$button-height-login-mobile: 40px;
-
-$button-height-desktop: 22px;
-$button-height-tablet: 50px;
-$button-height-mobile: 40px;
-
-$nav-bg-active: v.$grey-0-alpha-70-color;
-$nav-shadow: 0 4px 15px v.$shadow-color;
-$nav-backdrop: blur(12px);
-
-$nav-bg-login: v.$primary-indigo-color;
-$nav-color-login: v.$grey-0-color;
-
-// ==========================================
-// 2. СТИЛІ КОМПОНЕНТА .Navigation
+// СТИЛІ КОМПОНЕНТА .Navigation
 // ==========================================
 .Navigation {
   width: 100%;
@@ -46,19 +23,18 @@ $nav-color-login: v.$grey-0-color;
     & > li {
       display: flex;
       flex: 1;
-      width: $button-min-width-basePages;
+      width: v.$button-min-width-basePages;
     }
     
-    // Потрібно для сторінок реєстріції та заходу, для фіксованої довжини кнопки
     .startPage {
-      width: $button-min-width-mobile;
+      width: v.$button-min-width-mobile;
 
       @include m.on-tablet {
-        width: $button-min-width-tablet;
+        width: v.$button-min-width-tablet;
       }
 
       @include m.on-desktop {
-        width: $button-min-width-desktop;
+        width: v.$button-min-width-desktop;
       }
     }
 
@@ -95,14 +71,14 @@ $nav-color-login: v.$grey-0-color;
     color: v.$grey-60-color;
     text-align: center;
     transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+    background-color v.$animation-time ease,
+    color v.$animation-time ease;
 
     &_active {
-      backdrop-filter: $nav-backdrop;
-      -webkit-backdrop-filter: $nav-backdrop;
-      background-color: $nav-bg-active;
-      box-shadow: $nav-shadow;
+      backdrop-filter: blur(v.$blur-base);
+      -webkit-backdrop-filter: blur(v.$blur-base);
+      background-color: v.$grey-0-color-menu;
+      box-shadow: v.$small-shadow;
       color: v.$grey-90-color;
     }
 
@@ -114,9 +90,9 @@ $nav-color-login: v.$grey-0-color;
     &_login {
       @extend %nav_adaptive;
       flex-direction: row;
-      height: $button-height-login-mobile;
-      background-color: $nav-bg-login;
-      color: $nav-color-login;
+      height: v.$button-height-login-mobile;
+      background-color: v.$primary-indigo-color;
+      color: v.$grey-0-color;
 
       &:hover {
         background-color: v.$primary-states-hovered-color;
@@ -130,11 +106,12 @@ $nav-color-login: v.$grey-0-color;
     // ==========================================
     // ПЛАНШЕТНА ВЕРСІЯ (Tablet)
     // ==========================================
+
     @include m.on-tablet {
       flex-direction: row;
       width: auto;
       min-width: auto;
-      height: $button-height-tablet;
+      height: v.$button-height-tablet;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
 
@@ -160,13 +137,13 @@ $nav-color-login: v.$grey-0-color;
       }
 
       &_login {
-        height: $button-height-login-tablet;
+        height: v.$button-height-login-tablet;
         padding-inline: 16px;
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
-        background-color: $nav-bg-login;
+        background-color: v.$primary-indigo-color;
         box-shadow: none;
-        color: $nav-color-login;
+        color: v.$grey-0-color;
 
         &:hover {
           background-color: v.$primary-states-hovered-color;
@@ -186,9 +163,10 @@ $nav-color-login: v.$grey-0-color;
     // ==========================================
     // ДЕСКТОПНА ВЕРСІЯ (Desktop)
     // ==========================================
+
     @include m.on-desktop {
       width: auto;
-      height: $button-height-desktop;
+      height: v.$button-height-desktop;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
 
@@ -214,13 +192,13 @@ $nav-color-login: v.$grey-0-color;
       }
 
       &_login {
-        height: $button-height-login-desktop;
+        height: v.$button-height-login-desktop;
         padding-inline: 20px;
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
-        background-color: $nav-bg-login;
+        background-color: v.$primary-indigo-color;
         box-shadow: none;
-        color: $nav-color-login;
+        color: v.$grey-0-color;
 
         &:hover {
           background-color: v.$primary-states-hovered-color;

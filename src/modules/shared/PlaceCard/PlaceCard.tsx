@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./PlaceCard.module.scss";
 import Icon from "@/modules/shared/Icon";
 import Loader from "@/modules/shared/Loader";
+import Placeholder from "../Placeholder";
 
 // ==========================================
 // TYPES & INTERFACES
@@ -29,7 +30,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   image,
   title,
   category,
-  workingHours = "08:00 - 20:00",
+  workingHours = "08:00 20:00",
   isShared,
   addedBy,
   deleteButtonText = "Delete place",
@@ -48,9 +49,13 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   const imgRef = useRef<HTMLImageElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setIsImageLoaded(false);
+  const formattedHours = React.useMemo(() => {
+    if (!workingHours) return "";
+    const [start, end] = workingHours.trim().split(/\s+/);
+    return end ? `${start} - ${end}` : workingHours;
+  }, [workingHours]);
 
+  useEffect(() => {
     if (imgRef.current && imgRef.current.complete) {
       setIsImageLoaded(true);
     }
@@ -79,18 +84,9 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   return (
     <div className={styles.placeCard} onClick={onClick}>
       <div className={styles.placeCard__imageWrapper}>
-        {/* Патерн-заглушка */}
         {(!image || !isImageLoaded) && (
-          <div className={styles.placeCard__patternPlaceholder}>
-            <div className={styles.placeCard__patternContent}>
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className={styles.placeCard__patternRow}>
-                  {[...Array(8)].map((_) => (
-                    <span>{title}</span>
-                  ))}
-                </div>
-              ))}
-            </div>
+          <div className={styles.placeCard__placeholderContainer}>
+            <Placeholder text={title} rows={12} cols={8} />
             {image && <Loader className={styles.placeCard__loaderOverlay} />}
           </div>
         )}
@@ -98,6 +94,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         {/* Картинка */}
         {image && (
           <img
+            key={image}
             ref={imgRef}
             src={image}
             alt={title}
@@ -165,7 +162,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
           {workingHours !== "none" &&
             <>
               <span className={styles.placeCard__separator}>•</span>
-              <span className={styles.placeCard__hours}>{workingHours}</span>
+              <span className={styles.placeCard__hours}>{formattedHours}</span>
             </>
           }
         </div>

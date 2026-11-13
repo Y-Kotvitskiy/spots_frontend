@@ -21,7 +21,7 @@
 .modal {
   background-color: v.$grey-0-color;
   width: 100%;
-  box-shadow: v.$module-shadow;
+  box-shadow: v.$big-shadow;
   display: flex;
   flex-direction: column;
 
@@ -117,7 +117,7 @@
   scroll-snap-align: center;
   user-select: none;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color v.$animation-time ease;
 
   &.active {
     color: v.$grey-90-color;

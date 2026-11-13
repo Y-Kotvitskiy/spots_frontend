@@ -35,6 +35,14 @@ const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({
   const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"))
 
+  const scrollToValue = (ref: React.RefObject<HTMLDivElement | null>, items: string[], value: string) => {
+    if (!ref.current) return;
+    const index = items.indexOf(value);
+    if (index !== -1) {
+      ref.current.scrollTop = index * ITEM_HEIGHT;
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
@@ -47,14 +55,6 @@ const WorkingHoursPicker: React.FC<WorkingHoursPickerProps> = ({
   }, [isOpen]);
 
   if (!isOpen) return null;
-
-  const scrollToValue = (ref: React.RefObject<HTMLDivElement | null>, items: string[], value: string) => {
-    if (!ref.current) return;
-    const index = items.indexOf(value);
-    if (index !== -1) {
-      ref.current.scrollTop = index * ITEM_HEIGHT;
-    }
-  };
 
   const handleScrollEnd = (
     ref: React.RefObject<HTMLDivElement | null>,

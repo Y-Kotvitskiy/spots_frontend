@@ -15,7 +15,6 @@ import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
 import PlaceForm from "./PlaceForm";
 import MapPlaceDetail from "./MapPlaceDetail";
-import PlaceMarker from "./PlaceMarker";
 import { useGoogleMap } from "./GoogleMap.hooks";
 import { PlacesClusterer } from "./PlacesClusterer";
 

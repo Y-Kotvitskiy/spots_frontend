@@ -4,14 +4,6 @@
 @use "@/scss/typography.scss" as t;
 
 // ==========================================
-// LOCAL VARIABLES & OFFSETS
-// ==========================================
-
-$offset-desktop: 40px;
-$offset-tablet: 30px;
-$offset-mobile: 16px;
-
-// ==========================================
 // MAIN PAGE LAYOUT
 // ==========================================
 
@@ -38,16 +30,16 @@ $offset-mobile: 16px;
   flex-direction: column;
   width: 100%;
   margin-inline: auto;
-  padding-inline: $offset-mobile;
+  padding-inline: v.$offset-mobile;
   padding-top: 20px;
 
   @include m.on-tablet {
     padding-top: 140px;
-    padding-inline: $offset-tablet;
+    padding-inline: v.$offset-tablet;
   }
 
   @include m.on-desktop {
-    padding-inline: $offset-desktop;
+    padding-inline: v.$offset-desktop;
   }
 }
 
@@ -63,7 +55,7 @@ $offset-mobile: 16px;
   gap: 20px;
   border-radius: 30px;
   background-color: v.$grey-0-color;
-  box-shadow: 0 4px 20px v.$shadow-color;
+  box-shadow: v.$small-shadow;
 
   @include m.on-tablet {
     flex-direction: row;
@@ -151,34 +143,6 @@ $offset-mobile: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  &__patternContent {
-    position: absolute;
-    inset: -30%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    transform: rotate(-45deg);
-    pointer-events: none;
-    user-select: none;
-  }
-
-  &__patternRow {
-    display: flex;
-    white-space: nowrap;
-    gap: 4px;
-    justify-content: center;
-    opacity: 0.31415;
-
-    span {
-      @extend %h3;
-      color: v.$grey-90-color;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
   }
 
   &__content {
