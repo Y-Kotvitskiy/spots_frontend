@@ -4,12 +4,7 @@ import React, { useCallback, useEffect } from "react";
 import { Map, AdvancedMarker, Pin, useMap } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
 import Controls from "./Controls";
-import {
-  fetchInitialData,
-  selectIsPickingMode,
-  selectSavedPlaces,
-  selectSelectedCoords,
-} from "@/store/slices/mapSlice";
+import { selectSelectedCoords } from "@/store/slices/mapSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";

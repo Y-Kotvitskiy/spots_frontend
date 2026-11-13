@@ -2,7 +2,6 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import styles from "./WorkingHoursPicker.module.scss";
 
-import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import HoursInput from "./HoursInput";
 
@@ -12,12 +11,6 @@ interface Props {
   setStartTime: (startTime: string) => void;
   setEndTime: (endTime: string) => void;
 }
-
-const getDefaultTime = (hours: number, minutes: number): Date => {
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-};
 
 const formatTimeToString = (date: Date | null): string => {
   if (!date) return "";

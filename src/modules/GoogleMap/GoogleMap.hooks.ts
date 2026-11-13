@@ -1,9 +1,5 @@
 import { useAppDispatch, useMapSelector } from "@/store/hooks";
-import {
-  fetchInitialData,
-  selectIsPickingMode,
-  selectSavedPlaces,
-} from "@/store/slices/mapSlice";
+import { fetchInitialData, selectIsPickingMode } from "@/store/slices/mapSlice";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
