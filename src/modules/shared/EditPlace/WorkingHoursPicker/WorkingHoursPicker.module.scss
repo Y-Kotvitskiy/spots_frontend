@@ -3,32 +3,27 @@
 @use "@/scss/variables.scss" as v;
 @use "@/scss/typography.scss" as t;
 
-
-
-
-
 .overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: $background-modal-color;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1100;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(v.$blur-base);
 
   @include m.on-tablet {
-    padding: 16px;
+    padding: v.$mobile-padding-inline;
   }
 }
 
 .modal {
   background-color: v.$grey-0-color;
   width: 100%;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: v.$small-shadow;
   display: flex;
   flex-direction: column;
-
 
   position: absolute;
   bottom: 0;
@@ -121,7 +116,7 @@
   scroll-snap-align: center;
   user-select: none;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color v.$animation-time ease;
 
   &.active {
     color: v.$grey-90-color;

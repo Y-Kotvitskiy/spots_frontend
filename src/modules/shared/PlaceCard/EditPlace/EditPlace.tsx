@@ -48,6 +48,7 @@ const ModalPhotoCard: React.FC<ModalPhotoCardProps> = ({
       )}
 
       {/* Зображення */}
+
       {photo.url && (
         <img
           key={photo.url}
@@ -62,6 +63,7 @@ const ModalPhotoCard: React.FC<ModalPhotoCardProps> = ({
       )}
 
       {/* Оверлей */}
+
       {isDeleting && (
         <div className={styles.modal__photoLoaderOverlay}>
           <Loader />

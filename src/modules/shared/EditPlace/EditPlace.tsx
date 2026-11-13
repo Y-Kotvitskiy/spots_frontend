@@ -306,7 +306,7 @@ const EditPlaceModal: React.FC<EditPlaceModalProps> = ({
               {/* КРОК 3: Робочі години */}
 
               <div className={styles.modal__setField}>
-                <label className={styles.markLabel || styles.modal__label}>
+                <label className={styles.modal__label}>
                   Working hours <span className={styles.modal__required}>*</span>
                 </label>
                 <div 

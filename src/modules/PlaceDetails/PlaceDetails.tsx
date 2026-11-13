@@ -302,7 +302,7 @@ const PlaceDetails: React.FC = () => {
             </div>
           </div>
 
-          <div className={styles.rightColumn}>
+          <div>
             <section className={styles.sectionCard}>
               <h3 className={styles.sectionCard__title}>Show on map</h3>
               <div className={styles.mapPreview}>
