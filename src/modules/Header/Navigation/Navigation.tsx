@@ -9,11 +9,12 @@ const Navigation = () => {
   const { currentUser } = useAuthSelector();
   const location = useLocation();
 
+  const isWelcomePage = location.pathname === "/welcome";
   const isLoginPage = location.pathname === "/login";
   const isRegisterPage = location.pathname === "/register";
   const isForgotPage = location.pathname === "/forgot-password";
   
-  const isAuthPages = isLoginPage || isRegisterPage || isForgotPage;
+  const isAuthPages = isLoginPage || isRegisterPage || isForgotPage || isWelcomePage;
 
   const activeItemClass = (isActive: boolean) => {
     return cn(styles.Navigation__item, {
