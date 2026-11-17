@@ -9,6 +9,7 @@ const Welcome = () => {
     <main className={styles.WelcomePage}>
       <div className={styles.container}>
 
+        {/* Hero Section */}
         <section className={styles.content}>
           <div className={styles.content__infoWrapper}>
             <div className={styles.content__infoWrapper__box}>
@@ -30,8 +31,13 @@ const Welcome = () => {
                 onClick={() => {
                   const element = document.getElementById("how-it-works");
                   if (element) {
+                    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+
+                    const isMobile = window.innerWidth < 640;
+                    const headerOffset = isMobile ? 20 : 180; 
+
                     window.scrollTo({
-                      top: element.getBoundingClientRect().top + window.pageYOffset - 100,
+                      top: elementPosition - headerOffset,
                       behavior: "smooth"
                     });
                   }
@@ -50,6 +56,7 @@ const Welcome = () => {
         </section>
 
         {/* How it works Section */}
+
         <section id="how-it-works" className={styles.howItWorks}>
           <h3 className={styles.sectionTitle}>How it works</h3>
           <div className={styles.howItWorks__steps}>
@@ -77,7 +84,7 @@ const Welcome = () => {
           </div>
         </section>
 
-        {/* Why SPOTS & Who is SPOTS for Info Sections */}
+        {/* Why SPOTS & Who is SPOTS for Info Sections (Адаптивна ширина) */}
         <section className={styles.infoSection}>
           <div className={styles.infoBlock}>
             <h3 className={styles.sectionTitle}>Why SPOTS?</h3>
@@ -93,7 +100,19 @@ const Welcome = () => {
         </section>
 
         {error && <p className={styles.error}>{error}</p>}
+
+        
+        {/* Footer */}
+
+        <footer className={styles.footer}>
+          <div className={styles.footerContainer}>
+            <div className={styles.ctaCard}>
+              <h2 className={styles.ctaCard__title}>Ready to find your spots?</h2>
+            </div>
+          </div>
+        </footer>
       </div>
+
     </main>
   );
 };

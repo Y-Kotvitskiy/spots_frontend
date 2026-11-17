@@ -1,0 +1,203 @@
+// ==========================================
+// IMPORTS & VARIABLES
+// ==========================================
+
+@use "@/scss/main.scss" as *;
+@use "@/scss/modals.scss" as ex;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+
+// ==========================================
+// BACKDROP & MODAL WRAPPER
+// ==========================================
+
+.backdrop {
+  @include ex.overlay;
+  padding: 16px;
+  background-color: v.$background-modal-color;
+}
+
+.modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  max-width: 90vw;
+  height: auto;
+  max-height: 90vh;
+  
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0;
+  gap: 12px;
+  animation: fadeIn v.$animation-time ease;
+}
+
+// ==========================================
+// IMAGE CONTAINER & STYLES
+// ==========================================
+
+.imageContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  max-width: 85vw;
+  max-height: 80vh;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: v.$grey-70-color;
+  touch-action: pan-y;
+}
+
+.image {
+  display: block;
+  max-width: 85vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: opacity 0.2s ease-in-out;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.imageHidden {
+  opacity: 0;
+}
+
+.imageLoaded {
+  opacity: 1;
+}
+
+// ==========================================
+// PLACEHOLDER & LOADER
+// ==========================================
+
+.placeholderWrapper {
+  position: relative;
+  width: 400px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: v.$grey-70-color;
+}
+
+.loader {
+  position: absolute;
+  z-index: 2;
+}
+
+// ==========================================
+// BUTTONS & NAVIGATION
+// ==========================================
+
+.iconNavigation {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.rotateLeft {
+  transform: rotate(180deg);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: v.$grey-0-color;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: v.$grey-90-color;
+  box-shadow: v.$small-shadow;
+  transition: background-color v.$animation-time ease, transform v.$animation-time ease;
+
+  &:hover {
+    background-color: v.$grey-10-color;
+    transform: scale(1.08);
+  }
+}
+
+.navBtn {
+  display: none;
+
+  @include m.on-tablet {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: v.$grey-0-color;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: v.$small-shadow;
+    z-index: 1100;
+    color: v.$grey-90-color;
+    transition: background-color v.$animation-time ease, transform v.$animation-time ease;
+
+    &:hover {
+      background-color: v.$grey-10-color;
+      transform: translateY(-50%) scale(1.08);
+    }
+  }
+}
+
+.prevBtn {
+  @include m.on-tablet {
+    left: 24px;
+  }
+}
+
+.nextBtn {
+  @include m.on-tablet {
+    right: 24px;
+  }
+}
+
+// ==========================================
+// FOOTER, COUNTER & HINTS
+// ==========================================
+
+.footerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.counter {
+  @extend %p3;
+  color: v.$grey-0-color;
+  background: v.$grey-70-color;
+  padding: 6px 16px;
+  border-radius: 40px;
+  box-shadow: v.$small-shadow;
+  z-index: 10;
+  font-weight: 500;
+}
+
+.swipeHint {
+  @extend %p2;
+  color: v.$grey-10-color;
+  text-align: center;
+
+  @include m.on-tablet {
+    display: none;
+  }
+}

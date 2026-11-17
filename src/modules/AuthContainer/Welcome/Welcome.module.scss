@@ -19,12 +19,13 @@
   margin-inline: auto;
   padding-inline: v.$offset-mobile;
   padding-top: 20px;
-  padding-bottom: 120px;
+  padding-bottom: 140px; // 140px знизу для телефону
   gap: 60px;
 
   @include m.on-tablet {
     padding-inline: v.$offset-tablet;
-    padding-top: 200px;
+    padding-top: 200px;   // 200px зверху для планшета/ПК (під верхній хедер)
+    padding-bottom: 0;
     gap: 80px;
   }
 
@@ -127,9 +128,9 @@
   flex-direction: column;
   gap: 20px;
 
-    @include m.on-tablet {
-      gap: 28px;
-    }
+  @include m.on-tablet {
+    gap: 28px;
+  }
 
   &__steps {
     display: grid;
@@ -150,16 +151,12 @@
 
 .stepCard {
   background-color: v.$grey-0-color;
-
   border-radius: 20px;
   padding: 16px 20px;
   gap: 20px;
-
   box-shadow: v.$small-shadow;
-
   display: flex;
   flex-direction: column;
-
 
   @include m.on-tablet {
     padding: 24px 20px;
@@ -178,17 +175,13 @@
 
   &__number {
     @extend %h3;
-
     width: 40px;
     height: 40px;
     border-radius: 50%;
-
     background-color: v.$grey-20-color;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     color: v.$grey-90-color;
 
     @include m.on-tablet {
@@ -209,7 +202,7 @@
 }
 
 // ==========================================
-// INFO SECTIONS (Why SPOTS / Who is it for)
+// INFO SECTIONS
 // ==========================================
 
 .infoSection {
@@ -222,6 +215,15 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+
+  @include m.on-tablet {
+    width: 66.666%;
+  }
+
+  @include m.on-desktop {
+    width: 50%;
+  }
 
   p {
     @extend %p1;
@@ -230,12 +232,32 @@
 }
 
 // ==========================================
-// BOTTOM CTA
+// FOOTER & CTA
 // ==========================================
 
-.bottomCallToAction {
+.footer {
+  width: 100%;
+  padding-inline: v.$offset-mobile;
+
+  @include m.on-tablet {
+    padding-inline: v.$offset-tablet;
+    padding-bottom: 60px;
+  }
+
+  @include m.on-desktop {
+    padding-inline: v.$offset-desktop;
+  }
+}
+
+.footerContainer {
+  padding-top: 10px;
   display: flex;
   justify-content: center;
+  width: 100%;
+
+  @include m.on-tablet {
+    padding-top: 40px;
+  }
 }
 
 .ctaCard {

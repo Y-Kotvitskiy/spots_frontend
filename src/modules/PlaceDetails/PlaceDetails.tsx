@@ -11,6 +11,7 @@ import {
 } from "@/store/slices/mapSlice";
 import { Tag } from "@/types";
 import Placeholder from "../shared/Placeholder";
+import ImageModal from "../shared/ImageModal/ImageModal";
 
 // ==========================================
 // SUB-COMPONENT FOR SMALL PHOTO CARD
@@ -21,6 +22,7 @@ interface SmallPhotoCardProps {
   alt: string;
   placeName: string;
   badgeText: string;
+  onClick?: () => void;
 }
 
 const SmallPhotoCard: React.FC<SmallPhotoCardProps> = ({
@@ -28,6 +30,7 @@ const SmallPhotoCard: React.FC<SmallPhotoCardProps> = ({
   alt,
   placeName,
   badgeText,
+  onClick,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -39,7 +42,11 @@ const SmallPhotoCard: React.FC<SmallPhotoCardProps> = ({
   }, [url]);
 
   return (
-    <div className={styles.smallPhotoCard}>
+    <div 
+      className={styles.smallPhotoCard} 
+      onClick={url ? onClick : undefined}
+      style={{ cursor: url ? "pointer" : "default" }}
+    >
       {(!url || !isLoaded) && <Placeholder text={placeName} />}
 
       {url && !isLoaded && <Loader className={styles.smallPhotoCard__loaderOverlay} />}
@@ -77,12 +84,23 @@ const PlaceDetails: React.FC = () => {
   const savedPlaces = useAppSelector(selectSavedPlaces);
   const selectedPlace = useAppSelector(selectSelectedPlaces);
 
+  const currentUser = useAppSelector((state) => state.auth?.currentUser);
+
   const place =
     (selectedPlace?.id === id ? selectedPlace : null) ||
     savedPlaces.find((p) => p.id === id);
 
   const [isMainImageLoaded, setIsMainImageLoaded] = useState(false);
   const mainImgRef = useRef<HTMLImageElement>(null);
+
+  // Стани для модалки перегляду фотографій (LightBox)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+
+  const handleImageClick = (index: number) => {
+    setActivePhotoIndex(index);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     if (id) {
@@ -118,7 +136,7 @@ const PlaceDetails: React.FC = () => {
     if (!hours?.opens_at || !hours.closes_at) return null;
     const [start] = hours.opens_at.trim().split(/\s+/);
     const [end] = hours.closes_at.trim().split(/\s+/);
-    return end ? `${start} - ${end}` : start;
+    return end ? `${start}\n${end}` : start;
   };
 
   const formattedHours = formatHours(place?.opening_hours);
@@ -127,22 +145,28 @@ const PlaceDetails: React.FC = () => {
     return <div className={styles.loading}>Loading place details...</div>;
   }
 
+  const isCreator = Boolean(
+    currentUser && place.creator_id && currentUser.id === place.creator_id
+  );
+
   const addBtnIndex = photosList.length < 5 ? photosList.length : -1;
   const placeName = place.name || "Place";
 
   return (
     <main className={styles.PlaceDetails}>
       <div className={styles.container}>
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-        />
+        {isCreator && (
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+        )}
 
         <div className={styles.gallery}>
-          {/* Головне фото або патерн-заглушка */}
+          {/* Головна фотокартка */}
           <div className={styles.mainPhotoCard}>
             <button
               className={styles.backBtn}
@@ -154,7 +178,10 @@ const PlaceDetails: React.FC = () => {
             </button>
 
             {mainPhoto ? (
-              <>
+              <div 
+                onClick={() => handleImageClick(0)} 
+                style={{ cursor: "pointer", width: "100%", height: "100%", position: "relative" }}
+              >
                 {(!mainPhoto.url || !isMainImageLoaded) && (
                   <>
                     <Placeholder text={placeName} />
@@ -177,8 +204,8 @@ const PlaceDetails: React.FC = () => {
                   onLoad={() => setIsMainImageLoaded(true)}
                 />
                 <span className={styles.photoBadge}>1 photo</span>
-              </>
-            ) : addBtnIndex === 0 ? (
+              </div>
+            ) : addBtnIndex === 0 && isCreator ? (
               <button
                 type="button"
                 className={styles.addPhotoCardFull}
@@ -195,7 +222,7 @@ const PlaceDetails: React.FC = () => {
             )}
           </div>
 
-          {/* Бічна сітка для індексів від 1 до 4 */}
+          {/* Бічна сітка для додаткових фото (індекси 1-4) */}
           <div className={styles.sidePhotosGrid}>
             {[1, 2, 3, 4].map((gridIndex) => {
               const photo = photosList[gridIndex];
@@ -209,11 +236,12 @@ const PlaceDetails: React.FC = () => {
                     alt={`${place.name} ${gridIndex + 1}`}
                     placeName={placeName}
                     badgeText={`${gridIndex + 1} photo`}
+                    onClick={() => handleImageClick(gridIndex)}
                   />
                 );
               }
 
-              if (isAddButton) {
+              if (isAddButton && isCreator) {
                 return (
                   <button
                     key="add-photo"
@@ -281,20 +309,20 @@ const PlaceDetails: React.FC = () => {
             </section>
 
             <div className={styles.infoRow}>
-              {formatHours !== null &&
-              <div className={styles.infoBlock}>
-                <h3 className={styles.infoBlock__label}>Working hours</h3>
-                <p className={styles.infoBlock__value}>
-                  <Icon name="time" size={24} className={styles.infoBlock__icon} />
-                  {formattedHours}
-                </p>
-              </div>
-              }
+              {formatHours !== null && (
+                <div className={styles.infoBlock}>
+                  <h3 className={styles.infoBlock__label}>Working hours</h3>
+                  <p className={styles.infoBlock__value}>
+                    <Icon name="time" size={24} className={styles.infoBlock__icon} />
+                    {formattedHours}
+                  </p>
+                </div>
+              )}
               {place.creator_name && (
                 <div className={styles.infoBlock}>
                   <h3 className={styles.infoBlock__label}>Added by</h3>
                   <p className={styles.infoBlock__value}>
-                    <Icon name="check" size={24} className={styles.infoBlock__icon}/>
+                    <Icon name="check" size={24} className={styles.infoBlock__icon} />
                     {place.creator_name}
                   </p>
                 </div>
@@ -314,6 +342,15 @@ const PlaceDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ImageModal
+        key={activePhotoIndex}
+        isOpen={isModalOpen}
+        images={photosList}
+        initialIndex={activePhotoIndex}
+        onClose={() => setIsModalOpen(false)}
+        placeName={placeName}
+      />
     </main>
   );
 };

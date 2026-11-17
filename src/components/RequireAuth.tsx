@@ -21,8 +21,8 @@ const RequireAuth = ({ children }: { children?: React.ReactNode }) => {
   }
 
   if (!currentUser) {
-    console.log("RequireAuth: redirecting to login");
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    console.log("RequireAuth: redirecting to welcome");
+    return <Navigate to="/welcome" state={{ from: location }} replace />;
   }
 
   return children ?? <Outlet />;

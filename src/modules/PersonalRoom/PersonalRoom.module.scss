@@ -1,7 +1,19 @@
+// ==========================================
+// IMPORTS
+// ==========================================
+
 @use "@/scss/main.scss" as *;
 @use "@/scss/mixins.scss" as m;
 @use "@/scss/variables.scss" as v;
 @use "@/scss/typography.scss" as t;
+
+// ==========================================
+// HELPERS / MIXINS
+// ==========================================
+
+@mixin smooth-transition($properties: background-color color border-color transform) {
+  transition: inspect($properties) v.$animation-time ease;
+}
 
 // ==========================================
 // MAIN PAGE LAYOUT
@@ -32,10 +44,12 @@
   margin-inline: auto;
   padding-inline: v.$offset-mobile;
   padding-top: 20px;
+  padding-bottom: 120px;
 
   @include m.on-tablet {
     padding-top: 140px;
     padding-inline: v.$offset-tablet;
+    padding-bottom: 0;
   }
 
   @include m.on-desktop {
@@ -103,7 +117,7 @@
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    transition: opacity v.$animation-time ease;
+    @include smooth-transition(opacity);
   }
 
   &__avatarHidden {
@@ -209,9 +223,7 @@
       background-color: v.$grey-20-color;
       color: v.$grey-70-color;
       cursor: pointer;
-      transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+      @include smooth-transition(background-color color);
 
       @include m.on-tablet {
         flex: unset;
@@ -228,17 +240,35 @@
 }
 
 // ==========================================
+// CONTROLS HEADER (TABS + SEARCH)
+// ==========================================
+
+.controlsHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+  width: 100%;
+
+  @include m.on-tablet {
+    justify-content: space-between;
+    gap: 32px;
+    margin-top: 32px;
+  }
+
+  @include m.on-desktop {
+    flex-direction: row;
+  }
+}
+
+// ==========================================
 // TABS NAVIGATION
 // ==========================================
 
 .tabs {
   display: flex;
-  margin-top: 20px;
   gap: 12px;
-
-  @include m.on-tablet {
-    margin-top: 32px;
-  }
+  flex-shrink: 0;
 }
 
 .tab {
@@ -249,14 +279,256 @@
   color: v.$grey-70-color;
   @extend %p2;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  @include smooth-transition(background-color color);
 
   &_active {
     background-color: v.$grey-20-color;
     color: v.$grey-90-color;
   }
+}
+
+// ==========================================
+// SEARCH BAR & SWITCHER
+// ==========================================
+
+.searchBarWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  flex: 1;
+
+  @include m.on-tablet {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    justify-content: flex-end;
+  }
+}
+
+.searchTypeSwitch {
+  display: flex;
+  align-items: center;
+  background-color: v.$grey-20-color;
+  border-radius: 30px;
+  padding: 4px;
+  height: 48px;
+  width: 100%;
+  flex-shrink: 0;
+
+  @include m.on-tablet {
+    height: 60px;
+    width: fit-content;
+  }
+}
+
+.switchBtn {
+  width: 100%;
+  padding: 0 16px;
+  border: none;
+  border-radius: 26px;
+  background-color: transparent;
+  color: v.$grey-70-color;
+  @extend %p3;
+  height: 100%;
+  cursor: pointer;
+  @include smooth-transition(background-color color);
+
+  @include m.on-tablet {
+    width: auto;
+  }
+
+  &_active {
+    background-color: v.$grey-0-color;
+    color: v.$grey-90-color;
+    box-shadow: v.$small-shadow;
+  }
+}
+
+.searchInput {
+  @extend %p2;
+  height: 48px;
+  padding: 0 24px;
+  background-color: v.$grey-10-color;
+  border: 2px solid transparent;
+  border-radius: 30px;
+  color: v.$grey-90-color;
+  outline: none;
+  width: 100%;
+  box-shadow: v.$small-shadow;
+  @include smooth-transition(border-color);
+
+  &:hover {
+    border-color: v.$grey-20-color;
+  }
+
+  &:focus {
+    border-color: v.$grey-30-color;
+  }
+
+  @include m.on-tablet {
+    height: 60px;
+  }
+}
+
+// ==========================================
+// SEPARATE DROPDOWN FILTERS (CATEGORIES & TAGS)
+// ==========================================
+
+.dropdownFiltersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+
+  @include m.on-tablet {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+}
+
+.dropdownFilters {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+
+  @include m.on-tablet {
+    gap: 32px;
+    width: auto;
+  }
+}
+
+.clearAllBtn {
+  @extend %h3;
+  background: none;
+  border: none;
+  color: v.$grey-70-color;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  @include smooth-transition(color);
+  white-space: nowrap;
+
+  &:hover {
+    color: v.$grey-90-color;
+  }
+
+  @include m.on-tablet {
+    text-align: right;
+  }
+}
+
+.customSelectWrapper {
+  position: relative;
+  width: 100%;
+
+  @include m.on-tablet {
+    width: auto;
+    min-width: 220px;
+  }
+
+  @include m.on-desktop {
+    width: auto;
+  }
+}
+
+.filterSelect {
+  @extend %p2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 20px;
+  background-color: v.$grey-10-color;
+  border: 2px solid transparent;
+  border-radius: 30px;
+  color: v.$grey-90-color;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: v.$small-shadow;
+  @include smooth-transition(border-color);
+
+  &:hover {
+    border-color: v.$grey-20-color;
+  }
+
+  &:active {
+    border-color: v.$grey-30-color;
+  }
+
+  @include m.on-tablet {
+    height: 60px;
+    width: 100%;
+    min-width: 220px;
+  }
+
+  @include m.on-desktop {
+    width: auto;
+  }
+}
+
+.selectArrow {
+  @include smooth-transition(transform);
+  color: v.$grey-90-color;
+  flex-shrink: 0;
+
+  &_open {
+    transform: rotate(180deg);
+  }
+}
+
+.customDropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background-color: v.$grey-0-color;
+  border-radius: 20px;
+  box-shadow: v.$small-shadow;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 6px;
+  z-index: 101;
+  max-height: 250px;
+  overflow-y: auto;
+  animation: fadeIn v.$animation-time ease;
+}
+
+.customDropdownItem {
+  @extend %p2;
+  background: none;
+  border: none;
+  white-space: nowrap;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  cursor: pointer;
+  @include smooth-transition(background-color);
+  color: v.$grey-90-color;
+
+  &:hover {
+    background-color: v.$grey-20-color;
+  }
+
+  &_active {
+    background-color: v.$grey-20-color;
+    font-weight: 500;
+  }
+}
+
+.checkboxIndicator {
+  margin-right: 6px;
+  font-weight: bold;
 }
 
 // ==========================================
@@ -299,6 +571,7 @@
   background: none;
   color: v.$grey-60-color;
   cursor: pointer;
+  @include smooth-transition(color);
 
   &:hover {
     color: v.$grey-70-color;
