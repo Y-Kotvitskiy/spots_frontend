@@ -387,6 +387,11 @@ const PersonalRoom = () => {
           {/* Tabs Navigation */}
 
           <div className={styles.tabs}>
+            <div 
+              className={`${styles.tabsIndicator} ${
+                activeTab === "shared-to-me" ? styles.tabsIndicator_second : ""
+              }`} 
+            />
             <button
               className={`${styles.tab} ${activeTab === "my-places" ? styles.tab_active : ""}`}
               onClick={() => updateQueryParams({ tab: "my-places", q: null })}
