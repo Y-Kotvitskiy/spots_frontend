@@ -63,3 +63,12 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 }
+
+@mixin hover($property, $to-value) {
+  /* stylelint-disable-next-line CssSyntaxError */
+  transition: #{$property} $hover_time_transition;
+
+  &:hover {
+    #{$property}: $to-value;
+  }
+}

@@ -103,19 +103,25 @@
       height: 60px;
     }
 
-    &:hover {
-      background-color: v.$primary-states-hovered-color;
-    }
+    @include m.hover(background-color, v.$primary-states-hovered-color);
+    @include m.hover(transform, scale(v.$text-hover-transform));
 
     &:disabled {
       background-color: v.$primary-states-disabled-color;
     }
 
+    &:active {
+      background-color: v.$primary-states-clicked-color;
+    }
+
     &_save {
       background-color: v.$secondary-orange-color;
 
-      &:hover {
-        background-color: v.$secondary-orange-hover-color;
+      @include m.hover(background-color, v.$secondary-orange-hovered-color);
+      @include m.hover(transform, scale(v.$text-hover-transform));
+
+      &:active {
+        background-color: v.$secondary-orange-clicked-color;
       }
     }
 

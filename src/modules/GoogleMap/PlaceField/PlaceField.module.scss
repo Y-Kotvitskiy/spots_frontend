@@ -54,6 +54,10 @@
       border: 2px solid v.$system-error-color;
     }
 
+    &:read-only {
+      caret-color: transparent;
+    }
+
     &::placeholder {
       @extend %p2;
       color: v.$grey-60-color;
@@ -83,14 +87,23 @@
     color: v.$grey-70-color;
     line-height: 100%;
 
-    &_selected {
-      background-color: v.$secondary-orange-color;
-      color: v.$grey-0-color;
-    }
+    @include m.hover(transform, scale(v.$text-hover-transform));
+    @include m.hover(background-color, v.$grey-30-color);
 
     @include m.on-tablet {
       height: 54px;
       padding: 16px 24px;
+    }
+
+    &_selected {
+      background-color: v.$secondary-orange-color;
+      color: v.$grey-0-color;
+
+      @include m.hover(background-color, v.$secondary-orange-hovered-color);
+
+      &:active {
+        background-color: v.$secondary-orange-clicked-color;
+      }
     }
   }
 

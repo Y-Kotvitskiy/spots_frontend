@@ -12,17 +12,22 @@ const MapPlaceDetail: React.FC = () => {
   if (!selectedPlace) {
     return null;
   }
-
   const opens_at = selectedPlace.opening_hours?.opens_at || OPENS_AT;
   const closes_at = selectedPlace.opening_hours?.closes_at || CLOSES_AT;
+
+  const firstPhoto = Object.entries(selectedPlace?.photos || {}).sort(
+    ([keyA], [keyB]) => Number(keyA) - Number(keyB),
+  )[0]?.[1];
+
+  const imageUrl = firstPhoto?.url;
 
   return (
     <section className={styles.MapPlaceDetail}>
       <div className={styles.MapPlaceDetail__leftPanel}>
-        {Object.keys(selectedPlace.photos).length ? (
+        {imageUrl ? (
           <img
             className={styles.MapPlaceDetail__img}
-            src={selectedPlace.photos[0]?.url}
+            src={imageUrl}
             alt="Place image"
           />
         ) : (

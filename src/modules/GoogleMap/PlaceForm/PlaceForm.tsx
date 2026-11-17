@@ -303,6 +303,7 @@ const PlaceForm: React.FC = () => {
                   name="address"
                   type="text"
                   required
+                  readOnly
                   value={
                     isAddressLoading
                       ? "Loading address..."
@@ -366,6 +367,7 @@ const PlaceForm: React.FC = () => {
 
           <footer className={styles.PlaceForm__footer}>
             <Button
+              classNames={styles.PlaceForm__button}
               type="button"
               disabled={isDisabledNext()}
               onClick={handleNextClick}

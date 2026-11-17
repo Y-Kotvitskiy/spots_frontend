@@ -24,9 +24,8 @@
   color: #1f2937;
   text-align: center;
   cursor: pointer;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+
+  @include m.hover(transform, scale(v.$text-hover-transform));
 
   @include m.on-tablet {
     padding: 16px 24px;
