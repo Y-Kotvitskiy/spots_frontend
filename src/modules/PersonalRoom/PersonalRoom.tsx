@@ -393,12 +393,14 @@ const PersonalRoom = () => {
               }`} 
             />
             <button
+              type="button"
               className={`${styles.tab} ${activeTab === "my-places" ? styles.tab_active : ""}`}
               onClick={() => updateQueryParams({ tab: "my-places", q: null })}
             >
               My places
             </button>
             <button
+              type="button"
               className={`${styles.tab} ${activeTab === "shared-to-me" ? styles.tab_active : ""}`}
               onClick={() => updateQueryParams({ tab: "shared-to-me", q: null })}
             >
@@ -422,136 +424,138 @@ const PersonalRoom = () => {
               value={searchQuery}
               onChange={(e) => updateQueryParams({ q: e.target.value })}
             />
-            {activeTab === "shared-to-me" && (
-              <div className={styles.searchTypeSwitch}>
-                <button
-                  type="button"
-                  className={`${styles.switchBtn} ${searchType === "name" ? styles.switchBtn_active : ""}`}
-                  onClick={() => updateQueryParams({ searchType: "name" })}
-                >
-                  By Place
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.switchBtn} ${searchType === "user" ? styles.switchBtn_active : ""}`}
-                  onClick={() => updateQueryParams({ searchType: "user" })}
-                >
-                  By User
-                </button>
-              </div>
-            )}
+
+            <div className={`${styles.searchTypeSwitch} ${activeTab !== "shared-to-me" ? styles.searchTypeSwitch_hidden : ""}`}>
+              <div 
+                className={`${styles.switchIndicator} ${
+                  searchType === "user" ? styles.switchIndicator_second : ""
+                }`} 
+              />
+              <button
+                type="button"
+                className={`${styles.switchBtn} ${searchType === "name" ? styles.switchBtn_active : ""}`}
+                onClick={() => updateQueryParams({ searchType: "name" })}
+              >
+                By Place
+              </button>
+              <button
+                type="button"
+                className={`${styles.switchBtn} ${searchType === "user" ? styles.switchBtn_active : ""}`}
+                onClick={() => updateQueryParams({ searchType: "user" })}
+              >
+                By User
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Separate Filters Section (Categories & Tags) for Shared to me */}
 
-        {activeTab === "shared-to-me" && (
-          <div className={styles.dropdownFiltersContainer}>
-            <div className={styles.dropdownFilters}>
-              
-              {/* Category Custom Dropdown */}
-              <div className={styles.customSelectWrapper} ref={categoryDropdownRef}>
-                <button
-                  type="button"
-                  className={styles.filterSelect}
-                  onClick={() => {
-                    setIsCategoryDropdownOpen((prev) => !prev);
-                    setIsTagDropdownOpen(false);
-                  }}
-                >
-                  <span>{selectedCategoryLabel}</span>
-                  <Icon name="down" size={16} className={`${styles.selectArrow} ${isCategoryDropdownOpen ? styles.selectArrow_open : ""}`} />
-                </button>
+        <div className={`${styles.dropdownFiltersContainer} ${activeTab !== "shared-to-me" ? styles.dropdownFiltersContainer_hidden : ""}`}>
+          <div className={styles.dropdownFilters}>
+            
+            {/* Category Custom Dropdown */}
+            <div className={styles.customSelectWrapper} ref={categoryDropdownRef}>
+              <button
+                type="button"
+                className={styles.filterSelect}
+                onClick={() => {
+                  setIsCategoryDropdownOpen((prev) => !prev);
+                  setIsTagDropdownOpen(false);
+                }}
+              >
+                <span>{selectedCategoryLabel}</span>
+                <Icon name="down" size={16} className={`${styles.selectArrow} ${isCategoryDropdownOpen ? styles.selectArrow_open : ""}`} />
+              </button>
 
-                {isCategoryDropdownOpen && (
-                  <div className={styles.customDropdownMenu}>
+              {isCategoryDropdownOpen && (
+                <div className={styles.customDropdownMenu}>
+                  <button
+                    type="button"
+                    className={`${styles.customDropdownItem} ${selectedCategory === "all" ? styles.customDropdownItem_active : ""}`}
+                    onClick={() => {
+                      updateQueryParams({ category: "all" });
+                      setIsCategoryDropdownOpen(false);
+                    }}
+                  >
+                    All Categories
+                  </button>
+                  {availableCategories.map((category) => (
                     <button
+                      key={category}
                       type="button"
-                      className={`${styles.customDropdownItem} ${selectedCategory === "all" ? styles.customDropdownItem_active : ""}`}
+                      className={`${styles.customDropdownItem} ${selectedCategory === category ? styles.customDropdownItem_active : ""}`}
                       onClick={() => {
-                        updateQueryParams({ category: "all" });
+                        updateQueryParams({ category: category });
                         setIsCategoryDropdownOpen(false);
                       }}
                     >
-                      All Categories
+                      {category}
                     </button>
-                    {availableCategories.map((category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        className={`${styles.customDropdownItem} ${selectedCategory === category ? styles.customDropdownItem_active : ""}`}
-                        onClick={() => {
-                          updateQueryParams({ category: category });
-                          setIsCategoryDropdownOpen(false);
-                        }}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Tag Custom Dropdown (Multi-select) */}
-              <div className={styles.customSelectWrapper} ref={tagDropdownRef}>
-                <button
-                  type="button"
-                  className={styles.filterSelect}
-                  onClick={() => {
-                    setIsTagDropdownOpen((prev) => !prev);
-                    setIsCategoryDropdownOpen(false);
-                  }}
-                >
-                  <span>{selectedTagLabel}</span>
-                  <Icon name="down" size={16} className={`${styles.selectArrow} ${isTagDropdownOpen ? styles.selectArrow_open : ""}`} />
-                </button>
-
-                {isTagDropdownOpen && (
-                  <div className={styles.customDropdownMenu}>
-                    <button
-                      type="button"
-                      className={`${styles.customDropdownItem} ${selectedTags.length === 0 ? styles.customDropdownItem_active : ""}`}
-                      onClick={() => {
-                        updateQueryParams({ tags: null });
-                      }}
-                    >
-                      All Tags
-                    </button>
-                    {Object.keys(Tag).map((tagKey) => {
-                      const isSelected = selectedTags.includes(tagKey);
-                      return (
-                        <button
-                          key={tagKey}
-                          type="button"
-                          className={`${styles.customDropdownItem} ${isSelected ? styles.customDropdownItem_active : ""}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleTagToggle(tagKey);
-                          }}
-                        >
-                          <span className={styles.checkboxIndicator}>{isSelected ? "✓ " : ""}</span>
-                          {Tag[tagKey as keyof typeof Tag] || tagKey}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Clear All Button (H3 colored gray 70) */}
-            {hasActiveFilters && (
+            {/* Tag Custom Dropdown (Multi-select) */}
+            <div className={styles.customSelectWrapper} ref={tagDropdownRef}>
               <button
                 type="button"
-                className={styles.clearAllBtn}
-                onClick={handleClearAll}
+                className={styles.filterSelect}
+                onClick={() => {
+                  setIsTagDropdownOpen((prev) => !prev);
+                  setIsCategoryDropdownOpen(false);
+                }}
               >
-                Clear All
+                <span>{selectedTagLabel}</span>
+                <Icon name="down" size={16} className={`${styles.selectArrow} ${isTagDropdownOpen ? styles.selectArrow_open : ""}`} />
               </button>
-            )}
+
+              {isTagDropdownOpen && (
+                <div className={styles.customDropdownMenu}>
+                  <button
+                    type="button"
+                    className={`${styles.customDropdownItem} ${selectedTags.length === 0 ? styles.customDropdownItem_active : ""}`}
+                    onClick={() => {
+                      updateQueryParams({ tags: null });
+                    }}
+                  >
+                    All Tags
+                  </button>
+                  {Object.keys(Tag).map((tagKey) => {
+                    const isSelected = selectedTags.includes(tagKey);
+                    return (
+                      <button
+                        key={tagKey}
+                        type="button"
+                        className={`${styles.customDropdownItem} ${isSelected ? styles.customDropdownItem_active : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTagToggle(tagKey);
+                        }}
+                      >
+                        <span className={styles.checkboxIndicator}>{isSelected ? "✓ " : ""}</span>
+                        {Tag[tagKey as keyof typeof Tag] || tagKey}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
           </div>
-        )}
+
+          {/* Clear All Button */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className={styles.clearAllBtn}
+              onClick={handleClearAll}
+            >
+              Clear All
+            </button>
+          )}
+        </div>
 
         {/* Places Section */}
 
@@ -578,25 +582,26 @@ const PersonalRoom = () => {
                     }
                   }
 
-                  return(
-                  <PlaceCard
-                    key={`${place.id}_${placeImage}`}
-                    image={placeImage}
-                    title={place.name}
-                    category={place.categoryName}
-                    workingHours={
-                      place.opening_hours
-                        ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
-                        : "none"
-                    }
-                    isShared={0}
-                    deleteButtonText="Delete place"
-                    onEdit={() => setPlaceToEdit(place)}
-                    onShare={() => handleOpenShare(place)}
-                    onDelete={() => handleDeletePersonal(place)}
-                    onClick={() => navigate(`/places/${place.id}`)}
-                  />
-                )})}
+                  return (
+                    <PlaceCard
+                      key={`${place.id}_${placeImage}`}
+                      image={placeImage}
+                      title={place.name}
+                      category={place.categoryName}
+                      workingHours={
+                        place.opening_hours
+                          ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
+                          : "none"
+                      }
+                      isShared={0}
+                      deleteButtonText="Delete place"
+                      onEdit={() => setPlaceToEdit(place)}
+                      onShare={() => handleOpenShare(place)}
+                      onDelete={() => handleDeletePersonal(place)}
+                      onClick={() => navigate(`/places/${place.id}`)}
+                    />
+                  );
+                })}
               </div>
             )
           ) : (
@@ -636,11 +641,9 @@ const PersonalRoom = () => {
                       }
                       addedBy={place.creator_name} 
                       deleteButtonText="Delete place"
-                      
                       onEdit={isMyPlace ? () => setPlaceToEdit(place) : undefined}
                       onShare={isMyPlace ? () => handleOpenShare(place) : undefined}
                       onDelete={isMyPlace ? () => handleDeletePersonal(place) : undefined}
-                      
                       onClick={() => navigate(`/places/${place.id}`)}
                     />
                   );
