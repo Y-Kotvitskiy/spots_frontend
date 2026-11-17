@@ -340,10 +340,6 @@ export const mapSlice = createSlice({
   },
 });
 
-// ==========================================
-// EXPORTS (ACTIONS & REDUCER)
-// ==========================================
-
 export const actions = {
   ...mapSlice.actions,
   addPlace,
@@ -354,10 +350,6 @@ export const actions = {
 };
 
 export default mapSlice.reducer;
-
-// ==========================================
-// SELECTORS
-// ==========================================
 
 export const selectMapMode = (state: RootState) => state.map.mapMode;
 export const selectIsPickingMode = (state: RootState) =>

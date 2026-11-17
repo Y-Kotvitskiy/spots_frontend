@@ -64,18 +64,24 @@
 
   &__option {
     @extend %h4;
+    height: 42px;
 
-    height: 54px;
-    padding: 16px 24px;
+    padding: 12px 20px;
     border: none;
     border-radius: 20px;
 
     background-color: v.$grey-20-color;
     color: v.$grey-70-color;
+    line-height: 100%;
 
     &_selected {
       background-color: v.$secondary-orange-color;
       color: v.$grey-0-color;
+    }
+
+    @include m.on-tablet {
+      height: 54px;
+      padding: 16px 24px;
     }
   }
 

@@ -38,6 +38,7 @@ const Controls: React.FC = () => {
       if (!selectedCoords) {
         await putMarkerToCenter();
       }
+      dispatch(mapActions.clearSelectedPlace());
       dispatch(mapActions.setMapMode(MapMode.Select));
       return;
     }

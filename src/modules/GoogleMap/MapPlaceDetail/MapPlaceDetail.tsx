@@ -19,7 +19,7 @@ const MapPlaceDetail: React.FC = () => {
   return (
     <section className={styles.MapPlaceDetail}>
       <div className={styles.MapPlaceDetail__leftPanel}>
-        {selectedPlace.photos ? (
+        {Object.keys(selectedPlace.photos).length ? (
           <img
             className={styles.MapPlaceDetail__img}
             src={selectedPlace.photos[0]?.url}
@@ -40,17 +40,18 @@ const MapPlaceDetail: React.FC = () => {
           </p>
           <p className={styles.MapPlaceDetail__creator}>
             <span>Added by</span>
-            <span>{selectedPlace.creator_name}</span>
+            <span className={styles.MapPlaceDetail__textOneLine}>
+              {selectedPlace.creator_name}
+            </span>
           </p>
         </div>
       </div>
-      <div className={styles.MapPlaceDetail__Buttons}>
-        <button className={styles.MapPlaceDetail__buttonShared}></button>
-        <Button
-          text="Details"
-          onClick={() => navigate(`/places/${selectedPlace.id}`)}
-        />
-      </div>
+      <button className={styles.MapPlaceDetail__buttonShared}></button>
+      <Button
+        text="Details"
+        onClick={() => navigate(`/places/${selectedPlace.id}`)}
+        classNames={styles.MapPlaceDetail__buttonDetail}
+      />
     </section>
   );
 };

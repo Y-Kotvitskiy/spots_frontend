@@ -55,16 +55,14 @@ const MapFilter: React.FC<Props> = ({ className, filterButton }) => {
     };
   }, [mapMode === MapMode.Filter, dispatch]);
 
-  if (mapMode !== MapMode.Filter) {
-    return null;
-  }
-
   useEffect(() => {
+    if (mapMode !== MapMode.Filter) return;
     const container = containerRef.current;
     if (!container) return;
 
     const checkScroll = () => {
       const scrollable = container.scrollHeight > container.clientHeight;
+
       setHasScroll(scrollable);
     };
 
@@ -76,7 +74,7 @@ const MapFilter: React.FC<Props> = ({ className, filterButton }) => {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [mapMode === MapMode.Filter]);
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -102,6 +100,10 @@ const MapFilter: React.FC<Props> = ({ className, filterButton }) => {
 
     dispatch(mapActions.toggleFilterTag(currentTag));
   };
+
+  if (mapMode !== MapMode.Filter) {
+    return null;
+  }
 
   return (
     <div className={cn(className, styles.ScrollableContent)} ref={containerRef}>
@@ -134,7 +136,6 @@ const MapFilter: React.FC<Props> = ({ className, filterButton }) => {
         </header>
 
         <main className={styles.MapFilter__main}>
-          {/* Шаг 1 */}
           <fieldset className={styles.MapFilter__fieldset}>
             <PlaceField
               label="Category"

@@ -217,7 +217,7 @@ const PlaceForm: React.FC = () => {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <form onSubmit={(e) => e.preventDefault()}>
           <header className={styles.PlaceForm__header}>
-            <h1>
+            <h1 className={styles.PlaceForm__headerTitle}>
               {activePage === 4
                 ? "Your place is now on the map"
                 : `Add place ${activePage}/3`}
