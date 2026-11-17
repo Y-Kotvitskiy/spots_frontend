@@ -111,9 +111,33 @@
       background-color: v.$primary-states-disabled-color;
     }
 
+    &_save {
+      background-color: v.$secondary-orange-color;
+
+      &:hover {
+        background-color: v.$secondary-orange-hover-color;
+      }
+    }
+
     &Plus {
-      font-size: 32px;
+      font-size: 28px;
       line-height: 100%;
+
+      @include m.on-tablet {
+        font-size: 32px;
+      }
+    }
+
+    &Play {
+      display: flex;
+      padding-bottom: 0.15em;
+      padding-left: 0.15em;
+      font-size: 28px;
+      line-height: 100%;
+
+      @include m.on-tablet {
+        font-size: 32px;
+      }
     }
 
     &Text {

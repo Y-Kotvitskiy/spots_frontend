@@ -1,10 +1,11 @@
 @use "@/scss/variables" as v;
+@use "@/scss/mixins" as m;
 @use "@/scss/typography" as t;
 
 .WorkingHoursPicker {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 
   &__title {
     @extend %h4;
@@ -14,7 +15,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 12px;
+
+    @include m.on-tablet {
+      gap: 16px;
+    }
   }
 }
 
@@ -43,7 +48,6 @@
     box-shadow:
       0 20px 25px -5px rgba(0, 0, 0, 0.1),
       0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    font-family: inherit;
 
     &__header {
       padding: 0;
@@ -55,13 +59,20 @@
     }
 
     &__time-container {
-      width: 190px;
-      background-color: #ffffff;
+      width: 30vw;
+      background-color: v.$grey-0-color;
+
+      @include m.on-tablet {
+        width: 190px;
+      }
     }
 
     &__time-list {
-      width: 110px;
       scrollbar-width: none !important;
+
+      @include m.on-tablet {
+        width: 110px;
+      }
 
       &::-webkit-scrollbar {
         display: none !important;
@@ -71,14 +82,13 @@
     }
 
     &__time-list-item {
-      @extend %h3;
+      @extend %p2;
 
       display: flex !important;
       align-items: center;
       justify-content: center;
       height: 40px !important;
       color: v.$grey-60-color;
-      font-size: 18px;
 
       transition:
         background-color 0.15s ease,
@@ -92,11 +102,11 @@
 
       &--selected {
         border-radius: 9px;
-        background-color: #6366f1 !important;
+        background-color: v.$primary-states-hovered-color !important;
         color: v.$grey-10-color !important;
 
         &:hover {
-          background-color: #6366f1 !important;
+          background-color: v.$primary-states-hovered-color !important;
           color: v.$grey-10-color !important;
         }
       }

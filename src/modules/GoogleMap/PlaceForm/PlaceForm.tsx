@@ -240,7 +240,6 @@ const PlaceForm: React.FC = () => {
           </header>
 
           <main>
-            {/* Шаг 1 */}
             <fieldset
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 1,
@@ -345,7 +344,6 @@ const PlaceForm: React.FC = () => {
                 startTime={formik.values.opens_at}
                 endTime={formik.values.closes_at}
                 setStartTime={(startTime) => {
-                  debugger;
                   formik.setFieldValue("opens_at", startTime);
                 }}
                 setEndTime={(endTime) =>

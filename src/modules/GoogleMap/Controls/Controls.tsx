@@ -1,4 +1,5 @@
 import styles from "./Controls.module.scss";
+import cn from "classnames";
 import { Link } from "react-router-dom";
 import SearchInput from "./SearchInput";
 import {
@@ -58,6 +59,8 @@ const Controls: React.FC = () => {
     }
   };
 
+  const isSavingMode = mapMode === MapMode.Select || mapMode === MapMode.Add;
+
   return (
     <aside className={styles.Controls}>
       <Link className={styles.Controls__brand} to={"/"}>
@@ -70,11 +73,16 @@ const Controls: React.FC = () => {
         ref={filterButton}
       ></button>
       <button
-        className={styles.Controls__addButton}
+        className={cn(styles.Controls__addButton, {
+          [styles.Controls__addButton_save]: isSavingMode,
+        })}
         onClick={handleAddButtonClick}
       >
-        {mapMode === MapMode.Select || mapMode === MapMode.Add ? (
-          "Save"
+        {isSavingMode ? (
+          <>
+            <span className={styles.Controls__addButtonPlay}>&#9655;</span>
+            <span className={styles.Controls__addButtonText}>Save</span>
+          </>
         ) : (
           <>
             <span className={styles.Controls__addButtonPlus}>+</span>
