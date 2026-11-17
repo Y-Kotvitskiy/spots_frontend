@@ -6,9 +6,9 @@
   display: flex;
   flex-direction: column;
   width: auto;
-  // height: 100%;
   border-radius: 32px;
   background-color: v.$grey-0-color;
+  cursor: default;
 
   @include m.on-tablet() {
     width: 100%;
@@ -29,6 +29,10 @@
       border: none;
       background-color: transparent;
       color: v.$grey-60-color;
+      cursor: pointer;
+
+      @include m.hover(color, v.$grey-70-color);
+      @include m.hover(transform, v.$text_hover_transform);
     }
 
     &Title {
@@ -41,7 +45,11 @@
       width: 40px;
       height: 40px;
       border: none;
-      background: url("/icons/place_close.svg") center center no-repeat;
+      background-color: v.$grey-60-color;
+      cursor: pointer;
+      mask: url("/icons/place_close.svg") center center no-repeat;
+      @include m.hover(background-color, v.$grey-70-color);
+      @include m.hover(transform, scale(v.$text-hover-transform));
     }
   }
 
@@ -64,7 +72,7 @@
   min-height: 0;
   overflow-y: auto;
   timeline-scope: --content-scroll;
-  cursor: pointer;
+  cursor: default;
   pointer-events: auto;
   scrollbar-width: none;
 

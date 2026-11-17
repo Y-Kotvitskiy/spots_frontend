@@ -59,19 +59,41 @@
   }
 
   &__filter {
+    position: relative;
     width: 48px;
     height: 48px;
     border: none;
     border-radius: 40px;
     outline: none;
-    background: url("/icons/filter.svg") center center no-repeat;
     background-color: v.$grey-0-color;
+    box-shadow: 0 12px 32px rgba(207, 191, 191, 0.18);
     cursor: pointer;
     pointer-events: auto;
 
     @include m.on-tablet {
       width: 60px;
       height: 60px;
+    }
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
+    @include m.hover(background-color, v.$grey-10-color);
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      background-color: v.$grey-70-color;
+      content: "";
+      mask: url("/icons/filter.svg") center center no-repeat;
+      @include m.hover(transform, scale(v.$text-hover-transform));
+    }
+
+    &_selected {
+      transform: scale(v.$text-hover-transform);
+      background-color: v.$grey-20-color;
+
+      &:hover {
+        background-color: v.$grey-20-color;
+      }
     }
   }
 

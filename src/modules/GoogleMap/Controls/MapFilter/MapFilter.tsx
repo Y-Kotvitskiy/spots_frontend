@@ -7,6 +7,7 @@ import { mapActions } from "@/store";
 import { Tag, type CategoryKey, type TagKey } from "@/types";
 import PlaceField from "../../PlaceField";
 import type React from "react";
+import { useFilterParams } from "./Mapfilter.hooks";
 
 interface Props {
   className: string;
@@ -26,6 +27,7 @@ const MapFilter: React.FC<Props> = ({ className, filterButton }) => {
   const { categories } = useMapSelector();
   const containerRef = useRef<HTMLDivElement>(null);
   const [hasScroll, setHasScroll] = useState<boolean>(false);
+  useFilterParams();
 
   useEffect(() => {
     if (mapMode !== MapMode.Filter) {

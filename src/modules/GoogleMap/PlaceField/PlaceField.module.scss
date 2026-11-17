@@ -86,6 +86,7 @@
     background-color: v.$grey-20-color;
     color: v.$grey-70-color;
     line-height: 100%;
+    cursor: pointer;
 
     @include m.hover(transform, scale(v.$text-hover-transform));
     @include m.hover(background-color, v.$grey-30-color);

@@ -48,6 +48,7 @@
       transform: translateY(-50%);
       border: none;
       background-color: v.$grey-60-color;
+      cursor: pointer;
       mask: url("/icons/place_arrow.svg") center center no-repeat;
 
       @include m.hover(background-color, v.$grey-70-color);
@@ -70,6 +71,7 @@
       transform: translateY(-50%);
       border: none;
       background-color: v.$grey-60-color;
+      cursor: pointer;
       mask: url("/icons/place_close.svg") center center no-repeat;
       @include m.hover(background-color, v.$grey-70-color);
       @include m.hover(
