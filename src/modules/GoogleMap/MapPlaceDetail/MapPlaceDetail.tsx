@@ -3,26 +3,35 @@ import styles from "./MapPlaceDetail.module.scss";
 
 import { useMapSelector } from "@/store/hooks";
 import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
-const MapPlaceDetail: React.FC = () => {
+interface Props {
+  openPlaceShareModal: () => void;
+}
+
+const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
   const { selectedPlace } = useMapSelector();
   const navigate = useNavigate();
 
   if (!selectedPlace) {
     return null;
   }
-
   const opens_at = selectedPlace.opening_hours?.opens_at || OPENS_AT;
   const closes_at = selectedPlace.opening_hours?.closes_at || CLOSES_AT;
+
+  const firstPhoto = Object.entries(selectedPlace?.photos || {}).sort(
+    ([keyA], [keyB]) => Number(keyA) - Number(keyB),
+  )[0]?.[1];
+
+  const imageUrl = firstPhoto?.url;
 
   return (
     <section className={styles.MapPlaceDetail}>
       <div className={styles.MapPlaceDetail__leftPanel}>
-        {selectedPlace.photos ? (
+        {imageUrl ? (
           <img
             className={styles.MapPlaceDetail__img}
-            src={selectedPlace.photos[0]?.url}
+            src={imageUrl}
             alt="Place image"
           />
         ) : (
@@ -30,7 +39,14 @@ const MapPlaceDetail: React.FC = () => {
         )}
 
         <div className={styles.MapPlaceDetail__leftText}>
-          <h2 className={styles.MapPlaceDetail__title}>{selectedPlace.name}</h2>
+          <h2 className={styles.MapPlaceDetail__title}>
+            <NavLink
+              to={`/map/${selectedPlace.id}`}
+              state={{ timestamp: Date.now() }}
+            >
+              {selectedPlace.name}
+            </NavLink>
+          </h2>
           <p className={styles.MapPlaceDetail__description}>
             <span>{selectedPlace.categoryName}</span>
             &middot;
@@ -40,17 +56,21 @@ const MapPlaceDetail: React.FC = () => {
           </p>
           <p className={styles.MapPlaceDetail__creator}>
             <span>Added by</span>
-            <span>{selectedPlace.creator_name}</span>
+            <span className={styles.MapPlaceDetail__textOneLine}>
+              {selectedPlace.creator_name}
+            </span>
           </p>
         </div>
       </div>
-      <div className={styles.MapPlaceDetail__Buttons}>
-        <button className={styles.MapPlaceDetail__buttonShared}></button>
-        <Button
-          text="Details"
-          onClick={() => navigate(`/places/${selectedPlace.id}`)}
-        />
-      </div>
+      <button
+        className={styles.MapPlaceDetail__buttonShared}
+        onClick={openPlaceShareModal}
+      ></button>
+      <Button
+        text="Details"
+        onClick={() => navigate(`/places/${selectedPlace.id}`)}
+        classNames={styles.MapPlaceDetail__buttonDetail}
+      />
     </section>
   );
 };

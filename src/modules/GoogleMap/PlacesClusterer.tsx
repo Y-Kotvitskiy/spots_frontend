@@ -15,33 +15,30 @@ export const PlacesClusterer: React.FC<PlacesClustererProps> = ({ places }) => {
     null,
   );
 
-  // 1. Превращаем ваши места в GeoJSON формат, который понимает supercluster
   const points = useMemo(() => {
     return places.map((place) => ({
       type: "Feature" as const,
       properties: {
         cluster: false,
         placeId: place.id,
-        placeData: place, // Сохраняем оригинальный объект места
+        placeData: place,
       },
       geometry: {
         type: "Point" as const,
-        coordinates: [place.longitude, place.latitude], // Внимание: у GeoJSON порядок [долгота, широта]!
+        coordinates: [place.longitude, place.latitude],
       },
     }));
   }, [places]);
 
-  // 2. Инициализируем Supercluster
   const supercluster = useMemo(() => {
     const cluster = new Supercluster({
-      radius: 50, // Радиус кластеризации в пикселях
+      radius: 50,
       maxZoom: 20,
     });
     cluster.load(points);
     return cluster;
   }, [points]);
 
-  // 3. Отслеживаем изменение зума и границ видимой области карты
   const handleCameraChange = useCallback(() => {
     if (!map) return;
     const mapBounds = map.getBounds();
@@ -51,7 +48,6 @@ export const PlacesClusterer: React.FC<PlacesClustererProps> = ({ places }) => {
       setZoom(currentZoom);
       const ne = mapBounds.getNorthEast();
       const sw = mapBounds.getSouthWest();
-      // Supercluster ждет границы в формате [west, south, east, north]
       setBounds([sw.lng(), sw.lat(), ne.lng(), ne.lat()]);
     }
   }, [map]);
@@ -60,14 +56,12 @@ export const PlacesClusterer: React.FC<PlacesClustererProps> = ({ places }) => {
     if (!map) return;
     handleCameraChange();
 
-    // Слушаем событие 'idle' (когда карта перестала двигаться/зумиться)
     const listener = map.addListener("idle", handleCameraChange);
     return () => {
       google.maps.event.removeListener(listener);
     };
   }, [map, handleCameraChange]);
 
-  // 4. Вычисляем кластеры под текущий зум и границы
   const clusters = useMemo(() => {
     if (!bounds) return [];
     return supercluster.getClusters(bounds, Math.floor(zoom));

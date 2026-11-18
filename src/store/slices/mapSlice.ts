@@ -31,8 +31,13 @@ export enum MapMode {
   Filter = "filter",
 }
 
-type CategoryRecord = Record<string, string>;
+export type CategoryRecord = Record<string, string>;
 type TagRecord = Record<string, string>;
+
+export interface Filters {
+  categories: string[];
+  tags: TagKey[];
+}
 
 const SERVER_ERROR_MESSAGE = { detail: "Ошибка сервера" };
 
@@ -44,10 +49,7 @@ export interface MapState {
   tags: TagRecord;
   mapMode: MapMode;
   status: "idle" | "loading" | "succeeded" | "failed";
-  filters: {
-    categories: string[];
-    tags: TagKey[];
-  };
+  filters: Filters;
   error: ErrorResponse | null;
 }
 
@@ -187,15 +189,6 @@ export const mapSlice = createSlice({
       state.selectedCoords = action.payload;
     },
 
-    // removePlace: (state, action: PayloadAction<string>) => {
-    //   state.savedPlaces = state.savedPlaces.filter(
-    //     (place) => place.id !== action.payload,
-    //   );
-    //   if (state.selectedPlace?.id === action.payload) {
-    //     state.selectedPlace = null;
-    //   }
-    // },
-
     setMapMode: (state, action: PayloadAction<MapMode>) => {
       const newMode: MapMode = action.payload;
       if (newMode != MapMode.Show) {
@@ -230,8 +223,12 @@ export const mapSlice = createSlice({
     },
 
     resetAddPlaceStatus: (state) => {
-      state.status = "idle";
+      state.status = "succeeded";
       state.error = null;
+    },
+
+    setFilters: (state, action) => {
+      state.filters = action.payload;
     },
 
     toggleFilterCategory(state, action) {
@@ -321,14 +318,17 @@ export const mapSlice = createSlice({
     // Global Matchers for Pending / Rejected
     builder
       .addMatcher(
-        (action) => action.type.endsWith("/pending"),
+        (action) =>
+          action.type.startsWith("map/") && action.type.endsWith("/pending"),
+
         (state) => {
           state.status = "loading";
           state.error = null;
         },
       )
       .addMatcher(
-        (action) => action.type.endsWith("/rejected"),
+        (action) =>
+          action.type.startsWith("map/") && action.type.endsWith("/rejected"),
         (state, action) => {
           state.status = "failed";
           state.error =
@@ -340,10 +340,6 @@ export const mapSlice = createSlice({
   },
 });
 
-// ==========================================
-// EXPORTS (ACTIONS & REDUCER)
-// ==========================================
-
 export const actions = {
   ...mapSlice.actions,
   addPlace,
@@ -354,10 +350,6 @@ export const actions = {
 };
 
 export default mapSlice.reducer;
-
-// ==========================================
-// SELECTORS
-// ==========================================
 
 export const selectMapMode = (state: RootState) => state.map.mapMode;
 export const selectIsPickingMode = (state: RootState) =>

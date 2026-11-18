@@ -1,29 +1,55 @@
 @use "@/scss/variables" as v;
 @use "@/scss/typography" as t;
+@use "@/scss/mixins" as m;
 
 .MapPlaceDetail {
-  display: flex;
+  display: grid;
   z-index: 10;
   position: absolute;
-  bottom: 32px;
-  left: 40px;
-  grid: 28px;
+  bottom: 100px;
+  left: 16px;
+  grid-template-columns: 1fr auto;
+  grid-auto-flow: row;
+  column-gap: 30px;
+  row-gap: 20px;
   align-items: center;
   justify-content: space-between;
-  width: calc(100vw - 80px);
-  height: 164px;
-  padding-inline: 40px;
-  border-radius: 80px;
+  width: calc(100vw - 32px);
+  height: fit-content;
+  padding-inline: 16px;
+  padding-block: 20px;
+  border-radius: 32px;
   background-color: v.$grey-0-color;
+
+  @include m.on-tablet {
+    bottom: 32px;
+    grid-template-columns: 1fr auto minmax(20px, 120px);
+    column-gap: 28px;
+    width: calc(100vw - 80px);
+    height: 164px;
+    padding-inline: 20px;
+    padding-block: 0;
+    border-radius: 80px;
+  }
 
   &__leftPanel {
     display: flex;
     flex-grow: 1;
+    flex-grow: 1;
+    flex-shrink: 3;
     align-items: center;
     justify-content: start;
-    width: 378px;
-    height: 100px;
-    gap: 36px;
+    width: 100%;
+    min-width: 100px;
+    height: 80px;
+    overflow: hidden;
+    gap: 16px;
+
+    @include m.on-tablet {
+      min-width: 320px;
+      height: 100px;
+      gap: 36px;
+    }
   }
 
   &__leftText {
@@ -31,14 +57,24 @@
     flex-grow: 1;
     flex-direction: column;
     justify-content: space-between;
-    width: 246px;
+    width: 0;
     height: 100%;
+
+    @include m.on-tablet {
+      width: 246px;
+    }
   }
 
   &__title {
     @extend %h2;
+    overflow: hidden;
 
     color: v.$grey-90-color;
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
   }
 
   &__description {
@@ -46,49 +82,78 @@
 
     display: flex;
     justify-content: start;
-    gap: 20px;
+    justify-content: space-between;
+    max-width: 242px;
     color: v.$grey-70-color;
   }
 
   &__creator {
     @extend %p2;
-
     display: flex;
     justify-content: start;
+    overflow: hidden;
     gap: 20px;
     color: v.$secondary-orange-color;
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
   }
 
-  &__Buttons {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 208px;
-    height: 100%;
-    gap: 28px;
+  &__textOneLine {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__buttonShared {
     display: block;
     flex-shrink: 0;
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     border: none;
     border-radius: 50%;
     outline: none;
     background: url("/icons/shared.svg") center center no-repeat;
     background-color: v.$grey-20-color;
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
+    @include m.hover(background-color, v.$grey-30-color);
+
+    @include m.on-tablet {
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  &__buttonDetail {
+    grid-row: 2;
+    grid-column: 1/-1;
+    max-width: 100%;
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
+
+    @include m.on-tablet {
+      grid-row: auto;
+      grid-column: auto;
+      max-width: 120px;
+    }
   }
 
   &__img {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     border: none;
     border-radius: 50%;
     background-color: v.$grey-20-color;
+    text-align: center;
+
+    @include m.on-tablet {
+      width: 100px;
+      height: 100px;
+    }
   }
 
   &__title {

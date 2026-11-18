@@ -31,6 +31,8 @@
     cursor: pointer;
     pointer-events: auto;
 
+    @include m.hover(transform, scale(v.$text-hover-transform));
+
     @include m.on-tablet {
       height: 60px;
       padding-inline: 24px 76px;

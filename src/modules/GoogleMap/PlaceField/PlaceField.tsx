@@ -17,6 +17,7 @@ export interface FormFieldProps {
   type?: "text" | "textarea" | "selectButtons" | "photo";
   options?: Record<string, string> | typeof Tag;
   className?: string;
+  readOnly?: boolean;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -31,6 +32,7 @@ const FormField: React.FC<FormFieldProps> = ({
   onChange,
   onBlur,
   required,
+  readOnly,
 }) => {
   const hasError = Boolean(touched && error);
 
@@ -55,6 +57,7 @@ const FormField: React.FC<FormFieldProps> = ({
           className={cn(styles.PlaceField__input, {
             [styles.PlaceField__input_error]: hasError,
           })}
+          readOnly={readOnly}
         />
       )}
 

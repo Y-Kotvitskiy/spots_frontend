@@ -38,6 +38,8 @@
     border: none;
     background: url("/icons/add_photo.svg") center center no-repeat;
     background-color: v.$grey-20-color;
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
   }
 
   &__clearButton {

@@ -217,7 +217,7 @@ const PlaceForm: React.FC = () => {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <form onSubmit={(e) => e.preventDefault()}>
           <header className={styles.PlaceForm__header}>
-            <h1>
+            <h1 className={styles.PlaceForm__headerTitle}>
               {activePage === 4
                 ? "Your place is now on the map"
                 : `Add place ${activePage}/3`}
@@ -240,7 +240,6 @@ const PlaceForm: React.FC = () => {
           </header>
 
           <main>
-            {/* Шаг 1 */}
             <fieldset
               className={cn(styles.PlaceForm__fieldset, {
                 [styles.PlaceForm__fieldset_active]: activePage === 1,
@@ -304,6 +303,7 @@ const PlaceForm: React.FC = () => {
                   name="address"
                   type="text"
                   required
+                  readOnly
                   value={
                     isAddressLoading
                       ? "Loading address..."
@@ -345,7 +345,6 @@ const PlaceForm: React.FC = () => {
                 startTime={formik.values.opens_at}
                 endTime={formik.values.closes_at}
                 setStartTime={(startTime) => {
-                  debugger;
                   formik.setFieldValue("opens_at", startTime);
                 }}
                 setEndTime={(endTime) =>
@@ -368,6 +367,7 @@ const PlaceForm: React.FC = () => {
 
           <footer className={styles.PlaceForm__footer}>
             <Button
+              classNames={styles.PlaceForm__button}
               type="button"
               disabled={isDisabledNext()}
               onClick={handleNextClick}

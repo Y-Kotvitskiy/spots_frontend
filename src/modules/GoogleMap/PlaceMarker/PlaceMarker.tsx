@@ -5,10 +5,8 @@ import { useAppDispatch, useMapSelector } from "@/store/hooks";
 import type { CategoryKey, Place } from "@/types";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { memo } from "react";
+import { MapMode } from "@/store/slices/mapSlice";
 
-// ==========================================
-// 2. Отдельный компонент для маркеров из списка places (оптимизирован через memo)
-// ==========================================
 interface PlaceMarkerProps {
   place: Place;
 }
@@ -351,7 +349,7 @@ const Icon: React.FC<IconProps> = ({
 
 const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
   const dispatch = useAppDispatch();
-  const { categories, selectedPlace } = useMapSelector();
+  const { mapMode, categories, selectedPlace } = useMapSelector();
   const isSelected = place === selectedPlace;
 
   const categoryKey = (categories[place.categoryId]
@@ -372,8 +370,10 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
       position={{ lat: place.latitude, lng: place.longitude }}
       title={place.name}
       onClick={(event) => {
-        event.stopPropagation();
-        dispatch(mapActions.setSelectedPlace(place));
+        if (mapMode === MapMode.Show) {
+          event.stopPropagation();
+          dispatch(mapActions.setSelectedPlace(place));
+        }
       }}
     >
       <Icon

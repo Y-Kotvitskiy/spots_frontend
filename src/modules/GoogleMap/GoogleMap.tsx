@@ -12,6 +12,7 @@ import PlaceForm from "./PlaceForm";
 import MapPlaceDetail from "./MapPlaceDetail";
 import { useGoogleMap } from "./GoogleMap.hooks";
 import { PlacesClusterer } from "./PlacesClusterer";
+import PlaceShareModal from "./PlaceShareModal";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -81,6 +82,9 @@ export const GoogleMap: React.FC = () => {
     isLoadingLocation,
     center,
     places,
+    isPlaceShareModalOpen,
+    openPlaceShareModal,
+    closePlaceShareModal,
     dispatch,
   } = useGoogleMap();
 
@@ -105,7 +109,11 @@ export const GoogleMap: React.FC = () => {
     <main className={styles.GoogleMap}>
       <Controls />
       <PlaceForm />
-      <MapPlaceDetail />
+      <MapPlaceDetail openPlaceShareModal={openPlaceShareModal} />
+      <PlaceShareModal
+        isOpen={isPlaceShareModalOpen}
+        onClose={closePlaceShareModal}
+      />
 
       {isLoadingLocation && <div>Визначаємо ваше місцезнаходження...</div>}
 

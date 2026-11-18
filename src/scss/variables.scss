@@ -15,7 +15,10 @@ $system-error-color: #ff0000;
 $primary-states-hovered-color: #5053c5;
 $primary-states-clicked-color: #4043a3;
 $primary-states-disabled-color: #d9daec;
-$secondary-orange-color: #e86710;
+$secondary-orange-color: hsl(24, 87%, 49%);
+$secondary-orange-hovered-color: hsl(20, 87%, 49%);
+$secondary-orange-clicked-color: hsl(16, 87%, 49%);
+
 $secondary-forest-green-color: #239616;
 $secondary-mulberry-color: #de4fb7;
 $secondary-soft-royal-blue-color: #7a99ff;
@@ -42,6 +45,8 @@ $small-shadow: 0 2px 6px rgba($grey-90-color, 0.2);
 
 $animation-time: 0.2s;
 $blur-base: 4px;
+$hover_time_transition: 0.3s;
+$text_hover_transform: 1.03;
 
 // #endregion Additional variables
 
@@ -88,6 +93,5 @@ $header-height-login-desktop: 100px;
 $button-min-width-desktop: 200px;
 $button-height-login-desktop: 60px;
 $button-height-desktop: 22px;
-
 
 // #endregion Header

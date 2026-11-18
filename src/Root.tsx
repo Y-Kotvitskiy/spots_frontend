@@ -42,9 +42,10 @@ const Root = () => {
               {/* Защищенные маршруты */}
               <Route element={<RequireAuth />}>
                 <Route element={<ProtectedLayout />}>
-                  <Route index element={null} />{" "}
+                  <Route index element={null} />
                   {/* Или заглушка, если на главной только карта */}
                   <Route path="/map" element={null} />
+                  <Route path="/map/:id" element={null} />
                   {/* <Route path="/groups" element={<Groups />} /> */}
                   <Route path="/places/:id" element={<PlaceDetails />} />
                   <Route path="/personal-room" element={<PersonalRoom />} />

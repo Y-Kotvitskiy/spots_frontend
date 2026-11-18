@@ -8,13 +8,14 @@
   position: absolute;
   top: 10px;
   left: 50%;
+  grid-template-rows: auto 1fr auto;
   grid-template-columns: auto 1fr auto;
   column-gap: 28px;
   align-items: start;
   justify-content: center;
   width: 100%;
   width: 100vw;
-  min-height: calc(100dvh - v.$header-height-phone - 40px);
+  height: calc(100dvh - v.$header-height-phone - 40px);
   padding-top: 20px;
   padding-bottom: 40px;
   padding-inline: 16px;
@@ -27,7 +28,6 @@
     grid-template-columns: 1fr auto auto;
     grid-auto-flow: row;
     row-gap: 32px;
-    height: auto;
     padding-top: 48px;
     padding-inline: 40px;
   }
@@ -59,19 +59,41 @@
   }
 
   &__filter {
+    position: relative;
     width: 48px;
     height: 48px;
     border: none;
     border-radius: 40px;
     outline: none;
-    background: url("/icons/filter.svg") center center no-repeat;
     background-color: v.$grey-0-color;
+    box-shadow: 0 12px 32px rgba(207, 191, 191, 0.18);
     cursor: pointer;
     pointer-events: auto;
 
     @include m.on-tablet {
       width: 60px;
       height: 60px;
+    }
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
+    @include m.hover(background-color, v.$grey-10-color);
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      background-color: v.$grey-70-color;
+      content: "";
+      mask: url("/icons/filter.svg") center center no-repeat;
+      @include m.hover(transform, scale(v.$text-hover-transform));
+    }
+
+    &_selected {
+      transform: scale(v.$text-hover-transform);
+      background-color: v.$grey-20-color;
+
+      &:hover {
+        background-color: v.$grey-20-color;
+      }
     }
   }
 
@@ -103,17 +125,47 @@
       height: 60px;
     }
 
-    &:hover {
-      background-color: v.$primary-states-hovered-color;
-    }
+    @include m.hover(background-color, v.$primary-states-hovered-color);
+    @include m.hover(transform, scale(v.$text-hover-transform));
 
     &:disabled {
       background-color: v.$primary-states-disabled-color;
     }
 
+    &:active {
+      background-color: v.$primary-states-clicked-color;
+    }
+
+    &_save {
+      background-color: v.$secondary-orange-color;
+
+      @include m.hover(background-color, v.$secondary-orange-hovered-color);
+      @include m.hover(transform, scale(v.$text-hover-transform));
+
+      &:active {
+        background-color: v.$secondary-orange-clicked-color;
+      }
+    }
+
     &Plus {
-      font-size: 32px;
+      font-size: 28px;
       line-height: 100%;
+
+      @include m.on-tablet {
+        font-size: 32px;
+      }
+    }
+
+    &Play {
+      display: flex;
+      padding-bottom: 0.15em;
+      padding-left: 0.15em;
+      font-size: 28px;
+      line-height: 100%;
+
+      @include m.on-tablet {
+        font-size: 32px;
+      }
     }
 
     &Text {
@@ -128,5 +180,10 @@
   &__mapFilter {
     grid-column: 1 / -1;
     justify-self: end;
+
+    min-height: 0;
+    overflow-y: hidden;
+
+    -webkit-overflow-scrolling: touch;
   }
 }
