@@ -223,7 +223,7 @@ export const mapSlice = createSlice({
     },
 
     resetAddPlaceStatus: (state) => {
-      state.status = "idle";
+      state.status = "succeeded";
       state.error = null;
     },
 
@@ -318,14 +318,17 @@ export const mapSlice = createSlice({
     // Global Matchers for Pending / Rejected
     builder
       .addMatcher(
-        (action) => action.type.endsWith("/pending"),
+        (action) =>
+          action.type.startsWith("map/") && action.type.endsWith("/pending"),
+
         (state) => {
           state.status = "loading";
           state.error = null;
         },
       )
       .addMatcher(
-        (action) => action.type.endsWith("/rejected"),
+        (action) =>
+          action.type.startsWith("map/") && action.type.endsWith("/rejected"),
         (state, action) => {
           state.status = "failed";
           state.error =

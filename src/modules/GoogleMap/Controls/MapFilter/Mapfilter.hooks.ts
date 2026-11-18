@@ -56,14 +56,22 @@ export function useFilterParams() {
 
   useEffect(() => {
     if (!isInitialMount.current) {
-      setSearchParams(getURLFilterParams(filters, categories));
+      return;
     }
-  }, [filters]);
 
-  if (isInitialMount.current && Object.keys(categories).length) {
-    const filters = getURLFilter(searchParams, categories);
+    if (Object.keys(categories).length) {
+      const filters = getURLFilter(searchParams, categories);
 
-    isInitialMount.current = false;
-    dispatch(mapActions.setFilters(filters));
-  }
+      isInitialMount.current = false;
+      dispatch(mapActions.setFilters(filters));
+    }
+  }, [searchParams, categories, dispatch]);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      return;
+    }
+
+    setSearchParams(getURLFilterParams(filters, categories));
+  }, [filters, categories]);
 }

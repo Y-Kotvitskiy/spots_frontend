@@ -1,12 +1,16 @@
+import { mapActions } from "@/store";
 import { useAppDispatch, useMapSelector } from "@/store/hooks";
 import { fetchInitialData, selectIsPickingMode } from "@/store/slices/mapSlice";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useLocation, useParams } from "react-router-dom";
 
 export function useGoogleMap() {
   const isPickingMode = useSelector(selectIsPickingMode);
   const dispatch = useAppDispatch();
-  const { savedPlaces, filters } = useMapSelector();
+  const { status, savedPlaces, filters, selectedPlace } = useMapSelector();
+  const { id: placeId } = useParams();
+  const location = useLocation();
 
   const [center, setCenter] = useState({ lat: 50.4501, lng: 30.5234 });
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
@@ -14,23 +18,61 @@ export function useGoogleMap() {
   const isPickingModeRef = useRef(isPickingMode);
 
   useEffect(() => {
-    dispatch(fetchInitialData());
-  }, []);
+    if (status === "idle") {
+      dispatch(fetchInitialData());
+    }
+  }, [status, dispatch]);
+
+  useEffect(() => {
+    if (status === "succeeded" && savedPlaces.length > 0 && placeId) {
+      if (placeId) {
+        // Ищем нужный маркер
+        const targetPlace = savedPlaces.find(
+          (currentPlace) => String(currentPlace.id) === String(placeId),
+        );
+
+        if (targetPlace) {
+          if (isLoadingLocation) {
+            setIsLoadingLocation(false);
+          }
+
+          if (targetPlace !== selectedPlace) {
+            dispatch(mapActions.setSelectedPlace(targetPlace));
+          }
+
+          setCenter({
+            lat: targetPlace.latitude,
+            lng: targetPlace.longitude,
+          });
+          console.log("Центрируем карту на маркере:", targetPlace);
+          // Здесь вызываете метод центрирования вашей карты
+          // map.flyTo([targetMarker.lat, targetMarker.lng], 15);
+        } else {
+          console.warn(`Маркер с id ${placeId} не найден в данных`);
+        }
+      } else {
+        // Если ID в URL нет, можно показать общую карту или дефолтный вид
+      }
+    }
+  }, [status, savedPlaces, placeId, location.state]);
 
   useEffect(() => {
     isPickingModeRef.current = isPickingMode;
   }, [isPickingMode]);
 
-  // 2. Запрашиваем геолокацию при монтировании
   useEffect(() => {
+    if (!isLoadingLocation) return;
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCenter({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-          setIsLoadingLocation(false);
+          if (isLoadingLocation) {
+            setCenter({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+            setIsLoadingLocation(false);
+          }
         },
         (error) => {
           console.warn("Не вдалося отримати геолокацію:", error.message);
@@ -41,7 +83,7 @@ export function useGoogleMap() {
     } else {
       setIsLoadingLocation(false);
     }
-  }, []);
+  }, [placeId, isLoadingLocation]);
 
   const places = useMemo(() => {
     const { categories, tags } = filters;

@@ -3,7 +3,7 @@ import styles from "./MapPlaceDetail.module.scss";
 
 import { useMapSelector } from "@/store/hooks";
 import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const MapPlaceDetail: React.FC = () => {
   const { selectedPlace } = useMapSelector();
@@ -35,7 +35,14 @@ const MapPlaceDetail: React.FC = () => {
         )}
 
         <div className={styles.MapPlaceDetail__leftText}>
-          <h2 className={styles.MapPlaceDetail__title}>{selectedPlace.name}</h2>
+          <h2 className={styles.MapPlaceDetail__title}>
+            <NavLink
+              to={`/map/${selectedPlace.id}`}
+              state={{ timestamp: Date.now() }}
+            >
+              {selectedPlace.name}
+            </NavLink>
+          </h2>
           <p className={styles.MapPlaceDetail__description}>
             <span>{selectedPlace.categoryName}</span>
             &middot;

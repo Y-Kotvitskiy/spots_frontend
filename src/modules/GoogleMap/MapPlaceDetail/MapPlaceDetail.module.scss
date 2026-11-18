@@ -73,6 +73,8 @@
     text-overflow: ellipsis;
 
     white-space: nowrap;
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
   }
 
   &__description {
@@ -114,6 +116,8 @@
     background: url("/icons/shared.svg") center center no-repeat;
     background-color: v.$grey-20-color;
 
+    @include m.hover(transform, scale(v.$text-hover-transform));
+
     @include m.on-tablet {
       width: 60px;
       height: 60px;
@@ -124,6 +128,8 @@
     grid-row: 2;
     grid-column: 1/-1;
     max-width: 100%;
+
+    @include m.hover(transform, scale(v.$text-hover-transform));
 
     @include m.on-tablet {
       grid-row: auto;
