@@ -1,0 +1,284 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+@use "@/scss/typography.scss" as t;
+
+.WelcomePage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: v.$offset-mobile;
+  padding-top: 20px;
+  padding-bottom: 140px; // 140px знизу для телефону
+  gap: 60px;
+
+  @include m.on-tablet {
+    padding-inline: v.$offset-tablet;
+    padding-top: 200px;   // 200px зверху для планшета/ПК (під верхній хедер)
+    padding-bottom: 0;
+    gap: 80px;
+  }
+
+  @include m.on-desktop {
+    padding-inline: v.$offset-desktop;
+  }
+}
+
+// ==========================================
+// HERO CONTENT SECTION (Grid 50% / 50%)
+// ==========================================
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  gap: 32px;
+  align-items: start;
+
+  @include m.on-tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 64px;
+  }
+
+  &__imageWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 24px;
+    background-color: transparent;
+
+    &__image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      border-radius: 24px;
+    }
+  }
+
+  &__infoWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 32px;
+
+    &__box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    &__title {
+      @extend %h1;
+      color: v.$grey-90-color;
+
+      span {
+        color: v.$primary-indigo-color;
+      }
+    }
+
+    &__description {
+      @extend %p1;
+      color: v.$grey-70-color;
+    }
+
+    &__buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      @include m.on-tablet {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+  }
+
+  &__imageWrapper {
+    width: 100%;
+    min-height: 280px;
+    background-color: v.$grey-20-color;
+    border-radius: 24px;
+
+    @include m.on-tablet {
+      min-height: 380px;
+    }
+  }
+}
+
+// ==========================================
+// HOW IT WORKS SECTION
+// ==========================================
+
+.howItWorks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @include m.on-tablet {
+    gap: 28px;
+  }
+
+  &__steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    @include m.on-tablet {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+  }
+}
+
+.sectionTitle {
+  @extend %h3;
+  color: v.$grey-70-color;
+}
+
+.stepCard {
+  background-color: v.$grey-0-color;
+  border-radius: 20px;
+  padding: 16px 20px;
+  gap: 20px;
+  box-shadow: v.$small-shadow;
+  display: flex;
+  flex-direction: column;
+
+  @include m.on-tablet {
+    padding: 24px 20px;
+    gap: 28px;
+  }
+
+  &__textBox {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    @include m.on-tablet {
+      gap: 12px;
+    }
+  }
+
+  &__number {
+    @extend %h3;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: v.$grey-20-color;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: v.$grey-90-color;
+
+    @include m.on-tablet {
+      width: 46px;
+      height: 46px;
+    }
+  }
+
+  &__title {
+    @extend %h2;
+    color: v.$grey-90-color;
+  }
+
+  &__text {
+    @extend %p1;
+    color: v.$grey-70-color;
+  }
+}
+
+// ==========================================
+// INFO SECTIONS
+// ==========================================
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+
+  @include m.on-tablet {
+    width: 66.666%;
+  }
+
+  @include m.on-desktop {
+    width: 50%;
+  }
+
+  p {
+    @extend %p1;
+    color: v.$grey-90-color;
+  }
+}
+
+// ==========================================
+// FOOTER & CTA
+// ==========================================
+
+.footer {
+  width: 100%;
+  padding-inline: v.$offset-mobile;
+
+  @include m.on-tablet {
+    padding-inline: v.$offset-tablet;
+    padding-bottom: 60px;
+  }
+
+  @include m.on-desktop {
+    padding-inline: v.$offset-desktop;
+  }
+}
+
+.footerContainer {
+  padding-top: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  @include m.on-tablet {
+    padding-top: 40px;
+  }
+}
+
+.ctaCard {
+  width: 100%;
+  background-color: v.$grey-0-color;
+  padding: 40px 24px;
+  border-radius: 32px;
+  box-shadow: v.$small-shadow;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+
+  &__title {
+    @extend %h2;
+    color: v.$grey-90-color;
+  }
+}
+
+.error {
+  color: v.$system-error-color;
+  text-align: center;
+}

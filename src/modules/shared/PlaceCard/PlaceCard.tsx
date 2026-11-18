@@ -1,12 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./PlaceCard.module.scss";
-import Icon from "@/modules/shared/Icon";
 import Loader from "@/modules/shared/Loader";
 import Placeholder from "../Placeholder";
-
-// ==========================================
-// TYPES & INTERFACES
-// ==========================================
+import Icon, { type IconName } from "../Icon/Icon";
+import { COLORS } from "@/modules/constants";
 
 interface PlaceCardProps {
   image?: string;
@@ -21,6 +18,28 @@ interface PlaceCardProps {
   onDelete?: () => void;
   onClick?: () => void;
 }
+
+const CATEGORY_ICONS: Record<string, IconName> = {
+  park: "park",
+  shopping: "shopping",
+  street_food: "street_food",
+  museum: "museum",
+  cafe: "cafe",
+  restaurant: "restaurant",
+  bar: "bar",
+  bakery: "bakery",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  park: COLORS.park,
+  shopping: COLORS.shopping,
+  street_food: COLORS.streetFood,
+  museum: COLORS.museum,
+  cafe: COLORS.cafe,
+  restaurant: COLORS.restaurant,
+  bar: COLORS.bar,
+  bakery: COLORS.bakery,
+};
 
 // ==========================================
 // COMPONENT
@@ -39,11 +58,6 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onDelete,
   onClick,
 }) => {
-
-  // ==========================================
-  // STATE & REFS
-  // ==========================================
-  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -52,7 +66,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   const formattedHours = React.useMemo(() => {
     if (!workingHours) return "";
     const [start, end] = workingHours.trim().split(/\s+/);
-    return end ? `${start} - ${end}` : workingHours;
+    return end ? `${start}\n${end}` : workingHours;
   }, [workingHours]);
 
   useEffect(() => {
@@ -61,11 +75,11 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
     }
   }, [image]);
 
-  // ==========================================
-  // HELPERS
-  // ==========================================
+  const hasActions = onEdit || onShare || onDelete;
 
-const hasActions = onEdit || onShare || onDelete;
+  const normalizedCategory = category.toLowerCase().trim();
+  const iconName = CATEGORY_ICONS[normalizedCategory] || "search";
+  const iconColor = CATEGORY_COLORS[normalizedCategory];
 
   const renderShareStatus = () => {
     if (typeof isShared === "string") return isShared;
@@ -77,21 +91,28 @@ const hasActions = onEdit || onShare || onDelete;
     return isShared ? "Shared in groups" : "Not shared";
   };
 
-  // ==========================================
-  // RENDER
-  // ==========================================
-
   return (
     <div className={styles.placeCard} onClick={onClick}>
       <div className={styles.placeCard__imageWrapper}>
         {(!image || !isImageLoaded) && (
-          <div className={styles.placeCard__placeholderContainer}>
-            <Placeholder text={title} rows={12} cols={8} />
+          <div className={styles.placeCard__placeholderWrapper}>
+            <div className={styles.placeCard__placeholderContainer}>
+              <Placeholder text={title} rows={12} cols={8} />
+            </div>
+
+            {!image && (
+              <Icon 
+                name={iconName} 
+                size={48} 
+                color={iconColor}
+                className={styles.placeCard__placeholderIcon} 
+              />
+            )}
+
             {image && <Loader className={styles.placeCard__loaderOverlay} />}
           </div>
         )}
 
-        {/* Картинка */}
         {image && (
           <img
             key={image}

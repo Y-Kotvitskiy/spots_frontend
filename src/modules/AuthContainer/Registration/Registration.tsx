@@ -1,6 +1,6 @@
 import styles from "./Registration.module.scss";
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 
 import { authService } from "../../../services/authService.ts";
@@ -25,6 +25,7 @@ interface FormValues {
 }
 
 const Registration = () => {
+  const navigate = useNavigate();
   const [error, setError] = usePageError("");
   const [registered, setRegistered] = useState(false);
 
@@ -77,7 +78,9 @@ const Registration = () => {
 
       authService
         .register(display_name, email, password)
-        .then(() => setRegistered(true))
+        .then(() => {
+          navigate("/login");
+        })
         .catch((error: LoginErrors) => {
           setErrorMessages(error as LoginErrors, setFieldError, setError);
         })

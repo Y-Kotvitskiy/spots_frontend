@@ -9,11 +9,12 @@ const Navigation = () => {
   const { currentUser } = useAuthSelector();
   const location = useLocation();
 
+  const isWelcomePage = location.pathname === "/welcome";
   const isLoginPage = location.pathname === "/login";
   const isRegisterPage = location.pathname === "/register";
   const isForgotPage = location.pathname === "/forgot-password";
   
-  const isAuthPages = isLoginPage || isRegisterPage || isForgotPage;
+  const isAuthPages = isLoginPage || isRegisterPage || isForgotPage || isWelcomePage;
 
   const activeItemClass = (isActive: boolean) => {
     return cn(styles.Navigation__item, {
@@ -33,12 +34,12 @@ const Navigation = () => {
                 <span className={styles.Navigation__text}>Map</span>
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to="/groups" className={({ isActive }) => activeItemClass(isActive)}>
                 <Icon name="group" className={styles.Navigation__icon} size={22} />
                 <span className={styles.Navigation__text}>Groups</span>
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink to="/personal-room" className={({ isActive }) => activeItemClass(isActive)}>
                 <Icon name="home" className={styles.Navigation__icon} size={22} />

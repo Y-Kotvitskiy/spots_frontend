@@ -37,9 +37,9 @@ $offset-mobile: 16px;
   gap: 24px;
 
   @include m.on-tablet {
-    gap: 30px;
     padding-top: 140px;
     padding-inline: $offset-tablet;
+    gap: 30px;
   }
 
   @include m.on-desktop {
@@ -69,8 +69,8 @@ $offset-mobile: 16px;
 .mainPhotoCard {
   position: relative;
   height: 320px;
-  border-radius: 20px;
   overflow: hidden;
+  border-radius: 20px;
   background: v.$grey-20-color;
 
   @include m.on-tablet {
@@ -79,9 +79,9 @@ $offset-mobile: 16px;
 
   &__image {
     position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
+    inset: 0;
     object-fit: cover;
     transition: opacity v.$animation-time ease;
   }
@@ -96,11 +96,11 @@ $offset-mobile: 16px;
   }
 
   &__loaderOverlay {
+    z-index: 2;
     position: absolute;
     inset: 0;
-    z-index: 2;
-    background-color: v.$background-modal-color;
     backdrop-filter: blur(v.$blur-base);
+    background-color: v.$background-modal-color;
   }
 }
 
@@ -109,20 +109,20 @@ $offset-mobile: 16px;
 // ==========================================
 
 .backBtn {
+  display: flex;
+  z-index: 3;
   position: absolute;
   top: 12px;
   left: 12px;
-  background: v.$grey-0-color;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: v.$grey-0-color;
   box-shadow: v.$small-shadow;
-  z-index: 3;
+  cursor: pointer;
   transition: background-color v.$animation-time ease;
 
   &:hover {
@@ -136,10 +136,10 @@ $offset-mobile: 16px;
 
 .sidePhotosGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
   height: 320px;
+  gap: 12px;
 
   @include m.on-tablet {
     height: 380px;
@@ -152,15 +152,15 @@ $offset-mobile: 16px;
 
 .smallPhotoCard {
   position: relative;
-  border-radius: 20px;
   overflow: hidden;
+  border-radius: 20px;
   background: v.$grey-20-color;
 
   &__image {
     position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
+    inset: 0;
     object-fit: cover;
     transition: opacity v.$animation-time ease;
   }
@@ -175,14 +175,14 @@ $offset-mobile: 16px;
   }
 
   &__loaderOverlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background-color: v.$background-modal-color;
-    backdrop-filter: blur(v.$blur-base);
     display: flex;
+    z-index: 2;
+    position: absolute;
     align-items: center;
     justify-content: center;
+    inset: 0;
+    backdrop-filter: blur(v.$blur-base);
+    background-color: v.$background-modal-color;
   }
 }
 
@@ -191,16 +191,16 @@ $offset-mobile: 16px;
 // ==========================================
 
 .addPhotoCard {
-  position: relative;
-  background: transparent;
-  border-radius: 20px;
   display: flex;
+  position: relative;
   align-items: center;
   justify-content: center;
-  color: v.$grey-70-color;
-  cursor: pointer;
   overflow: hidden;
   border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: v.$grey-70-color;
+  cursor: pointer;
   transition: opacity v.$animation-time ease;
 
   &:hover {
@@ -208,14 +208,14 @@ $offset-mobile: 16px;
   }
 
   &__blurOverlay {
-    position: absolute;
-    inset: 0;
     display: flex;
+    z-index: 2;
+    position: absolute;
     align-items: center;
     justify-content: center;
-    background-color: v.$background-modal-color;
+    inset: 0;
     backdrop-filter: blur(v.$blur-base);
-    z-index: 2;
+    background-color: v.$background-modal-color;
   }
 }
 
@@ -224,19 +224,19 @@ $offset-mobile: 16px;
 // ==========================================
 
 .addPhotoCardFull {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: v.$grey-20-color;
-  border-radius: 20px;
   display: flex;
+  z-index: 2;
+  position: relative;
   align-items: center;
   justify-content: center;
-  color: v.$grey-70-color;
-  cursor: pointer;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border: none;
-  z-index: 2;
+  border-radius: 20px;
+  background: v.$grey-20-color;
+  color: v.$grey-70-color;
+  cursor: pointer;
   transition: opacity v.$animation-time ease;
 
   &:hover {
@@ -244,14 +244,14 @@ $offset-mobile: 16px;
   }
 
   &__blurOverlay {
-    position: absolute;
-    inset: 0;
     display: flex;
+    z-index: 2;
+    position: absolute;
     align-items: center;
     justify-content: center;
-    background-color: v.$background-modal-color;
+    inset: 0;
     backdrop-filter: blur(v.$blur-base);
-    z-index: 2;
+    background-color: v.$background-modal-color;
   }
 }
 
@@ -261,14 +261,14 @@ $offset-mobile: 16px;
 
 .photoBadge {
   @extend %p3;
+  z-index: 2;
   position: absolute;
   bottom: 12px;
   left: 12px;
-  background: v.$grey-0-color;
   padding: 8px 12px;
   border-radius: 40px;
+  background: v.$grey-0-color;
   box-shadow: v.$small-shadow;
-  z-index: 2;
 }
 
 // ==========================================
@@ -277,8 +277,8 @@ $offset-mobile: 16px;
 
 .placeHeader {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
 
   &__info {
     display: flex;
@@ -299,9 +299,9 @@ $offset-mobile: 16px;
     @extend %p1;
     display: flex;
     align-items: center;
+    margin: 0;
     gap: 16px;
     color: v.$grey-70-color;
-    margin: 0;
   }
 
   &__separator {
@@ -309,17 +309,19 @@ $offset-mobile: 16px;
   }
 
   &__actionBtn {
-    background: v.$grey-20-color;
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: v.$grey-20-color;
     color: v.$grey-70-color;
-    transition: background-color v.$animation-time ease, color v.$animation-time ease;
+    cursor: pointer;
+    transition:
+      background-color v.$animation-time ease,
+      color v.$animation-time ease;
 
     &:hover {
       background-color: v.$grey-30-color;
@@ -334,8 +336,8 @@ $offset-mobile: 16px;
 
 .tagsContainer {
   display: flex;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: 12px;
 
   @include m.on-tablet {
     gap: 16px;
@@ -344,9 +346,9 @@ $offset-mobile: 16px;
 
 .tag {
   @extend %h4;
-  background: v.$grey-20-color;
   padding: 12px 20px;
   border-radius: 50px;
+  background: v.$grey-20-color;
   color: v.$grey-70-color;
 
   @include m.on-tablet {
@@ -381,16 +383,16 @@ $offset-mobile: 16px;
 .sectionCard {
   display: flex;
   flex-direction: column;
-  background: v.$grey-0-color;
   padding: 16px 20px;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px v.$small-shadow;
   gap: 12px;
+  border-radius: 20px;
+  background: v.$grey-0-color;
+  box-shadow: 0 4px 20px v.$small-shadow;
 
   @include m.on-tablet {
     padding: 28px;
-    border-radius: 20px;
     gap: 24px;
+    border-radius: 20px;
   }
 
   &__title {
@@ -432,9 +434,9 @@ $offset-mobile: 16px;
 
   &__value {
     @extend %p1;
-    color: v.$grey-70-color;
     display: flex;
     gap: 12px;
+    color: v.$grey-70-color;
   }
 
   &__icon {
@@ -447,12 +449,12 @@ $offset-mobile: 16px;
 // ==========================================
 
 .mapPreview {
-  height: 220px;
-  background: v.$grey-20-color;
-  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 220px;
+  border-radius: 12px;
+  background: v.$grey-20-color;
   color: v.$grey-60-color;
 }
 
@@ -462,50 +464,50 @@ $offset-mobile: 16px;
 
 .loading {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 100vh;
-  font-size: 18px;
   color: v.$grey-60-color;
+  font-size: 18px;
 }
 
 .modal {
   &__photoCard {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      background-color: v.$grey-20-color;
-      border-radius: 16px;
-      overflow: hidden;
-    }
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 16px;
+    background-color: v.$grey-20-color;
+  }
 
-    &__photoImage {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: opacity v.$animation-time ease;
-    }
+  &__photoImage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    transition: opacity v.$animation-time ease;
+  }
 
-    &__photoImageHidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+  &__photoImageHidden {
+    opacity: 0;
+    pointer-events: none;
+  }
 
-    &__photoImageLoaded {
-      opacity: 1;
-    }
+  &__photoImageLoaded {
+    opacity: 1;
+  }
 
-    &__photoLoaderOverlay {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: v.$background-modal-color;
-      backdrop-filter: blur(v.$blur-base);
-    }
+  &__photoLoaderOverlay {
+    display: flex;
+    z-index: 3;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    inset: 0;
+    backdrop-filter: blur(v.$blur-base);
+    background-color: v.$background-modal-color;
+  }
 
   .cardDimmed {
     opacity: 0.5;
@@ -513,7 +515,7 @@ $offset-mobile: 16px;
   }
 
   .cardLoading {
-    opacity: 1;
     filter: blur(v.$blur-base);
+    opacity: 1;
   }
 }
