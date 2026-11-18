@@ -5,7 +5,11 @@ import { useMapSelector } from "@/store/hooks";
 import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
 import { NavLink, useNavigate } from "react-router-dom";
 
-const MapPlaceDetail: React.FC = () => {
+interface Props {
+  openPlaceShareModal: () => void;
+}
+
+const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
   const { selectedPlace } = useMapSelector();
   const navigate = useNavigate();
 
@@ -58,7 +62,10 @@ const MapPlaceDetail: React.FC = () => {
           </p>
         </div>
       </div>
-      <button className={styles.MapPlaceDetail__buttonShared}></button>
+      <button
+        className={styles.MapPlaceDetail__buttonShared}
+        onClick={openPlaceShareModal}
+      ></button>
       <Button
         text="Details"
         onClick={() => navigate(`/places/${selectedPlace.id}`)}

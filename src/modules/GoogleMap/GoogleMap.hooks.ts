@@ -11,6 +11,7 @@ export function useGoogleMap() {
   const { status, savedPlaces, filters, selectedPlace } = useMapSelector();
   const { id: placeId } = useParams();
   const location = useLocation();
+  const [isPlaceShareModalOpen, setIsPlaceShareModal] = useState(false);
 
   const [center, setCenter] = useState({ lat: 50.4501, lng: 30.5234 });
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
@@ -44,9 +45,6 @@ export function useGoogleMap() {
             lat: targetPlace.latitude,
             lng: targetPlace.longitude,
           });
-          console.log("Центрируем карту на маркере:", targetPlace);
-          // Здесь вызываете метод центрирования вашей карты
-          // map.flyTo([targetMarker.lat, targetMarker.lng], 15);
         } else {
           console.warn(`Маркер с id ${placeId} не найден в данных`);
         }
@@ -98,12 +96,18 @@ export function useGoogleMap() {
     });
   }, [savedPlaces, filters]);
 
+  const openPlaceShareModal = () => setIsPlaceShareModal(true);
+  const closePlaceShareModal = () => setIsPlaceShareModal(false);
+
   return {
     isPickingMode,
     isPickingModeRef,
     isLoadingLocation,
     center,
     places,
+    isPlaceShareModalOpen,
+    openPlaceShareModal,
+    closePlaceShareModal,
     dispatch,
   };
 }
