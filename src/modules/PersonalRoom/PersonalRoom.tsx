@@ -63,9 +63,7 @@ const PersonalRoom = () => {
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
-      setIsAvatarLoaded(true);
-    }
+    setIsAvatarLoaded(!!imgRef.current?.complete);
   }, [currentUser?.avatar]);
 
   // ==========================================
@@ -451,111 +449,113 @@ const PersonalRoom = () => {
 
         {/* Separate Filters Section (Categories & Tags) for Shared to me */}
 
-        <div className={`${styles.dropdownFiltersContainer} ${activeTab !== "shared-to-me" ? styles.dropdownFiltersContainer_hidden : ""}`}>
-          <div className={styles.dropdownFilters}>
-            
-            {/* Category Custom Dropdown */}
-            <div className={styles.customSelectWrapper} ref={categoryDropdownRef}>
-              <button
-                type="button"
-                className={styles.filterSelect}
-                onClick={() => {
-                  setIsCategoryDropdownOpen((prev) => !prev);
-                  setIsTagDropdownOpen(false);
-                }}
-              >
-                <span>{selectedCategoryLabel}</span>
-                <Icon name="down" size={16} className={`${styles.selectArrow} ${isCategoryDropdownOpen ? styles.selectArrow_open : ""}`} />
-              </button>
+        {activeTab === "shared-to-me" && (
+          <div className={styles.dropdownFiltersContainer}>
+            <div className={styles.dropdownFilters}>
+              
+              {/* Category Custom Dropdown */}
+              <div className={styles.customSelectWrapper} ref={categoryDropdownRef}>
+                <button
+                  type="button"
+                  className={styles.filterSelect}
+                  onClick={() => {
+                    setIsCategoryDropdownOpen((prev) => !prev);
+                    setIsTagDropdownOpen(false);
+                  }}
+                >
+                  <span>{selectedCategoryLabel}</span>
+                  <Icon name="down" size={16} className={`${styles.selectArrow} ${isCategoryDropdownOpen ? styles.selectArrow_open : ""}`} />
+                </button>
 
-              {isCategoryDropdownOpen && (
-                <div className={styles.customDropdownMenu}>
-                  <button
-                    type="button"
-                    className={`${styles.customDropdownItem} ${selectedCategory === "all" ? styles.customDropdownItem_active : ""}`}
-                    onClick={() => {
-                      updateQueryParams({ category: "all" });
-                      setIsCategoryDropdownOpen(false);
-                    }}
-                  >
-                    All Categories
-                  </button>
-                  {availableCategories.map((category) => (
+                {isCategoryDropdownOpen && (
+                  <div className={styles.customDropdownMenu}>
                     <button
-                      key={category}
                       type="button"
-                      className={`${styles.customDropdownItem} ${selectedCategory === category ? styles.customDropdownItem_active : ""}`}
+                      className={`${styles.customDropdownItem} ${selectedCategory === "all" ? styles.customDropdownItem_active : ""}`}
                       onClick={() => {
-                        updateQueryParams({ category: category });
+                        updateQueryParams({ category: "all" });
                         setIsCategoryDropdownOpen(false);
                       }}
                     >
-                      {category}
+                      All Categories
                     </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Tag Custom Dropdown (Multi-select) */}
-            <div className={styles.customSelectWrapper} ref={tagDropdownRef}>
-              <button
-                type="button"
-                className={styles.filterSelect}
-                onClick={() => {
-                  setIsTagDropdownOpen((prev) => !prev);
-                  setIsCategoryDropdownOpen(false);
-                }}
-              >
-                <span>{selectedTagLabel}</span>
-                <Icon name="down" size={16} className={`${styles.selectArrow} ${isTagDropdownOpen ? styles.selectArrow_open : ""}`} />
-              </button>
-
-              {isTagDropdownOpen && (
-                <div className={styles.customDropdownMenu}>
-                  <button
-                    type="button"
-                    className={`${styles.customDropdownItem} ${selectedTags.length === 0 ? styles.customDropdownItem_active : ""}`}
-                    onClick={() => {
-                      updateQueryParams({ tags: null });
-                    }}
-                  >
-                    All Tags
-                  </button>
-                  {Object.keys(Tag).map((tagKey) => {
-                    const isSelected = selectedTags.includes(tagKey);
-                    return (
+                    {availableCategories.map((category) => (
                       <button
-                        key={tagKey}
+                        key={category}
                         type="button"
-                        className={`${styles.customDropdownItem} ${isSelected ? styles.customDropdownItem_active : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTagToggle(tagKey);
+                        className={`${styles.customDropdownItem} ${selectedCategory === category ? styles.customDropdownItem_active : ""}`}
+                        onClick={() => {
+                          updateQueryParams({ category: category });
+                          setIsCategoryDropdownOpen(false);
                         }}
                       >
-                        <span className={styles.checkboxIndicator}>{isSelected ? "✓ " : ""}</span>
-                        {Tag[tagKey as keyof typeof Tag] || tagKey}
+                        {category}
                       </button>
-                    );
-                  })}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Tag Custom Dropdown (Multi-select) */}
+              <div className={styles.customSelectWrapper} ref={tagDropdownRef}>
+                <button
+                  type="button"
+                  className={styles.filterSelect}
+                  onClick={() => {
+                    setIsTagDropdownOpen((prev) => !prev);
+                    setIsCategoryDropdownOpen(false);
+                  }}
+                >
+                  <span>{selectedTagLabel}</span>
+                  <Icon name="down" size={16} className={`${styles.selectArrow} ${isTagDropdownOpen ? styles.selectArrow_open : ""}`} />
+                </button>
+
+                {isTagDropdownOpen && (
+                  <div className={styles.customDropdownMenu}>
+                    <button
+                      type="button"
+                      className={`${styles.customDropdownItem} ${selectedTags.length === 0 ? styles.customDropdownItem_active : ""}`}
+                      onClick={() => {
+                        updateQueryParams({ tags: null });
+                      }}
+                    >
+                      All Tags
+                    </button>
+                    {Object.keys(Tag).map((tagKey) => {
+                      const isSelected = selectedTags.includes(tagKey);
+                      return (
+                        <button
+                          key={tagKey}
+                          type="button"
+                          className={`${styles.customDropdownItem} ${isSelected ? styles.customDropdownItem_active : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTagToggle(tagKey);
+                          }}
+                        >
+                          <span className={styles.checkboxIndicator}>{isSelected ? "✓ " : ""}</span>
+                          {Tag[tagKey as keyof typeof Tag] || tagKey}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
             </div>
 
+            {/* Clear All Button */}
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className={styles.clearAllBtn}
+                onClick={handleClearAll}
+              >
+                Clear All
+              </button>
+            )}
           </div>
-
-          {/* Clear All Button */}
-          {hasActiveFilters && (
-            <button
-              type="button"
-              className={styles.clearAllBtn}
-              onClick={handleClearAll}
-            >
-              Clear All
-            </button>
-          )}
-        </div>
+        )}
 
         {/* Places Section */}
 

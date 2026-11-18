@@ -2,6 +2,7 @@
 // IMPORTS
 // ==========================================
 
+@use "sass:list";
 @use "@/scss/main.scss" as *;
 @use "@/scss/mixins.scss" as m;
 @use "@/scss/variables.scss" as v;
@@ -11,8 +12,13 @@
 // HELPERS / MIXINS & VARIABLES
 // ==========================================
 
-@mixin smooth-transition($properties: background-color color border-color transform) {
-  transition: inspect($properties) v.$animation-time ease;
+@mixin smooth-transition($props...) {
+  @if list.length($props) == 0 {
+    $props: background-color, color, border-color, transform;
+  }
+  transition-property: $props;
+  transition-duration: v.$animation-time;
+  transition-timing-function: ease;
 }
 
 $smooth-animation: 0.5s;
