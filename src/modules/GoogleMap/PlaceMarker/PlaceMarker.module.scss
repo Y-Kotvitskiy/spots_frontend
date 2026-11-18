@@ -1,7 +1,10 @@
 @use "@/scss/variables" as v;
+@use "@/scss/mixins" as m;
 
 .PlaceMarker {
   color: v.$secondary-forest-green-color;
+
+  @include m.hover(transform, scale(1.1));
 
   &__park {
     color: v.$secondary-forest-green-color;
@@ -71,9 +74,10 @@
     overflow: visible;
     transform: scale(1.2);
     transform-origin: center;
-    filter: brightness(1.2);
-    transition:
-      transform 0.3s ease,
-      filter 0.3s ease;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 }
