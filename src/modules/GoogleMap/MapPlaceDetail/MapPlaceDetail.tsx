@@ -43,6 +43,7 @@ const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
             <NavLink
               to={`/map/${selectedPlace.id}`}
               state={{ timestamp: Date.now() }}
+              className={styles.MapPlaceDetail__titleLink}
             >
               {selectedPlace.name}
             </NavLink>
