@@ -1,28 +1,16 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import Loader from "../modules/shared/Loader";
-import { useAuthSelector, useAppDispatch } from "@/store/hooks";
-import { authActions } from "@/store";
-import { useEffect } from "react";
+import { useAuthSelector } from "@/store/hooks";
 
 const RequireAuth = ({ children }: { children?: React.ReactNode }) => {
-  const { isChecked, currentUser } = useAuthSelector();
+  const { currentUser, isChecked } = useAuthSelector();
   const location = useLocation();
 
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (!isChecked) {
-      dispatch(authActions.checkAuth());
-    }
-  }, [dispatch, isChecked]);
-
   if (!isChecked) {
-    return <Loader />;
+    return null;
   }
 
   if (!currentUser) {
-    console.log("RequireAuth: redirecting to welcome");
-    return <Navigate to="/welcome" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return children ?? <Outlet />;
