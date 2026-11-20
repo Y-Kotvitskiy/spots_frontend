@@ -111,7 +111,7 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
       <PlaceShareModal
         isOpen={isPlaceShareModalOpen}
         onClose={closePlaceShareModal}
-        PlaceId={selectedPlace.id}
+        PlaceId={selectedPlace?.id}
       />
 
       {isLoadingLocation && <div>Визначаємо ваше місцезнаходження...</div>}
