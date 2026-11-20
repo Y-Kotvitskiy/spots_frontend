@@ -13,6 +13,7 @@ import MapPlaceDetail from "./MapPlaceDetail";
 import { useGoogleMap } from "./GoogleMap.hooks";
 import { PlacesClusterer } from "./PlacesClusterer";
 import PlaceShareModal from "./PlaceShareModal";
+import { useNavigate } from "react-router-dom";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -73,8 +74,10 @@ const MapCenterController: React.FC<{
 // ==========================================
 // 4. Основной компонент карты
 // ==========================================
-export const GoogleMap: React.FC = () => {
+export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+  console.log({ isVisible });
   const mapId = import.meta.env.VITE_MAP_ID as string;
+  const navigate = useNavigate();
 
   const {
     isPickingMode,
@@ -86,11 +89,12 @@ export const GoogleMap: React.FC = () => {
     openPlaceShareModal,
     closePlaceShareModal,
     dispatch,
-  } = useGoogleMap();
+  } = useGoogleMap(isVisible);
 
   const handleMapClick = useCallback(
     async (event: MapMouseEvent) => {
       if (!isPickingModeRef.current) {
+        navigate("/map");
         dispatch(mapActions.clearSelectedPlace());
         return;
       }

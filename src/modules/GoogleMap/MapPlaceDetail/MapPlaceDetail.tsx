@@ -12,6 +12,7 @@ interface Props {
 const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
   const { selectedPlace } = useMapSelector();
   const navigate = useNavigate();
+  console.log({ selectedPlace: selectedPlace?.name });
 
   if (!selectedPlace) {
     return null;

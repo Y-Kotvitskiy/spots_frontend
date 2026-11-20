@@ -6,6 +6,7 @@ import type { CategoryKey, Place } from "@/types";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { memo } from "react";
 import { MapMode } from "@/store/slices/mapSlice";
+import { useNavigate } from "react-router-dom";
 
 interface PlaceMarkerProps {
   place: Place;
@@ -351,6 +352,7 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
   const dispatch = useAppDispatch();
   const { mapMode, categories, selectedPlace } = useMapSelector();
   const isSelected = place === selectedPlace;
+  const navigate = useNavigate();
 
   const categoryKey = (categories[place.categoryId]
     ?.toLowerCase()
@@ -373,6 +375,7 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
         if (mapMode === MapMode.Show) {
           event.stopPropagation();
           dispatch(mapActions.setSelectedPlace(place));
+          navigate("/map");
         }
       }}
     >
