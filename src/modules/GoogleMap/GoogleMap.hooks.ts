@@ -32,13 +32,6 @@ export function useGoogleMap(isVisible: boolean) {
 
   const isPickingModeRef = useRef(isPickingMode);
 
-  useEffect(() => {
-    console.log(`Map mount]`);
-    return () => {
-      `Map unmount`;
-    };
-  }, []);
-
   // 1. Загрузка начальных данных
   useEffect(() => {
     if (status === "idle") {
