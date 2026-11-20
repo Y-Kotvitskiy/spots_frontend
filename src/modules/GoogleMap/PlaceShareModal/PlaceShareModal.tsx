@@ -1,4 +1,3 @@
-import { useMapSelector } from "@/store/hooks";
 import styles from "./PlaceShareModal.module.scss";
 
 import { createPortal } from "react-dom";

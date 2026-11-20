@@ -16,7 +16,8 @@ export function useSelectPlace() {
 const DEFAULT_CENTER = { lat: 50.4501, lng: 30.5234 };
 
 export function useGoogleMap(isVisible: boolean) {
-  const map = useMap();
+  const wasVisibleRef = useRef(isVisible);
+  const map = useMap("main-map");
   const navigate = useNavigate();
   const [initialCenter, setInitialCenter] = useState(DEFAULT_CENTER);
   const isPickingMode = useSelector(selectIsPickingMode);
@@ -31,6 +32,13 @@ export function useGoogleMap(isVisible: boolean) {
 
   const isPickingModeRef = useRef(isPickingMode);
 
+  useEffect(() => {
+    console.log(`Map mount]`);
+    return () => {
+      `Map unmount`;
+    };
+  }, []);
+
   // 1. Загрузка начальных данных
   useEffect(() => {
     if (status === "idle") {
@@ -43,6 +51,22 @@ export function useGoogleMap(isVisible: boolean) {
     () => savedPlaces.find((p) => String(p.id) === placeId) ?? null,
     [savedPlaces, placeId],
   );
+
+  useEffect(() => {
+    const justShown = isVisible && !wasVisibleRef.current;
+    wasVisibleRef.current = isVisible;
+
+    if (!justShown || !selectedPlace || !map) return;
+
+    const raf = requestAnimationFrame(() => {
+      google.maps.event.trigger(map, "resize");
+      map.panTo({
+        lat: selectedPlace.latitude,
+        lng: selectedPlace.longitude,
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [isVisible, map]);
 
   // 1. Начальная загрузка данных
   useEffect(() => {

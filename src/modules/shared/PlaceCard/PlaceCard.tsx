@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./PlaceCard.module.scss";
 import Loader from "@/modules/shared/Loader";
 import Placeholder from "../Placeholder";
-import Icon, { type IconName } from "../Icon/Icon";
-import { COLORS } from "@/modules/constants";
+import Icon from "../Icon/Icon";
 import PlaceIcon from "../PlaceIcon";
 
 interface PlaceCardProps {
@@ -19,28 +18,6 @@ interface PlaceCardProps {
   onDelete?: () => void;
   onClick?: () => void;
 }
-
-const CATEGORY_ICONS: Record<string, IconName> = {
-  park: "park",
-  shopping: "shopping",
-  street_food: "street_food",
-  museum: "museum",
-  cafe: "cafe",
-  restaurant: "restaurant",
-  bar: "bar",
-  bakery: "bakery",
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  park: COLORS.park,
-  shopping: COLORS.shopping,
-  street_food: COLORS.streetFood,
-  museum: COLORS.museum,
-  cafe: COLORS.cafe,
-  restaurant: COLORS.restaurant,
-  bar: COLORS.bar,
-  bakery: COLORS.bakery,
-};
 
 // ==========================================
 // COMPONENT
@@ -77,10 +54,6 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   }, [image]);
 
   const hasActions = onEdit || onShare || onDelete;
-
-  const normalizedCategory = category.toLowerCase().trim();
-  const iconName = CATEGORY_ICONS[normalizedCategory] || "search";
-  const iconColor = CATEGORY_COLORS[normalizedCategory];
 
   const renderShareStatus = () => {
     if (typeof isShared === "string") return isShared;

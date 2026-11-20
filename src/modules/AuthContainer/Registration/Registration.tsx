@@ -27,7 +27,7 @@ interface FormValues {
 const Registration = () => {
   const navigate = useNavigate();
   const [error, setError] = usePageError("");
-  const [registered, setRegistered] = useState(false);
+  const [registered] = useState(false);
 
   const { isChecked, currentUser } = useAuthSelector();
 

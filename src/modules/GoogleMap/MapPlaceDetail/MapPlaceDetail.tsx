@@ -16,7 +16,7 @@ const MapPlaceDetail: React.FC<Props> = ({
   openPlaceShareModal,
 }) => {
   const navigate = useNavigate();
-  const map = useMap();
+  const map = useMap("main-map");
 
   if (!selectedPlace) {
     return null;
@@ -35,7 +35,7 @@ const MapPlaceDetail: React.FC<Props> = ({
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
     event.preventDefault();
-    debugger;
+
     if (map && selectedPlace) {
       map.panTo({ lat: selectedPlace.latitude, lng: selectedPlace.longitude });
     }
