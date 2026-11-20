@@ -99,7 +99,14 @@ export function useGoogleMap(isVisible: boolean) {
 
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setInitialCenter({ lat: coords.latitude, lng: coords.longitude });
+        if (map) {
+          map.panTo({
+            lat: coords.latitude,
+            lng: coords.longitude,
+          });
+        } else {
+          setInitialCenter({ lat: coords.latitude, lng: coords.longitude });
+        }
         setIsLoadingLocation(false);
       },
       (error) => {

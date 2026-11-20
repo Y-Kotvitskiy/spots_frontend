@@ -4,9 +4,9 @@
 @use "@/scss/typography.scss" as t;
 
 .WelcomePage {
-  position: relative;
-  z-index: 2;
   display: flex;
+  z-index: 2;
+  position: relative;
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
@@ -24,7 +24,7 @@
 
   @include m.on-tablet {
     padding-inline: v.$offset-tablet;
-    padding-top: 200px;   // 200px зверху для планшета/ПК (під верхній хедер)
+    padding-top: 200px; // 200px зверху для планшета/ПК (під верхній хедер)
     padding-bottom: 0;
     gap: 80px;
   }
@@ -41,9 +41,9 @@
 .content {
   display: grid;
   grid-template-columns: 1fr;
+  align-items: start;
   width: 100%;
   gap: 32px;
-  align-items: start;
 
   @include m.on-tablet {
     grid-template-columns: repeat(2, 1fr);
@@ -64,7 +64,7 @@
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover; 
+      object-fit: cover;
       border-radius: 24px;
     }
   }
@@ -84,6 +84,7 @@
     &__title {
       @extend %h1;
       color: v.$grey-90-color;
+      font-size: 40px;
 
       span {
         color: v.$primary-indigo-color;
@@ -110,8 +111,8 @@
   &__imageWrapper {
     width: 100%;
     min-height: 280px;
-    background-color: v.$grey-20-color;
     border-radius: 24px;
+    background-color: v.$grey-20-color;
 
     @include m.on-tablet {
       min-height: 380px;
@@ -150,13 +151,13 @@
 }
 
 .stepCard {
-  background-color: v.$grey-0-color;
-  border-radius: 20px;
-  padding: 16px 20px;
-  gap: 20px;
-  box-shadow: v.$small-shadow;
   display: flex;
   flex-direction: column;
+  padding: 16px 20px;
+  gap: 20px;
+  border-radius: 20px;
+  background-color: v.$grey-0-color;
+  box-shadow: v.$small-shadow;
 
   @include m.on-tablet {
     padding: 24px 20px;
@@ -175,13 +176,13 @@
 
   &__number {
     @extend %h3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     background-color: v.$grey-20-color;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: v.$grey-90-color;
 
     @include m.on-tablet {
@@ -214,8 +215,8 @@
 .infoBlock {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   width: 100%;
+  gap: 12px;
 
   @include m.on-tablet {
     width: 66.666%;
@@ -250,10 +251,10 @@
 }
 
 .footerContainer {
-  padding-top: 10px;
   display: flex;
   justify-content: center;
   width: 100%;
+  padding-top: 10px;
 
   @include m.on-tablet {
     padding-top: 40px;
@@ -261,15 +262,15 @@
 }
 
 .ctaCard {
-  width: 100%;
-  background-color: v.$grey-0-color;
-  padding: 40px 24px;
-  border-radius: 32px;
-  box-shadow: v.$small-shadow;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  padding: 40px 24px;
   gap: 20px;
+  border-radius: 32px;
+  background-color: v.$grey-0-color;
+  box-shadow: v.$small-shadow;
   text-align: center;
 
   &__title {
