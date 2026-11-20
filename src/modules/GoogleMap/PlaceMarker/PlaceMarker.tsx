@@ -374,8 +374,7 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
       onClick={(event) => {
         if (mapMode === MapMode.Show) {
           event.stopPropagation();
-          dispatch(mapActions.setSelectedPlace(place));
-          navigate("/map");
+          navigate(`/map/${place.id}`, { state: { setSelectedPlace: place } });
         }
       }}
     >

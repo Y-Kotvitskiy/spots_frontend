@@ -4,6 +4,7 @@ import styles from "./MapPlaceDetail.module.scss";
 import { useMapSelector } from "@/store/hooks";
 import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
 import { NavLink, useNavigate } from "react-router-dom";
+import type { LocateState } from "@/types/locateState";
 
 interface Props {
   openPlaceShareModal: () => void;
@@ -43,7 +44,12 @@ const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
           <h2 className={styles.MapPlaceDetail__title}>
             <NavLink
               to={`/map/${selectedPlace.id}`}
-              state={{ timestamp: Date.now() }}
+              state={
+                {
+                  selectedPlaceId: selectedPlace.id,
+                  timestamp: Date.now(),
+                } satisfies LocateState
+              }
               className={styles.MapPlaceDetail__titleLink}
             >
               {selectedPlace.name}

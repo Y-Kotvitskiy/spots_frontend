@@ -14,6 +14,7 @@ import { useGoogleMap } from "./GoogleMap.hooks";
 import { PlacesClusterer } from "./PlacesClusterer";
 import PlaceShareModal from "./PlaceShareModal";
 import { useNavigate } from "react-router-dom";
+import type { LocateState } from "@/types/locateState";
 
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
@@ -94,14 +95,15 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   const handleMapClick = useCallback(
     async (event: MapMouseEvent) => {
       if (!isPickingModeRef.current) {
-        navigate("/map");
+        navigate("/map", {
+          state: { selectedPlaceId: null } satisfies LocateState,
+        });
         dispatch(mapActions.clearSelectedPlace());
         return;
       }
 
       if (event.detail.latLng) {
         const { lat, lng } = event.detail.latLng;
-        // const address = await getAddressFromCoords(lat, lng);
 
         dispatch(mapActions.setSelectedCoords({ lat, lng, address: "" }));
       }

@@ -73,7 +73,6 @@ const Login = () => {
         const state = location.state as { from?: Location };
         navigate(state?.from?.pathname ?? "/");
       } catch (err) {
-        debugger;
         setErrorMessages(err as LoginErrors, setFieldError, setError);
       } finally {
         setSubmitting(false);

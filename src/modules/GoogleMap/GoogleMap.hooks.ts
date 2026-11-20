@@ -1,6 +1,7 @@
 import { mapActions } from "@/store";
 import { useAppDispatch, useMapSelector } from "@/store/hooks";
 import { fetchInitialData, selectIsPickingMode } from "@/store/slices/mapSlice";
+import type { LocateState } from "@/types/locateState";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
@@ -12,21 +13,13 @@ export function useGoogleMap(isVisible: boolean) {
 
   const { id: placeId } = useParams();
   const location = useLocation();
-  const locationState = location.state; // берём только state, а не весь location
+  const locationState = (location.state as LocateState | null) ?? null;
 
   const [isPlaceShareModalOpen, setIsPlaceShareModal] = useState(false);
   const [center, setCenter] = useState({ lat: 50.4501, lng: 30.5234 });
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const isPickingModeRef = useRef(isPickingMode);
-
-  useEffect(() => {
-    console.log("[useGoogleMap] mount");
-
-    return () => {
-      console.log("[useGoogleMap] unmount");
-    };
-  }, []);
 
   // 1. Загрузка начальных данных
   useEffect(() => {
@@ -35,38 +28,57 @@ export function useGoogleMap(isVisible: boolean) {
     }
   }, [status, dispatch]);
 
-  // 2. Синхронизация placeId → selectedPlace + center
+  // 2. Якщо це запит на точку, знаходим точку і позіціонуем на неї
+  //  Якщо точка вибрана, алє є timestamp, просто центруємо
+  // Якщо місце вибрано, алє пусте, очищаємо selectedPlace
+
   useEffect(() => {
+    if (!isVisible) return;
+
+    if (
+      selectedPlace &&
+      selectedPlace?.id === locationState?.selectedPlaceId &&
+      !locationState?.timestamp
+    ) {
+      return;
+    }
+
+    if (locationState && locationState.selectedPlaceId === null) {
+      dispatch(mapActions.clearSelectedPlace());
+      setIsLoadingLocation(false);
+      return;
+    }
+
     if (status !== "succeeded" || !savedPlaces.length || !placeId) return;
 
-    const targetPlace = savedPlaces.find(
-      (place) => String(place.id) === String(placeId),
-    );
+    const targetPlace =
+      selectedPlace && locationState?.selectedPlaceId === selectedPlace?.id
+        ? selectedPlace
+        : savedPlaces.find((place) => String(place.id) === String(placeId));
 
     if (!targetPlace) {
       console.warn(`Маркер с id ${placeId} не найден`);
       return;
     }
 
-    // Если место уже выбрано — ничего не делаем
-    if (selectedPlace?.id === targetPlace.id) {
-      // только обновляем center, если нужно
+    // Обновляем центр
+    if (
+      (selectedPlace === targetPlace && locationState?.timestamp) ||
+      (targetPlace && !locationState)
+    ) {
       setCenter({
         lat: targetPlace.latitude,
         lng: targetPlace.longitude,
       });
       setIsLoadingLocation(false);
-      return;
     }
 
-    dispatch(mapActions.setSelectedPlace(targetPlace));
-    setCenter({
-      lat: targetPlace.latitude,
-      lng: targetPlace.longitude,
-    });
-    setIsLoadingLocation(false);
-  }, [status, savedPlaces, placeId, selectedPlace, dispatch]);
+    if (!locationState?.selectedPlaceId) {
+      dispatch(mapActions.setSelectedPlace(targetPlace));
+    }
+  }, [status, savedPlaces, placeId, locationState, selectedPlace, dispatch]);
 
+  // Якщо перше завантаження, позиціонуем на місцезнаходження
   useEffect(() => {
     if (!isVisible) return;
 
@@ -96,7 +108,7 @@ export function useGoogleMap(isVisible: boolean) {
     return () => {
       // ничего чистить не нужно
     };
-  }, [placeId, isLoadingLocation, locationState]);
+  }, [placeId, isLoadingLocation, locationState, isVisible]);
 
   // 4. Синхронизация ref
   useEffect(() => {

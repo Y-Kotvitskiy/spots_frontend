@@ -201,6 +201,11 @@ export const mapSlice = createSlice({
       state.selectedPlace = action.payload;
     },
 
+    setSelectedPlaceById: (state, action: PayloadAction<string>) => {
+      state.selectedPlace =
+        state.savedPlaces.find((place) => place.id === action.payload) ?? null;
+    },
+
     clearSelectedPlace: (state) => {
       state.selectedPlace = null;
     },
