@@ -48,7 +48,7 @@ const Welcome = () => {
 
           <div className={styles.content__imageWrapper}>
             <img
-              src="/public/illustration.png"
+              src="/illustration.png"
               alt="Welcome illustration"
               className={styles.content__imageWrapper__image}
             />
