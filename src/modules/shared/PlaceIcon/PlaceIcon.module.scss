@@ -1,7 +1,7 @@
 @use "@/scss/variables" as v;
 @use "@/scss/mixins" as m;
 
-.PlaceMarker {
+.PlaceIcon {
   color: v.$secondary-forest-green-color;
 
   @include m.hover(transform, scale(1.1));

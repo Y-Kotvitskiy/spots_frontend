@@ -4,6 +4,7 @@ import Loader from "@/modules/shared/Loader";
 import Placeholder from "../Placeholder";
 import Icon, { type IconName } from "../Icon/Icon";
 import { COLORS } from "@/modules/constants";
+import PlaceIcon from "../PlaceIcon";
 
 interface PlaceCardProps {
   image?: string;
@@ -101,11 +102,9 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
             </div>
 
             {!image && (
-              <Icon 
-                name={iconName} 
-                size={48} 
-                color={iconColor}
-                className={styles.placeCard__placeholderIcon} 
+              <PlaceIcon
+                categoryName={category}
+                className={styles.placeCard__placeholderIcon}
               />
             )}
 
@@ -120,17 +119,19 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
             src={image}
             alt={title}
             className={`${styles.placeCard__image} ${
-              isImageLoaded ? styles.placeCard__imageLoaded : styles.placeCard__imageHidden
+              isImageLoaded
+                ? styles.placeCard__imageLoaded
+                : styles.placeCard__imageHidden
             }`}
             onLoad={() => setIsImageLoaded(true)}
           />
         )}
-        
+
         {hasActions && (
           <div className={styles.placeCard__menuContainer} ref={menuRef}>
-            <button 
-              type="button" 
-              className={styles.placeCard__menuBtn} 
+            <button
+              type="button"
+              className={styles.placeCard__menuBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMenuOpen((prev) => !prev);
@@ -143,28 +144,40 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
             {isMenuOpen && (
               <div className={styles.placeCard__dropdown}>
                 {onEdit && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={styles.placeCard__dropdownItem}
-                    onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onEdit(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMenuOpen(false);
+                      onEdit();
+                    }}
                   >
                     Edit place
                   </button>
                 )}
                 {onShare && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={styles.placeCard__dropdownItem}
-                    onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onShare(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMenuOpen(false);
+                      onShare();
+                    }}
                   >
                     Share with group
                   </button>
                 )}
                 {onDelete && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={styles.placeCard__dropdownItemDanger}
-                    onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onDelete(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMenuOpen(false);
+                      onDelete();
+                    }}
                   >
                     {deleteButtonText}
                   </button>
@@ -177,15 +190,15 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
       <div className={styles.placeCard__content}>
         <h3 className={styles.placeCard__title}>{title}</h3>
-        
+
         <div className={styles.placeCard__info}>
           <span>{category}</span>
-          {workingHours !== "none" &&
+          {workingHours !== "none" && (
             <>
               <span className={styles.placeCard__separator}>•</span>
               <span className={styles.placeCard__hours}>{formattedHours}</span>
             </>
-          }
+          )}
         </div>
 
         {addedBy ? (
@@ -193,7 +206,13 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         ) : (
           isShared !== undefined && (
             <div className={styles.placeCard__statusWrapper}>
-              <span className={isShared ? styles.placeCard__shared : styles.placeCard__notShared}>
+              <span
+                className={
+                  isShared
+                    ? styles.placeCard__shared
+                    : styles.placeCard__notShared
+                }
+              >
                 {renderShareStatus()}
               </span>
             </div>

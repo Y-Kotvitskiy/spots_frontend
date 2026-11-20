@@ -35,13 +35,11 @@ const MapPlaceDetail: React.FC<Props> = ({
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
     event.preventDefault();
-
+    debugger;
     if (map && selectedPlace) {
       map.panTo({ lat: selectedPlace.latitude, lng: selectedPlace.longitude });
     }
   };
-
-  debugger;
 
   return (
     <section className={styles.MapPlaceDetail}>

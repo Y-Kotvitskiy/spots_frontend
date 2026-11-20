@@ -18,7 +18,7 @@ import PlaceDetails from "./modules/PlaceDetails/PlaceDetails.tsx";
 import Welcome from "./modules/AuthContainer/Welcome";
 
 const Root = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_PLACE_KEY as string;
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 
   return (
     <APIProvider apiKey={apiKey}>

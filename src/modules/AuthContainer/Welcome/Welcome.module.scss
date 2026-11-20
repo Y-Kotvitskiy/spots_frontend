@@ -83,6 +83,7 @@
 
     &__title {
       @extend %h1;
+
       color: v.$grey-90-color;
       font-size: 40px;
 

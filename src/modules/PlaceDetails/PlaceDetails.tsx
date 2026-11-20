@@ -12,6 +12,8 @@ import {
 import { Tag } from "@/types";
 import Placeholder from "../shared/Placeholder";
 import ImageModal from "../shared/ImageModal/ImageModal";
+import MapPreview from "./MapPreview";
+import PlaceIcon from "../shared/PlaceIcon/PlaceIcon";
 
 // ==========================================
 // SUB-COMPONENT FOR SMALL PHOTO CARD
@@ -42,14 +44,16 @@ const SmallPhotoCard: React.FC<SmallPhotoCardProps> = ({
   }, [url]);
 
   return (
-    <div 
-      className={styles.smallPhotoCard} 
+    <div
+      className={styles.smallPhotoCard}
       onClick={url ? onClick : undefined}
       style={{ cursor: url ? "pointer" : "default" }}
     >
       {(!url || !isLoaded) && <Placeholder text={placeName} />}
 
-      {url && !isLoaded && <Loader className={styles.smallPhotoCard__loaderOverlay} />}
+      {url && !isLoaded && (
+        <Loader className={styles.smallPhotoCard__loaderOverlay} />
+      )}
 
       {url && (
         <img
@@ -132,7 +136,9 @@ const PlaceDetails: React.FC = () => {
     }
   };
 
-  const formatHours = (hours?: { opens_at: string; closes_at: string } | null) => {
+  const formatHours = (
+    hours?: { opens_at: string; closes_at: string } | null,
+  ) => {
     if (!hours?.opens_at || !hours.closes_at) return null;
     const [start] = hours.opens_at.trim().split(/\s+/);
     const [end] = hours.closes_at.trim().split(/\s+/);
@@ -146,7 +152,7 @@ const PlaceDetails: React.FC = () => {
   }
 
   const isCreator = Boolean(
-    currentUser && place.creator_id && currentUser.id === place.creator_id
+    currentUser && place.creator_id && currentUser.id === place.creator_id,
   );
 
   const addBtnIndex = photosList.length < 5 ? photosList.length : -1;
@@ -178,9 +184,14 @@ const PlaceDetails: React.FC = () => {
             </button>
 
             {mainPhoto ? (
-              <div 
-                onClick={() => handleImageClick(0)} 
-                style={{ cursor: "pointer", width: "100%", height: "100%", position: "relative" }}
+              <div
+                onClick={() => handleImageClick(0)}
+                style={{
+                  cursor: "pointer",
+                  width: "100%",
+                  height: "100%",
+                  position: "relative",
+                }}
               >
                 {(!mainPhoto.url || !isMainImageLoaded) && (
                   <>
@@ -259,7 +270,10 @@ const PlaceDetails: React.FC = () => {
               }
 
               return (
-                <div key={`empty-${gridIndex}`} className={styles.smallPhotoCard}>
+                <div
+                  key={`empty-${gridIndex}`}
+                  className={styles.smallPhotoCard}
+                >
                   <Placeholder text={placeName} />
                 </div>
               );
@@ -313,7 +327,11 @@ const PlaceDetails: React.FC = () => {
                 <div className={styles.infoBlock}>
                   <h3 className={styles.infoBlock__label}>Working hours</h3>
                   <p className={styles.infoBlock__value}>
-                    <Icon name="time" size={24} className={styles.infoBlock__icon} />
+                    <Icon
+                      name="time"
+                      size={24}
+                      className={styles.infoBlock__icon}
+                    />
                     {formattedHours}
                   </p>
                 </div>
@@ -322,7 +340,11 @@ const PlaceDetails: React.FC = () => {
                 <div className={styles.infoBlock}>
                   <h3 className={styles.infoBlock__label}>Added by</h3>
                   <p className={styles.infoBlock__value}>
-                    <Icon name="check" size={24} className={styles.infoBlock__icon} />
+                    <Icon
+                      name="check"
+                      size={24}
+                      className={styles.infoBlock__icon}
+                    />
                     {place.creator_name}
                   </p>
                 </div>
@@ -334,9 +356,18 @@ const PlaceDetails: React.FC = () => {
             <section className={styles.sectionCard}>
               <h3 className={styles.sectionCard__title}>Show on map</h3>
               <div className={styles.mapPreview}>
-                <span>
-                  {place.latitude.toFixed(4)}, {place.longitude.toFixed(4)}
-                </span>
+                <MapPreview
+                  lat={place.latitude}
+                  lng={place.longitude}
+                  title={place.name}
+                  onMarkerClick={() =>
+                    navigate(`/map/${selectedPlace.id}`, {
+                      state: { timestamp: Date.now() },
+                    })
+                  }
+                >
+                  <PlaceIcon categoryName={place.categoryName} />
+                </MapPreview>
               </div>
             </section>
           </div>

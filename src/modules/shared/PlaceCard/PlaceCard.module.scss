@@ -14,7 +14,9 @@
 $card-max-width: 500px;
 $card-min-width: 300px;
 
-@mixin smooth-transition($properties: background-color color border-color transform) {
+@mixin smooth-transition(
+  $properties: background-color color border-color transform
+) {
   transition: inspect($properties) v.$animation-time ease;
 }
 
@@ -24,12 +26,12 @@ $card-min-width: 300px;
 
 @keyframes fadeIn {
   from {
-    opacity: 0;
     transform: translateY(-4px);
+    opacity: 0;
   }
   to {
-    opacity: 1;
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
@@ -38,20 +40,20 @@ $card-min-width: 300px;
 // ==========================================
 
 .placeCard {
-  position: relative;
   display: flex;
+  position: relative;
   flex-direction: column;
   width: 100%;
-  max-width: 100%;
   min-width: 0;
+  max-width: 100%;
 
   @include m.on-desktop {
     max-width: 500px;
   }
+  overflow: visible;
+  border-radius: 24px;
 
   background-color: v.$grey-0-color;
-  border-radius: 24px;
-  overflow: visible; 
   cursor: pointer;
   @include smooth-transition(transform box-shadow);
 
@@ -71,27 +73,27 @@ $card-min-width: 300px;
 
   &__imageWrapper {
     position: relative;
-    width: 100%;
     aspect-ratio: 16 / 10;
+    width: 100%;
     padding: 12px;
-    overflow: visible; 
+    overflow: visible;
 
     @include m.on-tablet {
       padding: 16px;
     }
 
     @include m.on-desktop {
-      height: 240px;
       aspect-ratio: unset;
+      height: 240px;
       padding: 20px;
     }
   }
 
   &__image {
     position: absolute;
-    inset: 12px;
     width: calc(100% - 24px);
     height: calc(100% - 24px);
+    inset: 12px;
     object-fit: cover;
     border: none;
     border-radius: 14px;
@@ -99,15 +101,15 @@ $card-min-width: 300px;
     overflow: hidden;
 
     @include m.on-tablet {
-      inset: 16px;
       width: calc(100% - 32px);
       height: calc(100% - 32px);
+      inset: 16px;
     }
 
     @include m.on-desktop {
-      inset: 20px;
       width: calc(100% - 40px);
       height: calc(100% - 40px);
+      inset: 20px;
       border-radius: 18px;
     }
   }
@@ -122,13 +124,13 @@ $card-min-width: 300px;
   }
 
   &__loaderOverlay {
+    z-index: 2;
     position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
-    background-color: v.$background-modal-color;
+    inset: 0;
     backdrop-filter: blur(v.$blur-base);
+    background-color: v.$background-modal-color;
   }
 
   // ==========================================
@@ -136,50 +138,51 @@ $card-min-width: 300px;
   // ==========================================
 
   &__placeholderWrapper {
-    position: absolute;
-    inset: 12px;
-    width: calc(100% - 24px);
-    height: calc(100% - 24px);
-    border-radius: 14px;
-    overflow: hidden;
     display: flex;
+    position: absolute;
     align-items: center;
     justify-content: center;
+    width: calc(100% - 24px);
+    height: calc(100% - 24px);
+    inset: 12px;
+    overflow: hidden;
+    border-radius: 14px;
 
     @include m.on-tablet {
-      inset: 16px;
       width: calc(100% - 32px);
       height: calc(100% - 32px);
+      inset: 16px;
     }
 
     @include m.on-desktop {
-      inset: 20px;
       width: calc(100% - 40px);
       height: calc(100% - 40px);
+      inset: 20px;
       border-radius: 18px;
     }
   }
 
   &__placeholderContainer {
+    z-index: 1;
     position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
+    inset: 0;
 
     &::after {
-      content: "";
+      z-index: 2;
       position: absolute;
       inset: 0;
       backdrop-filter: blur(v.$blur-base);
-      z-index: 2;
+      content: "";
     }
   }
 
   &__placeholderIcon {
-    position: relative;
     z-index: 3;
-    color: v.$grey-90-color;
+    position: relative;
+    width: 100%;
+    height: 50%;
   }
 
   // ==========================================
@@ -187,10 +190,10 @@ $card-min-width: 300px;
   // ==========================================
 
   &__menuContainer {
+    z-index: 100;
     position: absolute;
     top: 20px;
-    right: 20px; 
-    z-index: 100;
+    right: 20px;
     opacity: 1;
 
     @include m.on-desktop {
@@ -206,47 +209,47 @@ $card-min-width: 300px;
   }
 
   &__menuBtn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: v.$grey-0-color;
-    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    color: v.$grey-90-color;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: v.$grey-0-color;
     box-shadow: v.$small-shadow;
+    color: v.$grey-90-color;
+    cursor: pointer;
   }
 
   &__dropdown {
+    display: flex;
+    z-index: 101;
     position: absolute;
     top: 48px;
     right: 0;
-    width: max-content;
-    background-color: v.$grey-0-color;
-    border-radius: 20px;
-    box-shadow: v.$small-shadow;
-    display: flex;
     flex-direction: column;
+    width: max-content;
     padding: 12px;
-    z-index: 101;
+    border-radius: 20px;
+    background-color: v.$grey-0-color;
+    box-shadow: v.$small-shadow;
     @include fade-in(v.$animation-time);
   }
 
   &__dropdownItem,
   &__dropdownItemDanger {
     @extend %p2;
-    background: none;
-    border: none;
-    white-space: nowrap;
-    width: 100%;
-    padding: 10px 16px;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 12px;
+    background: none;
     text-align: center;
+    white-space: nowrap;
     cursor: pointer;
     @include smooth-transition(background-color);
     color: v.$grey-90-color;
@@ -258,7 +261,7 @@ $card-min-width: 300px;
 
   &__dropdownItemDanger {
     color: v.$system-error-color;
-    
+
     &:hover {
       background-color: v.$grey-20-color;
     }
@@ -270,11 +273,11 @@ $card-min-width: 300px;
 
   &__content {
     display: flex;
+    z-index: 1;
+    position: relative;
     flex-direction: column;
     padding: 12px 16px 16px;
     gap: 6px;
-    position: relative;
-    z-index: 1;
 
     @include m.on-tablet {
       padding: 16px 20px 20px;
@@ -284,8 +287,8 @@ $card-min-width: 300px;
 
   &__title {
     @extend %h3;
-    color: v.$grey-90-color;
     margin: 0;
+    color: v.$grey-90-color;
     word-break: break-word;
   }
 
