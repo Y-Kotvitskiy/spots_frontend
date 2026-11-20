@@ -5,13 +5,12 @@ import { createPortal } from "react-dom";
 import { useState } from "react";
 import Button from "@/modules/shared/Button/";
 
-export function PlaceShareModal({ isOpen, onClose }) {
-  const { selectedPlace } = useMapSelector();
+export function PlaceShareModal({ isOpen, onClose, PlaceId }) {
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
 
-  const shareLink = `${window.location.origin}/map/${selectedPlace?.id}`;
+  const shareLink = `${window.location.origin}/map/${PlaceId}`;
 
   const handleCopy = async () => {
     try {

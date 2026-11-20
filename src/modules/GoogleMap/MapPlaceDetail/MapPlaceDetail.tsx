@@ -41,6 +41,8 @@ const MapPlaceDetail: React.FC<Props> = ({
     }
   };
 
+  debugger;
+
   return (
     <section className={styles.MapPlaceDetail}>
       <div className={styles.MapPlaceDetail__leftPanel}>
