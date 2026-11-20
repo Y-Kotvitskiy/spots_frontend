@@ -9,12 +9,14 @@ import { mapActions } from "@/store";
 import { useMap } from "@vis.gl/react-google-maps";
 import MapFilter from "./MapFilter";
 import { useRef } from "react";
+import { useSelectPlace } from "../GoogleMap.hooks";
 
 const Controls: React.FC = () => {
   const { mapMode, filters, categories } = useMapSelector();
   const selectedCoords = useSelector(selectSelectedCoords);
   const dispatch = useAppDispatch();
   const filterButton = useRef<HTMLButtonElement>(null);
+  const selectPlace = useSelectPlace();
 
   const map = useMap();
 
@@ -35,7 +37,7 @@ const Controls: React.FC = () => {
       if (!selectedCoords) {
         await putMarkerToCenter();
       }
-      dispatch(mapActions.clearSelectedPlace());
+      selectPlace("");
       dispatch(mapActions.setMapMode(MapMode.Select));
       return;
     }
@@ -49,7 +51,7 @@ const Controls: React.FC = () => {
     if (mapMode !== MapMode.Filter) {
       dispatch(mapActions.setMapMode(MapMode.Filter));
       dispatch(mapActions.setSelectedCoords(null));
-      dispatch(mapActions.clearSelectedPlace());
+      selectPlace("");
     } else {
       dispatch(mapActions.setMapMode(MapMode.Show));
     }

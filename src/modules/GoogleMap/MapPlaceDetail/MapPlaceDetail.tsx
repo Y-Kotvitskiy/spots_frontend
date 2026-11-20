@@ -1,23 +1,27 @@
 import Button from "@/modules/shared/Button";
 import styles from "./MapPlaceDetail.module.scss";
 
-import { useMapSelector } from "@/store/hooks";
 import { CLOSES_AT, OPENS_AT } from "@/modules/constants";
 import { NavLink, useNavigate } from "react-router-dom";
-import type { LocateState } from "@/types/locateState";
+import { useMap } from "@vis.gl/react-google-maps";
+import type { Place } from "@/types";
 
 interface Props {
+  selectedPlace: Place;
   openPlaceShareModal: () => void;
 }
 
-const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
-  const { selectedPlace } = useMapSelector();
+const MapPlaceDetail: React.FC<Props> = ({
+  selectedPlace,
+  openPlaceShareModal,
+}) => {
   const navigate = useNavigate();
-  console.log({ selectedPlace: selectedPlace?.name });
+  const map = useMap();
 
   if (!selectedPlace) {
     return null;
   }
+
   const opens_at = selectedPlace.opening_hours?.opens_at || OPENS_AT;
   const closes_at = selectedPlace.opening_hours?.closes_at || CLOSES_AT;
 
@@ -26,6 +30,16 @@ const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
   )[0]?.[1];
 
   const imageUrl = firstPhoto?.url;
+
+  const handleNameClick = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+
+    if (map && selectedPlace) {
+      map.panTo({ lat: selectedPlace.latitude, lng: selectedPlace.longitude });
+    }
+  };
 
   return (
     <section className={styles.MapPlaceDetail}>
@@ -44,13 +58,8 @@ const MapPlaceDetail: React.FC<Props> = ({ openPlaceShareModal }) => {
           <h2 className={styles.MapPlaceDetail__title}>
             <NavLink
               to={`/map/${selectedPlace.id}`}
-              state={
-                {
-                  selectedPlaceId: selectedPlace.id,
-                  timestamp: Date.now(),
-                } satisfies LocateState
-              }
               className={styles.MapPlaceDetail__titleLink}
+              onClick={handleNameClick}
             >
               {selectedPlace.name}
             </NavLink>

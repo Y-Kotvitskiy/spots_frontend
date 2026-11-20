@@ -6,9 +6,13 @@ import type { Place } from "@/types";
 
 interface PlacesClustererProps {
   places: Array<Place>;
+  selectedPlaceId: string | null;
 }
 
-export const PlacesClusterer: React.FC<PlacesClustererProps> = ({ places }) => {
+export const PlacesClusterer: React.FC<PlacesClustererProps> = ({
+  places,
+  selectedPlaceId,
+}) => {
   const map = useMap();
   const [zoom, setZoom] = useState<number>(12);
   const [bounds, setBounds] = useState<[number, number, number, number] | null>(
@@ -117,7 +121,14 @@ export const PlacesClusterer: React.FC<PlacesClustererProps> = ({ places }) => {
 
         // Если это единичный маркер — рендерим ваш родной компонент PlaceMarker
         const place = cluster.properties.placeData;
-        return <PlaceMarker key={place.id} place={place} />;
+
+        return (
+          <PlaceMarker
+            key={place.id}
+            place={place}
+            isSelected={place.id === selectedPlaceId}
+          />
+        );
       })}
     </>
   );

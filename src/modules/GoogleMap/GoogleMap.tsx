@@ -59,24 +59,10 @@ const MapCursorController: React.FC<{ cursorType: string }> = ({
   return null;
 };
 
-const MapCenterController: React.FC<{
-  center: { lat: number; lng: number };
-}> = ({ center }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map) return;
-    map.setCenter(center);
-  }, [map, center]);
-
-  return null;
-};
-
 // ==========================================
 // 4. Основной компонент карты
 // ==========================================
 export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
-  console.log({ isVisible });
   const mapId = import.meta.env.VITE_MAP_ID as string;
   const navigate = useNavigate();
 
@@ -84,7 +70,8 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
     isPickingMode,
     isPickingModeRef,
     isLoadingLocation,
-    center,
+    initialCenter,
+    selectedPlace,
     places,
     isPlaceShareModalOpen,
     openPlaceShareModal,
@@ -115,7 +102,12 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
     <main className={styles.GoogleMap}>
       <Controls />
       <PlaceForm />
-      <MapPlaceDetail openPlaceShareModal={openPlaceShareModal} />
+      {selectedPlace && (
+        <MapPlaceDetail
+          selectedPlace={selectedPlace}
+          openPlaceShareModal={openPlaceShareModal}
+        />
+      )}
       <PlaceShareModal
         isOpen={isPlaceShareModalOpen}
         onClose={closePlaceShareModal}
@@ -125,14 +117,13 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
       <div className={styles.GoogleMap__map}>
         <Map
-          defaultCenter={center}
+          defaultCenter={initialCenter}
           defaultZoom={12}
           mapId={mapId}
           onClick={handleMapClick}
           clickableIcons={false}
           disableDefaultUI={true}
         >
-          <MapCenterController center={center} />
           <MapCursorController
             cursorType={isPickingMode ? "crosshair" : "grab"}
           />
@@ -141,7 +132,10 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
           <MapMarker />
 
           {/* Маркеры из сохраненного списка */}
-          <PlacesClusterer places={places} />
+          <PlacesClusterer
+            places={places}
+            selectedPlaceId={selectedPlace?.id}
+          />
         </Map>
       </div>
     </main>

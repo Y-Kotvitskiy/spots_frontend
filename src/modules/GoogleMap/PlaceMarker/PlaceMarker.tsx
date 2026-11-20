@@ -1,15 +1,15 @@
 import styles from "./PlaceMarker.module.scss";
 import cn from "classnames";
-import { mapActions } from "@/store";
-import { useAppDispatch, useMapSelector } from "@/store/hooks";
+import { useMapSelector } from "@/store/hooks";
 import type { CategoryKey, Place } from "@/types";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { memo } from "react";
 import { MapMode } from "@/store/slices/mapSlice";
-import { useNavigate } from "react-router-dom";
+import { useSelectPlace } from "../GoogleMap.hooks";
 
 interface PlaceMarkerProps {
   place: Place;
+  isSelected: boolean;
 }
 interface IconProps {
   categoryKey: CategoryKey;
@@ -348,44 +348,44 @@ const Icon: React.FC<IconProps> = ({
   }
 };
 
-const PlaceMarker: React.FC<PlaceMarkerProps> = memo(({ place }) => {
-  const dispatch = useAppDispatch();
-  const { mapMode, categories, selectedPlace } = useMapSelector();
-  const isSelected = place === selectedPlace;
-  const navigate = useNavigate();
+const PlaceMarker: React.FC<PlaceMarkerProps> = memo(
+  ({ place, isSelected }) => {
+    const { mapMode, categories } = useMapSelector();
+    const selectPlace = useSelectPlace();
 
-  const categoryKey = (categories[place.categoryId]
-    ?.toLowerCase()
-    .replace(" ", "_") || "park") as CategoryKey;
+    const categoryKey = (categories[place.categoryId]
+      ?.toLowerCase()
+      .replace(" ", "_") || "park") as CategoryKey;
 
-  const className = cn(
-    styles.PlaceMarker,
-    styles[`PlaceMarker__${categoryKey}`],
-    {
-      [styles[`PlaceMarker__${categoryKey}_active`]]: isSelected,
-      [styles[`PlaceMarker_active`]]: isSelected,
-    },
-  );
+    const className = cn(
+      styles.PlaceMarker,
+      styles[`PlaceMarker__${categoryKey}`],
+      {
+        [styles[`PlaceMarker__${categoryKey}_active`]]: isSelected,
+        [styles[`PlaceMarker_active`]]: isSelected,
+      },
+    );
 
-  return (
-    <AdvancedMarker
-      position={{ lat: place.latitude, lng: place.longitude }}
-      title={place.name}
-      onClick={(event) => {
-        if (mapMode === MapMode.Show) {
-          event.stopPropagation();
-          navigate(`/map/${place.id}`, { state: { setSelectedPlace: place } });
-        }
-      }}
-    >
-      <Icon
-        categoryKey={categoryKey}
-        isSelected={isSelected}
-        className={className}
-      />
-    </AdvancedMarker>
-  );
-});
+    return (
+      <AdvancedMarker
+        position={{ lat: place.latitude, lng: place.longitude }}
+        title={place.name}
+        onClick={(event) => {
+          if (mapMode === MapMode.Show) {
+            event.stopPropagation();
+            selectPlace(place.id);
+          }
+        }}
+      >
+        <Icon
+          categoryKey={categoryKey}
+          isSelected={isSelected}
+          className={className}
+        />
+      </AdvancedMarker>
+    );
+  },
+);
 
 PlaceMarker.displayName = "PlaceMarker";
 

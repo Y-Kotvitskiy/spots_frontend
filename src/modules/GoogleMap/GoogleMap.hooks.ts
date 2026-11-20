@@ -1,22 +1,32 @@
-import { mapActions } from "@/store";
 import { useAppDispatch, useMapSelector } from "@/store/hooks";
 import { fetchInitialData, selectIsPickingMode } from "@/store/slices/mapSlice";
-import type { LocateState } from "@/types/locateState";
+import { useMap } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
+export function useSelectPlace() {
+  const navigate = useNavigate();
+  return useCallback(
+    (id: string | number) => navigate(`/map/${id}`),
+    [navigate],
+  );
+}
+
+const DEFAULT_CENTER = { lat: 50.4501, lng: 30.5234 };
 
 export function useGoogleMap(isVisible: boolean) {
+  const map = useMap();
+  const navigate = useNavigate();
+  const [initialCenter, setInitialCenter] = useState(DEFAULT_CENTER);
   const isPickingMode = useSelector(selectIsPickingMode);
   const dispatch = useAppDispatch();
-  const { status, savedPlaces, filters, selectedPlace } = useMapSelector();
+  const { status, savedPlaces, filters } = useMapSelector();
 
   const { id: placeId } = useParams();
-  const location = useLocation();
-  const locationState = (location.state as LocateState | null) ?? null;
 
   const [isPlaceShareModalOpen, setIsPlaceShareModal] = useState(false);
-  const [center, setCenter] = useState({ lat: 50.4501, lng: 30.5234 });
+  //  const [center, setCenter] = useState({ lat: 50.4501, lng: 30.5234 });
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const isPickingModeRef = useRef(isPickingMode);
@@ -28,73 +38,68 @@ export function useGoogleMap(isVisible: boolean) {
     }
   }, [status, dispatch]);
 
-  // 2. Якщо це запит на точку, знаходим точку і позіціонуем на неї
-  //  Якщо точка вибрана, алє є timestamp, просто центруємо
-  // Якщо місце вибрано, алє пусте, очищаємо selectedPlace
+  // Единственный источник правды о выборе: URL.
+  const selectedPlace = useMemo(
+    () => savedPlaces.find((p) => String(p.id) === placeId) ?? null,
+    [savedPlaces, placeId],
+  );
+
+  // 1. Начальная загрузка данных
+  useEffect(() => {
+    if (status === "idle") dispatch(fetchInitialData());
+  }, [status, dispatch]);
+
+  // 2. Начальная позиция (только до первого показа карты).
+  //    Есть placeId -> ждём данные и берём координаты точки.
+  //    Нет placeId -> геолокация.
+  const isDataReady = status === "succeeded";
+  const isDataFailed = status === "failed";
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !isLoadingLocation) return;
 
-    if (
-      selectedPlace &&
-      selectedPlace?.id === locationState?.selectedPlaceId &&
-      !locationState?.timestamp
-    ) {
+    if (placeId) {
+      // 1. Ждём загрузки: ничего не ищем и ничего не решаем
+      if (!isDataReady && !isDataFailed) return;
+
+      // 2. Загрузка упала: показываем карту с центром по умолчанию
+      if (isDataFailed) {
+        setIsLoadingLocation(false);
+        return;
+      }
+
+      // 3. Данные готовы: теперь можно искать точку
+      if (selectedPlace) {
+        if (map) {
+          map.panTo({
+            lat: selectedPlace.latitude,
+            lng: selectedPlace.longitude,
+          });
+        } else {
+          setInitialCenter({
+            lat: selectedPlace.latitude,
+            lng: selectedPlace.longitude,
+          });
+        }
+        setIsLoadingLocation(false);
+      } else {
+        console.warn(`Маркер с id ${placeId} не найден`);
+        // Не сбрасываем isLoadingLocation: после редиректа placeId станет
+        // undefined, эффект перезапустится и пойдёт в ветку геолокации.
+        navigate("/map", { replace: true });
+      }
       return;
     }
 
-    if (locationState && locationState.selectedPlaceId === null) {
-      dispatch(mapActions.clearSelectedPlace());
-      setIsLoadingLocation(false);
-      return;
-    }
-
-    if (status !== "succeeded" || !savedPlaces.length || !placeId) return;
-
-    const targetPlace =
-      selectedPlace && locationState?.selectedPlaceId === selectedPlace?.id
-        ? selectedPlace
-        : savedPlaces.find((place) => String(place.id) === String(placeId));
-
-    if (!targetPlace) {
-      console.warn(`Маркер с id ${placeId} не найден`);
-      return;
-    }
-
-    // Обновляем центр
-    if (
-      (selectedPlace === targetPlace && locationState?.timestamp) ||
-      (targetPlace && !locationState)
-    ) {
-      setCenter({
-        lat: targetPlace.latitude,
-        lng: targetPlace.longitude,
-      });
-      setIsLoadingLocation(false);
-    }
-
-    if (!locationState?.selectedPlaceId) {
-      dispatch(mapActions.setSelectedPlace(targetPlace));
-    }
-  }, [status, savedPlaces, placeId, locationState, selectedPlace, dispatch]);
-
-  // Якщо перше завантаження, позиціонуем на місцезнаходження
-  useEffect(() => {
-    if (!isVisible) return;
-
-    if (!isLoadingLocation || placeId) return;
-
+    // Нет placeId -> геолокация
     if (!("geolocation" in navigator)) {
       setIsLoadingLocation(false);
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCenter({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+      ({ coords }) => {
+        setInitialCenter({ lat: coords.latitude, lng: coords.longitude });
         setIsLoadingLocation(false);
       },
       (error) => {
@@ -103,12 +108,16 @@ export function useGoogleMap(isVisible: boolean) {
       },
       { timeout: 10000 },
     );
-
-    // getCurrentPosition не возвращает id, но для ясности
-    return () => {
-      // ничего чистить не нужно
-    };
-  }, [placeId, isLoadingLocation, locationState, isVisible]);
+  }, [
+    map,
+    isVisible,
+    isLoadingLocation,
+    placeId,
+    selectedPlace,
+    isDataReady,
+    isDataFailed,
+    navigate,
+  ]);
 
   // 4. Синхронизация ref
   useEffect(() => {
@@ -142,7 +151,8 @@ export function useGoogleMap(isVisible: boolean) {
     isPickingMode,
     isPickingModeRef,
     isLoadingLocation,
-    center,
+    initialCenter,
+    selectedPlace,
     places,
     isPlaceShareModalOpen,
     openPlaceShareModal,
