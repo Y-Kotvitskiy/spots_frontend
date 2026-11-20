@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import { APIProvider } from "@vis.gl/react-google-maps";
 
@@ -16,20 +16,9 @@ import store from "./store";
 import ProtectedLayout from "./modules/ProtectedLayout/ProtectedLayout.tsx";
 import PlaceDetails from "./modules/PlaceDetails/PlaceDetails.tsx";
 import Welcome from "./modules/AuthContainer/Welcome";
-import { useAuthSelector } from "./store/hooks";
-
-const HomeRoute = () => {
-  const { currentUser } = useAuthSelector();
-
-  if (!currentUser) {
-    return <Welcome />;
-  }
-
-  return <ProtectedLayout />;
-};
 
 const Root = () => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_DEV_KEY as string;
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
 
   return (
     <APIProvider apiKey={apiKey}>
@@ -37,8 +26,6 @@ const Root = () => {
         <BrowserRouter>
           <Routes>
             <Route element={<App />}>
-              <Route path="/" element={<HomeRoute />} />
-
               <Route element={<AuthContainer />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Registration />} />
@@ -57,6 +44,7 @@ const Root = () => {
               {/* Защищённые маршруты: только для авторизованных */}
               <Route element={<RequireAuth />}>
                 <Route element={<ProtectedLayout />}>
+                  <Route index element={null} />
                   <Route path="/map" element={null} />
                   <Route path="/map/:id" element={null} />
                   {/* <Route path="/groups" element={<Groups />} /> */}
@@ -65,8 +53,7 @@ const Root = () => {
                 </Route>
               </Route>
 
-              {/* Неизвестные пути отправляем на / */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/" element={<Welcome />} />
             </Route>
           </Routes>
         </BrowserRouter>

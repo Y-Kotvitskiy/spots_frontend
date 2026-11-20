@@ -17,7 +17,7 @@ const ProtectedLayout: React.FC = () => {
       <div
         className={`${styles.mapContainer} ${!isMapActive ? styles.hidden : ""}`}
       >
-        <GoogleMap />
+        <GoogleMap isVisible={isMapActive} />
       </div>
 
       {/* Остальные страницы рендерятся поверх или рядом */}

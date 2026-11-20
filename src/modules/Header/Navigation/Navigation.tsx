@@ -50,6 +50,21 @@ const Navigation = () => {
                 <span className={styles.Navigation__text}>Groups</span>
               </NavLink>
             </li> */}
+
+            <li>
+              <NavLink
+                to="/test"
+                className={({ isActive }) => activeItemClass(isActive)}
+              >
+                <Icon
+                  name="group"
+                  className={styles.Navigation__icon}
+                  size={22}
+                />
+                <span className={styles.Navigation__text}>Test</span>
+              </NavLink>
+            </li>
+
             <li>
               <NavLink
                 to="/personal-room"
