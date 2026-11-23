@@ -27,7 +27,6 @@ const Placeholder: React.FC<PlaceholderProps> = ({
         ))}
       </div>
 
-      {/* Лоадер поверх патерну, якщо зображення ще вантажится */}
       {isLoading && <Loader className={styles.placeholder__loaderOverlay} />}
     </div>
   );

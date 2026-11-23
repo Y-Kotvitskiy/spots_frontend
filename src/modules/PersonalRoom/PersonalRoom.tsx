@@ -14,7 +14,6 @@ import { Tag } from "@/types/index.ts";
 import ConfirmForm from "../shared/ConfirmForm/ConfirmForm.tsx";
 import Icon from "../shared/Icon";
 import Loader from "@/modules/shared/Loader";
-import Placeholder from "../shared/Placeholder";
 import EditProfile from "./EditProfileModal/EditProfileModal.tsx";
 import EditPlaceModal from "../shared/PlaceCard/EditPlace/index.ts";
 import { userService } from "@/services/userService.ts";
@@ -273,8 +272,6 @@ const PersonalRoom = () => {
     updateQueryParams({ tags: updatedTags.length > 0 ? updatedTags.join(",") : null });
   };
 
-  const userName = currentUser?.name || "User";
-
   // Labels for custom dropdown triggers
   const selectedCategoryLabel = selectedCategory === "all" ? "All Categories" : selectedCategory;
   const selectedTagLabel =
@@ -303,16 +300,22 @@ const PersonalRoom = () => {
 
               {/* Патерн-заглушка */}
 
-              {(!currentUser?.avatar || !isAvatarLoaded) && (
-                <div className={styles.personalInfo__patternPlaceholder}>
-                  <Placeholder text={userName} rows={8} cols={8} />
-                  {currentUser?.avatar && (
-                    <Loader className={styles.personalInfo__avatarLoader} />
-                  )}
-                </div>
-              )}
+            {(!currentUser?.avatar || !isAvatarLoaded) && (
+              <div className={styles.personalInfo__patternPlaceholder}>
+                {!currentUser?.avatar && (
+                  <Icon
+                    name="group"
+                    size={28}
+                    className={styles.personalInfo__avatarIcon}
+                  />
+                )}
+                {currentUser?.avatar && (
+                  <Loader className={styles.personalInfo__avatarLoader} />
+                )}
+              </div>
+            )}
 
-              {/* Реальна картинка аватара */}
+              {/* Картинка аватара */}
 
               {currentUser?.avatar && (
                 <img

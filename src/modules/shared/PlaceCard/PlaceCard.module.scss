@@ -14,12 +14,6 @@
 $card-max-width: 500px;
 $card-min-width: 300px;
 
-@mixin smooth-transition(
-  $properties: background-color color border-color transform
-) {
-  transition: inspect($properties) v.$animation-time ease;
-}
-
 @mixin fade-in($duration: v.$animation-time) {
   animation: fadeIn $duration ease;
 }
@@ -55,7 +49,7 @@ $card-min-width: 300px;
 
   background-color: v.$grey-0-color;
   cursor: pointer;
-  @include smooth-transition(transform box-shadow);
+  transition: transform v.$animation-time ease, box-shadow v.$animation-time ease;
 
   &:hover {
     transform: translateY(-4px);
@@ -97,7 +91,7 @@ $card-min-width: 300px;
     object-fit: cover;
     border: none;
     border-radius: 14px;
-    @include smooth-transition(opacity);
+    @include m.smooth-transition(opacity);
     overflow: hidden;
 
     @include m.on-tablet {
@@ -199,7 +193,7 @@ $card-min-width: 300px;
     @include m.on-desktop {
       opacity: 0;
       pointer-events: none;
-      @include smooth-transition(opacity);
+      @include m.smooth-transition(opacity);
     }
 
     &:has(.placeCard__dropdown) {
@@ -251,7 +245,7 @@ $card-min-width: 300px;
     text-align: center;
     white-space: nowrap;
     cursor: pointer;
-    @include smooth-transition(background-color);
+    @include m.smooth-transition(background-color);
     color: v.$grey-90-color;
 
     &:hover {

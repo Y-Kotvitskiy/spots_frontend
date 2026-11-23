@@ -16,6 +16,7 @@ import store from "./store";
 import ProtectedLayout from "./modules/ProtectedLayout/ProtectedLayout.tsx";
 import PlaceDetails from "./modules/PlaceDetails/PlaceDetails.tsx";
 import Welcome from "./modules/AuthContainer/Welcome";
+import Groups from "./modules/Groups/GroupsWIP.tsx";
 
 const Root = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
@@ -47,7 +48,7 @@ const Root = () => {
                   <Route index element={null} />
                   <Route path="/map" element={null} />
                   <Route path="/map/:id" element={null} />
-                  {/* <Route path="/groups" element={<Groups />} /> */}
+                  <Route path="/groups" element={<Groups />} />
                   <Route path="/places/:id" element={<PlaceDetails />} />
                   <Route path="/personal-room" element={<PersonalRoom />} />
                 </Route>

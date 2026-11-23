@@ -128,6 +128,13 @@ $smooth-animation: 0.5s;
     @include smooth-transition(opacity);
   }
 
+  &__avatarIcon {
+    position: relative;
+    z-index: 2;
+    color: v.$grey-90-color;
+    flex-shrink: 0;
+  }
+
   &__avatarHidden {
     opacity: 0;
     pointer-events: none;
@@ -332,20 +339,18 @@ $smooth-animation: 0.5s;
 .searchBarWrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   width: 100%;
   flex: 1;
 
   @include m.on-tablet {
     flex-direction: row;
     align-items: center;
-    gap: 16px;
     justify-content: flex-end;
   }
 }
 
 .searchTypeSwitch {
-  position: relative; 
+  position: relative;
   display: flex;
   align-items: center;
   border-radius: 30px;
@@ -354,32 +359,40 @@ $smooth-animation: 0.5s;
   gap: 4px;
   flex-shrink: 0;
   overflow: hidden;
-  opacity: 1;
+
+  width: 100%;
   max-width: 250px;
   max-height: 80px;
+  margin-top: 12px;
+  opacity: 1;
   visibility: visible;
-  
-  transition: max-width $smooth-animation ease-in-out,
-              max-height $smooth-animation ease-in-out,
-              opacity $smooth-animation ease-in-out,
-              padding $smooth-animation ease-in-out,
-              transform $smooth-animation ease-in-out;
+
+  transition:
+    max-width $smooth-animation ease-in-out,
+    max-height $smooth-animation ease-in-out,
+    margin-top $smooth-animation ease-in-out,
+    margin-left $smooth-animation ease-in-out,
+    padding-block $smooth-animation ease-in-out,
+    padding-inline $smooth-animation ease-in-out,
+    opacity $smooth-animation ease-in-out,
+    visibility $smooth-animation ease-in-out;
 
   @include m.on-tablet {
     height: 60px;
-    width: 220px;
+    margin-top: 0;
+    margin-left: 16px;
   }
 
   &_hidden {
-    opacity: 0;
     max-width: 0;
     max-height: 0;
-    padding-inline: 0;
+    margin-top: 0;
+    margin-left: 0;
     padding-block: 0;
-    margin: 0;
-    pointer-events: none;
+    padding-inline: 0;
+    opacity: 0;
     visibility: hidden;
-    transform: scale(0.95);
+    pointer-events: none;
   }
 }
 

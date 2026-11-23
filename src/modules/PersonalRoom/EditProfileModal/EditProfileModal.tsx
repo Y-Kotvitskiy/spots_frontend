@@ -3,7 +3,6 @@ import styles from "./EditProfileModal.module.scss";
 import Icon from "@/modules/shared/Icon";
 import FormButton from "@/modules/AuthContainer/FormButton";
 import Loader from "@/modules/shared/Loader";
-import Placeholder from "@/modules/shared/Placeholder";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -76,8 +75,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
   };
 
-  const profileNameForPattern = name.trim() || "User";
-
   // ==========================================
   // RENDER
   // ==========================================
@@ -111,7 +108,11 @@ const handleSubmit = async (e: React.FormEvent) => {
 
               {(!avatarPreview || !isAvatarLoaded) && (
                 <div className={styles.modal__patternPlaceholder}>
-                  <Placeholder text={profileNameForPattern} rows={6} cols={6} />
+                    <Icon
+                      name="group"
+                      size={48}
+                      className={styles.modal__avatarIcon}
+                    />
                   {avatarPreview && (
                     <Loader className={styles.modal__avatarLoader} />
                   )}
@@ -166,9 +167,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                 className={styles.modal__input}
                 required
               />
-              <span className={styles.modal__inputIcon}>
-                <Icon name="eye" size={20} /> 
-              </span>
             </div>
           </div>
 

@@ -44,12 +44,12 @@ const Navigation = () => {
                 <span className={styles.Navigation__text}>Map</span>
               </NavLink>
             </li>
-            {/* <li>
+            <li>
               <NavLink to="/groups" className={({ isActive }) => activeItemClass(isActive)}>
                 <Icon name="group" className={styles.Navigation__icon} size={22} />
                 <span className={styles.Navigation__text}>Groups</span>
               </NavLink>
-            </li> */}
+            </li>
 
             <li>
               <NavLink
