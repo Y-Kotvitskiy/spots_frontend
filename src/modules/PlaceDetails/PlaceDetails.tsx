@@ -14,6 +14,7 @@ import Placeholder from "../shared/Placeholder";
 import ImageModal from "../shared/ImageModal/ImageModal";
 import MapPreview from "./MapPreview";
 import PlaceIcon from "../shared/PlaceIcon/PlaceIcon";
+import { useSelectPlace } from "../GoogleMap/GoogleMap.hooks";
 
 // ==========================================
 // SUB-COMPONENT FOR SMALL PHOTO CARD
@@ -100,6 +101,7 @@ const PlaceDetails: React.FC = () => {
   // Стани для модалки перегляду фотографій (LightBox)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const selectPlace = useSelectPlace();
 
   const handleImageClick = (index: number) => {
     setActivePhotoIndex(index);
@@ -360,11 +362,12 @@ const PlaceDetails: React.FC = () => {
                   lat={place.latitude}
                   lng={place.longitude}
                   title={place.name}
-                  onMarkerClick={() =>
-                    navigate(`/map/${selectedPlace.id}`, {
-                      state: { timestamp: Date.now() },
-                    })
-                  }
+                  onMarkerClick={(event) => {
+                    event.stopPropagation();
+                    requestAnimationFrame(() => {
+                      selectPlace(selectedPlace.id);
+                    });
+                  }}
                 >
                   <PlaceIcon categoryName={place.categoryName} />
                 </MapPreview>

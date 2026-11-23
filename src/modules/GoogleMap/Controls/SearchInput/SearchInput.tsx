@@ -8,7 +8,7 @@ import { mapActions } from "@/store";
 
 const SearchInput: React.FC = () => {
   const dispatch = useAppDispatch();
-  const map = useMap();
+  const map = useMap("main-map");
   const places = useMapsLibrary("places");
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<

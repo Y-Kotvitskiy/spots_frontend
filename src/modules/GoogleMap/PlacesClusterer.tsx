@@ -13,7 +13,7 @@ export const PlacesClusterer: React.FC<PlacesClustererProps> = ({
   places,
   selectedPlaceId,
 }) => {
-  const map = useMap();
+  const map = useMap("main-map");
   const [zoom, setZoom] = useState<number>(12);
   const [bounds, setBounds] = useState<[number, number, number, number] | null>(
     null,

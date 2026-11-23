@@ -18,7 +18,7 @@ const Controls: React.FC = () => {
   const filterButton = useRef<HTMLButtonElement>(null);
   const selectPlace = useSelectPlace();
 
-  const map = useMap();
+  const map = useMap("main-map");
 
   const putMarkerToCenter = async () => {
     if (map) {

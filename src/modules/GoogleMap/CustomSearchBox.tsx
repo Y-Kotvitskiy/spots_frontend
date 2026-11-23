@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 
 function CustomSearchBox() {
-  const map = useMap();
+  const map = useMap("main-map");
   const places = useMapsLibrary("places");
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<

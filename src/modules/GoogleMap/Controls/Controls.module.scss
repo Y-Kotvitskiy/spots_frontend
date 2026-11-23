@@ -15,11 +15,12 @@
   justify-content: center;
   width: 100%;
   width: 100vw;
+  max-width: v.$desktop-max-width;
   height: calc(100dvh - v.$header-height-phone - 40px);
   padding-top: 20px;
   padding-bottom: 40px;
   padding-inline: 16px;
-  gap: 12px;
+  gap: clamp(12px, 2vw, 32px);
   transform: translateX(-50%);
   pointer-events: none;
 

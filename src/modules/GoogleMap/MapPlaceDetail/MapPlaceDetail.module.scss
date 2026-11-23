@@ -5,9 +5,9 @@
 .MapPlaceDetail {
   display: grid;
   z-index: 10;
-  position: absolute;
-  bottom: 100px;
-  left: 16px;
+  position: fixed;
+  bottom: calc(10% + 16px);
+  left: 50%;
   grid-template-columns: 1fr auto;
   grid-auto-flow: row;
   column-gap: 30px;
@@ -15,9 +15,11 @@
   align-items: center;
   justify-content: space-between;
   width: calc(100vw - 32px);
+  max-width: v.$desktop-max-width;
   height: fit-content;
   padding-inline: 16px;
   padding-block: 20px;
+  transform: translateX(-50%);
   border-radius: 32px;
   background-color: v.$grey-0-color;
 

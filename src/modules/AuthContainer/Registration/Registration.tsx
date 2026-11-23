@@ -1,6 +1,6 @@
 import styles from "./Registration.module.scss";
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useFormik, type FormikErrors, type FormikHelpers } from "formik";
 
 import { authService } from "../../../services/authService.ts";
@@ -22,12 +22,12 @@ interface FormValues {
   display_name: string;
   email: string;
   password: string;
+  password_confirmation: string;
 }
 
 const Registration = () => {
-  const navigate = useNavigate();
   const [error, setError] = usePageError("");
-  const [registered] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   const { isChecked, currentUser } = useAuthSelector();
 
@@ -36,17 +36,23 @@ const Registration = () => {
       display_name: "",
       email: "",
       password: "",
+      password_confirmation: "",
     },
 
     validate: (values): FormikErrors<FormValues> | void => {
-      const { display_name, email, password } = values;
+      const { display_name, email, password, password_confirmation } = values;
 
-      const errors: { name?: string; email?: string; password?: string } = {};
+      const errors: {
+        display_name?: string;
+        email?: string;
+        password?: string;
+        password_confirmation?: string;
+      } = {};
 
       const nameError = validateName(display_name);
 
       if (nameError) {
-        errors.name = nameError;
+        errors.display_name = nameError;
       }
 
       const emailError = !email ? "Can`t be empty" : validateEmail(email);
@@ -65,6 +71,10 @@ const Registration = () => {
         errors.password = passwordError;
       }
 
+      if (password !== password_confirmation) {
+        errors.password_confirmation = "Should be equal to password";
+      }
+
       return errors;
     },
 
@@ -78,9 +88,7 @@ const Registration = () => {
 
       authService
         .register(display_name, email, password)
-        .then(() => {
-          navigate("/login");
-        })
+        .then(() => setRegistered(true))
         .catch((error: LoginErrors) => {
           setErrorMessages(error as LoginErrors, setFieldError, setError);
         })
@@ -95,8 +103,10 @@ const Registration = () => {
   if (registered) {
     return (
       <section className="">
-        <h1 className="title">Check your email</h1>
-        <p>We have sent you an email with the activation link</p>
+        <h1 className="title">Your account has been created</h1>
+        <p>
+          Now you can <Link to={"/login"}>login</Link> to Spots!
+        </p>
       </section>
     );
   }
@@ -128,6 +138,7 @@ const Registration = () => {
             label="Name"
             name="display_name"
             type="name"
+            required
             autoComplete="name"
             id="display_name"
             placeholder="e.g. John Doe"
@@ -142,6 +153,7 @@ const Registration = () => {
             label="Email"
             name="email"
             type="email"
+            required
             placeholder="e.g. bobsmith@gmail.com"
             value={formik.values.email}
             onChange={formik.handleChange}
@@ -155,12 +167,27 @@ const Registration = () => {
             name="password"
             type="password"
             id="password"
+            required
             placeholder="*******"
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={errors.password}
             touched={touched.password}
+          />
+
+          <FormField
+            label="Password confirmation"
+            name="password_confirmation"
+            type="password"
+            id="password_confirmation"
+            required
+            placeholder="*******"
+            value={formik.values.password_confirmation}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={errors.password_confirmation}
+            touched={touched.password_confirmation}
           />
 
           {error && (
@@ -188,6 +215,7 @@ const Registration = () => {
             </Link>
           </p>
         </div>
+        {error && <p className={styles.Registration__error}>{error}</p>}
       </form>
     </>
   );

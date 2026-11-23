@@ -4,7 +4,11 @@ import React, { useCallback, useEffect } from "react";
 import { Map, AdvancedMarker, Pin, useMap } from "@vis.gl/react-google-maps";
 import type { MapMouseEvent } from "@vis.gl/react-google-maps";
 import Controls from "./Controls";
-import { selectSelectedCoords } from "@/store/slices/mapSlice";
+import {
+  MapMode,
+  selectMapMode,
+  selectSelectedCoords,
+} from "@/store/slices/mapSlice";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store";
@@ -18,9 +22,32 @@ import { useNavigate } from "react-router-dom";
 // ==========================================
 // 1. Маркер для режима выбора (пин с возможностью перетаскивания)
 // ==========================================
-const MapMarker: React.FC = () => {
+const MapMarker: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   const selectedCoords = useSelector(selectSelectedCoords);
+  const mapMode = useSelector(selectMapMode);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!isVisible || !selectedCoords) {
+      return;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        console.log("Нажат Esc на карте!");
+        if (mapMode !== MapMode.Show || selectedCoords) {
+          dispatch(mapActions.setMapMode(MapMode.Show));
+          dispatch(mapActions.clearSelectedCoord());
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [isVisible, selectedCoords]);
 
   if (!selectedCoords) return null;
 
@@ -48,7 +75,7 @@ const MapMarker: React.FC = () => {
 const MapCursorController: React.FC<{ cursorType: string }> = ({
   cursorType,
 }) => {
-  const map = useMap();
+  const map = useMap("main-map");
 
   useEffect(() => {
     if (!map) return;
@@ -127,7 +154,7 @@ export const GoogleMap: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
           />
 
           {/* Маркер создания/выбора точки */}
-          <MapMarker />
+          <MapMarker isVisible />
 
           {/* Маркеры из сохраненного списка */}
           <PlacesClusterer

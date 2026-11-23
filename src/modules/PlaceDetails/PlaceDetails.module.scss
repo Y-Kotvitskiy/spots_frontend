@@ -20,7 +20,12 @@ $offset-mobile: 16px;
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
+  padding-bottom: 100px;
   background-color: v.$grey-40-color;
+
+  @include m.on-tablet {
+    padding-bottom: 16px;
+  }
 }
 
 // ==========================================

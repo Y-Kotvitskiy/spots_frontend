@@ -8,7 +8,7 @@ type MapPointWidgetProps = {
   height?: number | string;
   title?: string;
   children: ReactNode;
-  onMarkerClick: () => void;
+  onMarkerClick: (event: google.maps.marker.AdvancedMarkerClickEvent) => void;
 };
 
 export function MapPreview({
