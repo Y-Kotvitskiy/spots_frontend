@@ -1,6 +1,6 @@
 import heic2any from "heic2any";
 import type { AxiosError } from "axios";
-import { EMAIL_PATTERN } from "./constants.ts";
+import { EMAIL_PATTERN, MAX_FILE_SIZE_BYTES } from "./constants.ts";
 import type { ErrorResponse } from "@/types";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -67,8 +67,6 @@ export function setErrorMessages(
     });
   }
 }
-
-const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB -> Bigger = Compress
 
 const isHeicFile = (file: File): boolean => {
   const lowerName = file.name.toLowerCase();

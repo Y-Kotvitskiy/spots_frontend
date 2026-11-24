@@ -383,7 +383,7 @@ const PersonalRoom = () => {
 
         {/* Controls Header: Tabs + Search Bar on the same level */}
 
-        <div className={styles.controlsHeader}>
+        <aside className={styles.controlsHeader}>
 
           {/* Tabs Navigation */}
 
@@ -448,7 +448,7 @@ const PersonalRoom = () => {
               </button>
             </div>
           </div>
-        </div>
+        </aside>
 
         {/* Separate Filters Section (Categories & Tags) for Shared to me */}
 

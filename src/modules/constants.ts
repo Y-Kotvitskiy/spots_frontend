@@ -20,3 +20,5 @@ export const COLORS = {
   bakery: "#f0c843",
   grey90: "#292221",
 } as const;
+
+export const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB -> Bigger = Compress Image

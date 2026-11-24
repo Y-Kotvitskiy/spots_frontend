@@ -88,6 +88,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         {image && (
           <img
             key={image}
+            loading="lazy"
             ref={imgRef}
             src={image}
             alt={title}
