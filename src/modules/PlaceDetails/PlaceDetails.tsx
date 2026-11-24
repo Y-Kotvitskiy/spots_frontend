@@ -15,6 +15,7 @@ import ImageModal from "../shared/ImageModal/ImageModal";
 import MapPreview from "./MapPreview";
 import PlaceIcon from "../shared/PlaceIcon/PlaceIcon";
 import { useSelectPlace } from "../GoogleMap/GoogleMap.hooks";
+import PlaceShareModal from "../GoogleMap/PlaceShareModal";
 
 // ==========================================
 // SUB-COMPONENT FOR SMALL PHOTO CARD
@@ -101,6 +102,10 @@ const PlaceDetails: React.FC = () => {
   // Стани для модалки перегляду фотографій (LightBox)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+
+  // Стан для модалки поділитися місцем
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
   const selectPlace = useSelectPlace();
 
   const handleImageClick = (index: number) => {
@@ -300,6 +305,7 @@ const PlaceDetails: React.FC = () => {
             className={styles.placeHeader__actionBtn}
             type="button"
             aria-label="Share"
+            onClick={() => setIsShareModalOpen(true)}
           >
             <Icon name="send" size={20} />
           </button>
@@ -365,7 +371,7 @@ const PlaceDetails: React.FC = () => {
                   onMarkerClick={(event) => {
                     event.stopPropagation();
                     requestAnimationFrame(() => {
-                      selectPlace(selectedPlace.id);
+                      selectPlace(selectedPlace?.id ?? place.id);
                     });
                   }}
                 >
@@ -384,6 +390,12 @@ const PlaceDetails: React.FC = () => {
         initialIndex={activePhotoIndex}
         onClose={() => setIsModalOpen(false)}
         placeName={placeName}
+      />
+
+      <PlaceShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        PlaceId={place.id}
       />
     </main>
   );

@@ -22,6 +22,7 @@
 }
 
 $smooth-animation: 0.5s;
+$panel-max-width: v.$desktop-max-width;
 
 // ==========================================
 // MAIN PAGE LAYOUT
@@ -53,15 +54,17 @@ $smooth-animation: 0.5s;
   padding-inline: v.$offset-mobile;
   padding-top: 20px;
   padding-bottom: 120px;
+  align-items: center;
 
   @include m.on-tablet {
     padding-top: 140px;
     padding-inline: v.$offset-tablet;
-    padding-bottom: 0;
+    padding-bottom: 60px;
   }
 
   @include m.on-desktop {
     padding-inline: v.$offset-desktop;
+    padding-bottom: 30px;
   }
 }
 
@@ -76,6 +79,8 @@ $smooth-animation: 0.5s;
   padding: 24px 20px;
   gap: 20px;
   border-radius: 30px;
+  max-width: $panel-max-width;
+  align-self: center;
   background-color: v.$grey-0-color;
   box-shadow: v.$small-shadow;
 
@@ -126,6 +131,13 @@ $smooth-animation: 0.5s;
     object-fit: cover;
     border-radius: 50%;
     @include smooth-transition(opacity);
+  }
+
+  &__avatarIcon {
+    position: relative;
+    z-index: 2;
+    color: v.$grey-90-color;
+    flex-shrink: 0;
   }
 
   &__avatarHidden {
@@ -257,6 +269,8 @@ $smooth-animation: 0.5s;
   gap: 16px;
   margin-top: 20px;
   width: 100%;
+  max-width: $panel-max-width;
+  align-self: center;
 
   @include m.on-tablet {
     justify-content: space-between;
@@ -332,20 +346,18 @@ $smooth-animation: 0.5s;
 .searchBarWrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   width: 100%;
   flex: 1;
 
   @include m.on-tablet {
     flex-direction: row;
     align-items: center;
-    gap: 16px;
     justify-content: flex-end;
   }
 }
 
 .searchTypeSwitch {
-  position: relative; 
+  position: relative;
   display: flex;
   align-items: center;
   border-radius: 30px;
@@ -354,32 +366,40 @@ $smooth-animation: 0.5s;
   gap: 4px;
   flex-shrink: 0;
   overflow: hidden;
-  opacity: 1;
+
+  width: 100%;
   max-width: 250px;
   max-height: 80px;
+  margin-top: 12px;
+  opacity: 1;
   visibility: visible;
-  
-  transition: max-width $smooth-animation ease-in-out,
-              max-height $smooth-animation ease-in-out,
-              opacity $smooth-animation ease-in-out,
-              padding $smooth-animation ease-in-out,
-              transform $smooth-animation ease-in-out;
+
+  transition:
+    max-width $smooth-animation ease-in-out,
+    max-height $smooth-animation ease-in-out,
+    margin-top $smooth-animation ease-in-out,
+    margin-left $smooth-animation ease-in-out,
+    padding-block $smooth-animation ease-in-out,
+    padding-inline $smooth-animation ease-in-out,
+    opacity $smooth-animation ease-in-out,
+    visibility $smooth-animation ease-in-out;
 
   @include m.on-tablet {
     height: 60px;
-    width: 220px;
+    margin-top: 0;
+    margin-left: 16px;
   }
 
   &_hidden {
-    opacity: 0;
     max-width: 0;
     max-height: 0;
-    padding-inline: 0;
+    margin-top: 0;
+    margin-left: 0;
     padding-block: 0;
-    margin: 0;
-    pointer-events: none;
+    padding-inline: 0;
+    opacity: 0;
     visibility: hidden;
-    transform: scale(0.95);
+    pointer-events: none;
   }
 }
 
@@ -478,6 +498,8 @@ $smooth-animation: 0.5s;
 // ==========================================
 
 .dropdownFiltersContainer {
+  max-width: $panel-max-width;
+  align-self: center;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -664,6 +686,8 @@ $smooth-animation: 0.5s;
   flex-direction: column;
   margin-top: 20px;
   gap: 16px;
+  width: 100%;
+  max-width: $panel-max-width;
 
   @include m.on-tablet {
     margin-top: 24px;
@@ -720,5 +744,118 @@ $smooth-animation: 0.5s;
 
   @include m.on-tablet {
     display: inline-block;
+  }
+}
+
+// ==========================================
+// PAGINATION & PAGE SIZE
+// ==========================================
+
+.paginationBar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  max-width: $panel-max-width;
+  align-self: center;
+  margin-top: 24px;
+
+  @include m.on-tablet {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 32px;
+  }
+}
+
+.pageSizeSelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  @extend %p3;
+  color: v.$grey-70-color;
+
+  @include m.on-tablet {
+    justify-content: flex-start;
+  }
+
+  label {
+    white-space: nowrap;
+  }
+}
+
+.pageSizeSelect {
+  @extend %p3;
+  height: 40px;
+  padding: 0 16px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background-color: v.$grey-0-color;
+  color: v.$grey-90-color;
+  box-shadow: v.$small-shadow;
+  cursor: pointer;
+  outline: none;
+  @include smooth-transition(border-color, background-color);
+
+  &:hover {
+    border-color: v.$grey-20-color;
+  }
+
+  &:focus {
+    border-color: v.$grey-30-color;
+  }
+}
+
+.paginationControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  @include m.on-tablet {
+    justify-content: flex-end;
+  }
+}
+
+.paginationBtn {
+  @extend %p3;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 20px;
+  background-color: v.$grey-0-color;
+  color: v.$grey-70-color;
+  box-shadow: v.$small-shadow;
+  cursor: pointer;
+  @include smooth-transition(background-color, color, transform);
+
+  &:hover:not(:disabled) {
+    background-color: v.$grey-20-color;
+    color: v.$grey-90-color;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  &_active {
+    background-color: v.$grey-90-color;
+    color: v.$grey-0-color;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      background-color: v.$grey-90-color;
+      color: v.$grey-0-color;
+    }
   }
 }

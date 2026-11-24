@@ -57,6 +57,13 @@
     pointer-events: none;
   }
 
+  &__avatarIcon {
+    position: relative;
+    z-index: 2;
+    color: v.$grey-90-color;
+    flex-shrink: 0;
+  }
+
   &__avatarLoaded {
     opacity: 1;
   }

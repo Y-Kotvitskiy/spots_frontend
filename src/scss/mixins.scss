@@ -1,3 +1,4 @@
+@use "sass:list";
 @use "./variables.scss" as *;
 
 @mixin on-tablet {
@@ -65,10 +66,19 @@
 }
 
 @mixin hover($property, $to-value) {
-  /* stylelint-disable-next-line CssSyntaxError */
   transition: #{$property} $hover_time_transition;
 
   &:hover {
     #{$property}: $to-value;
   }
+}
+
+@mixin smooth-transition($properties: background-color color border-color transform) {
+  $result: ();
+
+  @each $prop in $properties {
+    $result: list.append($result, $prop $animation-time ease, comma);
+  }
+
+  transition: $result;
 }

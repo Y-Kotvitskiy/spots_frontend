@@ -1,117 +1,78 @@
-// ==========================================
-// IMPORTS
-// ==========================================
-
 @use "@/scss/main.scss" as *;
 @use "@/scss/mixins.scss" as m;
 @use "@/scss/variables.scss" as v;
-@use "@/scss/typography.scss" as t;
-
-// ==========================================
-// LOCAL VARIABLES & MIXINS
-// ==========================================
 
 $card-max-width: 500px;
-$card-min-width: 300px;
 
-@mixin smooth-transition(
-  $properties: background-color color border-color transform
-) {
-  transition: inspect($properties) v.$animation-time ease;
-}
-
-@mixin fade-in($duration: v.$animation-time) {
-  animation: fadeIn $duration ease;
-}
+$category-colors: (
+  park: v.$secondary-forest-green-color,
+  shopping: v.$secondary-mulberry-color,
+  street_food: v.$secondary-orange-color,
+  museum: v.$secondary-soft-royal-blue-color,
+  cafe: v.$secondary-brown-color,
+  restaurant: v.$secondary-vibrant-red-color,
+  bar: v.$secondary-electric-purple-color,
+  bakery: v.$secondary-golden-yellow-color,
+);
 
 @keyframes fadeIn {
-  from {
-    transform: translateY(-4px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-// ==========================================
-// COMPONENT: PLACE CARD
-// ==========================================
-
 .placeCard {
+  --pad: 12px;
+  --radius: 14px;
+
   display: flex;
   position: relative;
   flex-direction: column;
   width: 100%;
   min-width: 0;
-  max-width: 100%;
-
-  @include m.on-desktop {
-    max-width: 500px;
-  }
-  overflow: visible;
   border-radius: 24px;
-
   background-color: v.$grey-0-color;
   cursor: pointer;
-  @include smooth-transition(transform box-shadow);
+  @include m.smooth-transition(transform box-shadow);
+
+  @include m.on-tablet {
+    --pad: 16px;
+  }
+
+  @include m.on-desktop {
+    --pad: 20px;
+    --radius: 18px;
+    max-width: $card-max-width;
+  }
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: v.$big-shadow;
-
-    .placeCard__menuContainer {
-      opacity: 1;
-      pointer-events: auto;
-    }
   }
 
-  // ==========================================
-  // IMAGE & MEDIA SECTION
-  // ==========================================
-
+  // === Image ===
   &__imageWrapper {
     position: relative;
     aspect-ratio: 16 / 10;
     width: 100%;
-    padding: 12px;
-    overflow: visible;
-
-    @include m.on-tablet {
-      padding: 16px;
-    }
 
     @include m.on-desktop {
-      aspect-ratio: unset;
+      aspect-ratio: auto;
       height: 240px;
-      padding: 20px;
     }
   }
 
-  &__image {
+  &__image,
+  &__placeholderWrapper {
     position: absolute;
-    width: calc(100% - 24px);
-    height: calc(100% - 24px);
-    inset: 12px;
+    inset: var(--pad);
+    border-radius: var(--radius);
+  }
+
+  &__image {
+    width: calc(100% - var(--pad) * 2);
+    height: calc(100% - var(--pad) * 2);
     object-fit: cover;
-    border: none;
-    border-radius: 14px;
-    @include smooth-transition(opacity);
-    overflow: hidden;
-
-    @include m.on-tablet {
-      width: calc(100% - 32px);
-      height: calc(100% - 32px);
-      inset: 16px;
-    }
-
-    @include m.on-desktop {
-      width: calc(100% - 40px);
-      height: calc(100% - 40px);
-      inset: 20px;
-      border-radius: 18px;
-    }
+    @include m.smooth-transition(opacity);
   }
 
   &__imageHidden {
@@ -124,88 +85,66 @@ $card-min-width: 300px;
   }
 
   &__loaderOverlay {
-    z-index: 2;
     position: absolute;
-    width: 100%;
-    height: 100%;
+    z-index: 2;
     inset: 0;
     backdrop-filter: blur(v.$blur-base);
     background-color: v.$background-modal-color;
   }
 
-  // ==========================================
-  // PLACEHOLDER CONTAINER
-  // ==========================================
-
+  // === Placeholder ===
   &__placeholderWrapper {
     display: flex;
-    position: absolute;
     align-items: center;
     justify-content: center;
-    width: calc(100% - 24px);
-    height: calc(100% - 24px);
-    inset: 12px;
     overflow: hidden;
-    border-radius: 14px;
-
-    @include m.on-tablet {
-      width: calc(100% - 32px);
-      height: calc(100% - 32px);
-      inset: 16px;
-    }
-
-    @include m.on-desktop {
-      width: calc(100% - 40px);
-      height: calc(100% - 40px);
-      inset: 20px;
-      border-radius: 18px;
-    }
   }
 
   &__placeholderContainer {
-    z-index: 1;
     position: absolute;
-    width: 100%;
-    height: 100%;
+    z-index: 1;
     inset: 0;
 
     &::after {
-      z-index: 2;
+      content: "";
       position: absolute;
+      z-index: 2;
       inset: 0;
       backdrop-filter: blur(v.$blur-base);
-      content: "";
     }
   }
 
   &__placeholderIcon {
-    z-index: 3;
     position: relative;
-    width: 100%;
-    height: 50%;
+    z-index: 3;
+    color: v.$grey-60-color;
+
+    @each $name, $color in $category-colors {
+      &_#{$name} {
+        color: $color;
+      }
+    }
   }
 
-  // ==========================================
-  // MENU & DROPDOWN
-  // ==========================================
-
+  // === Menu ===
   &__menuContainer {
-    z-index: 100;
     position: absolute;
-    top: 20px;
-    right: 20px;
-    opacity: 1;
+    z-index: 100;
+    top: var(--pad);
+    right: var(--pad);
 
-    @include m.on-desktop {
+    @media (hover: hover) {
       opacity: 0;
       pointer-events: none;
-      @include smooth-transition(opacity);
+      @include m.smooth-transition(opacity);
     }
+  }
 
-    &:has(.placeCard__dropdown) {
-      opacity: 1;
-      pointer-events: auto;
-    }
+  &:hover &__menuContainer,
+  &:focus-within &__menuContainer,
+  &__menuContainer:has(.placeCard__dropdown) {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   &__menuBtn {
@@ -224,8 +163,8 @@ $card-min-width: 300px;
 
   &__dropdown {
     display: flex;
-    z-index: 101;
     position: absolute;
+    z-index: 101;
     top: 48px;
     right: 0;
     flex-direction: column;
@@ -234,11 +173,10 @@ $card-min-width: 300px;
     border-radius: 20px;
     background-color: v.$grey-0-color;
     box-shadow: v.$small-shadow;
-    @include fade-in(v.$animation-time);
+    animation: fadeIn v.$animation-time ease;
   }
 
-  &__dropdownItem,
-  &__dropdownItemDanger {
+  &__dropdownItem {
     @extend %p2;
     display: flex;
     align-items: center;
@@ -248,33 +186,25 @@ $card-min-width: 300px;
     border: none;
     border-radius: 12px;
     background: none;
-    text-align: center;
+    color: v.$grey-90-color;
     white-space: nowrap;
     cursor: pointer;
-    @include smooth-transition(background-color);
-    color: v.$grey-90-color;
+    @include m.smooth-transition(background-color);
 
     &:hover {
       background-color: v.$grey-20-color;
     }
-  }
 
-  &__dropdownItemDanger {
-    color: v.$system-error-color;
-
-    &:hover {
-      background-color: v.$grey-20-color;
+    &_danger {
+      color: v.$system-error-color;
     }
   }
 
-  // ==========================================
-  // CONTENT & METADATA SECTION
-  // ==========================================
-
+  // === Content ===
   &__content {
     display: flex;
-    z-index: 1;
     position: relative;
+    z-index: 1;
     flex-direction: column;
     padding: 12px 16px 16px;
     gap: 6px;
@@ -293,10 +223,10 @@ $card-min-width: 300px;
   }
 
   &__info {
+    @extend %p3;
     display: flex;
     align-items: center;
     gap: 8px;
-    @extend %p3;
     color: v.$grey-60-color;
   }
 
@@ -304,20 +234,9 @@ $card-min-width: 300px;
     font-weight: bold;
   }
 
-  &__hours {
-    color: v.$grey-60-color;
-  }
-
-  &__statusWrapper {
-    margin-top: 4px;
-  }
-
-  &__notShared,
-  &__shared,
-  &.addedByTag,
-  .addedByTag {
-    margin-top: 4px;
+  &__status {
     @extend %p1;
+    margin-top: 4px;
     color: v.$secondary-orange-color;
   }
 }

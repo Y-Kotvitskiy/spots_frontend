@@ -1,3 +1,4 @@
+import { normalizePhotoFile } from "@/modules/utils";
 import { httpClient } from "../http/httpClient";
 import type {
   BackendPhoto,
@@ -25,9 +26,10 @@ export const placeService = {
   delete: (placeId: string): Promise<void> =>
     httpClient.delete(`/places/${placeId}`),
 
-  addPhoto: (placeId: string, photo: File): Promise<BackendPhoto> => {
+  addPhoto: async (placeId: string, photo: File): Promise<BackendPhoto> => {
+    const preparedPhoto = await normalizePhotoFile(photo);
     const formData = new FormData();
-    formData.append("file", photo);
+    formData.append("file", preparedPhoto);
 
     return httpClient.post(`/places/${placeId}/photos`, formData);
   },
