@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./PlaceCard.module.scss";
 import Loader from "@/modules/shared/Loader";
 import Placeholder from "../Placeholder";
-import Icon from "../Icon/Icon";
-import PlaceIcon from "../PlaceIcon";
+import Icon, { type IconName } from "../Icon/Icon";
 
 interface PlaceCardProps {
   image?: string;
@@ -19,11 +18,27 @@ interface PlaceCardProps {
   onClick?: () => void;
 }
 
-// ==========================================
-// COMPONENT
-// ==========================================
+// Назва категорії збігається з назвою іконки та з ключем кольору в SCSS
+const CATEGORY_ICONS = [
+  "park", "shopping", "street_food", "museum",
+  "cafe", "restaurant", "bar", "bakery",
+] as const satisfies readonly IconName[];
 
-const PlaceCard: React.FC<PlaceCardProps> = ({
+type Category = (typeof CATEGORY_ICONS)[number];
+
+const isKnownCategory = (key: string): key is Category =>
+  (CATEGORY_ICONS as readonly string[]).includes(key);
+
+const getShareStatus = (isShared: PlaceCardProps["isShared"]) => {
+  if (typeof isShared === "string") return isShared;
+  if (typeof isShared === "number") {
+    if (isShared === 0) return "Not shared";
+    return `Shared in ${isShared} ${isShared === 1 ? "group" : "groups"}`;
+  }
+  return isShared ? "Shared in groups" : "Not shared";
+};
+
+const PlaceCard = ({
   image,
   title,
   category,
@@ -35,73 +50,95 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onShare,
   onDelete,
   onClick,
-}) => {
+}: PlaceCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [loadedImage, setLoadedImage] = useState<string>();
+  const [failedImage, setFailedImage] = useState<string>();
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const formattedHours = React.useMemo(() => {
-    if (!workingHours) return "";
+  const hasImage = !!image && failedImage !== image;
+  const isImageLoaded = hasImage && loadedImage === image;
+
+  // Закриття меню по кліку поза ним і по Escape
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const onMouseDown = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setIsMenuOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMenuOpen]);
+
+  const categoryKey = category.toLowerCase().trim().replace(/\s+/g, "_");
+  const known = isKnownCategory(categoryKey);
+  const iconName: IconName = known ? categoryKey : "map";
+  const showPlaceholder = !hasImage || !isImageLoaded;
+
+  const formattedHours = (() => {
     const [start, end] = workingHours.trim().split(/\s+/);
     return end ? `${start}\n${end}` : workingHours;
-  }, [workingHours]);
+  })();
 
-  useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
-      setIsImageLoaded(true);
-    }
-  }, [image]);
+  const actions = [
+    { label: "Edit place", handler: onEdit },
+    { label: "Share with group", handler: onShare },
+    { label: deleteButtonText, handler: onDelete, danger: true },
+  ].filter((a) => a.handler);
 
-  const hasActions = onEdit || onShare || onDelete;
-
-  const renderShareStatus = () => {
-    if (typeof isShared === "string") return isShared;
-    if (typeof isShared === "number") {
-      if (isShared === 0) return "Not shared";
-      if (isShared === 1) return "Shared in 1 group";
-      return `Shared in ${isShared} groups`;
-    }
-    return isShared ? "Shared in groups" : "Not shared";
-  };
+  const status = addedBy
+    ? `Added by ${addedBy}`
+    : isShared !== undefined
+      ? getShareStatus(isShared)
+      : null;
 
   return (
     <div className={styles.placeCard} onClick={onClick}>
       <div className={styles.placeCard__imageWrapper}>
-        {(!image || !isImageLoaded) && (
+        {showPlaceholder && (
           <div className={styles.placeCard__placeholderWrapper}>
             <div className={styles.placeCard__placeholderContainer}>
               <Placeholder text={title} rows={12} cols={8} />
             </div>
 
-            {!image && (
-              <PlaceIcon
-                categoryName={category}
-                className={styles.placeCard__placeholderIcon}
+            {!hasImage && (
+              <Icon
+                name={iconName}
+                size={64}
+                className={`${styles.placeCard__placeholderIcon} ${
+                  known ? styles[`placeCard__placeholderIcon_${categoryKey}`] : ""
+                }`}
               />
             )}
 
-            {image && <Loader className={styles.placeCard__loaderOverlay} />}
+            {hasImage && <Loader className={styles.placeCard__loaderOverlay} />}
           </div>
         )}
-
-        {image && (
+        {hasImage && (
           <img
             key={image}
-            loading="lazy"
-            ref={imgRef}
+            ref={(el) => {
+              if (el?.complete && el.naturalWidth > 0) setLoadedImage(image);
+            }}
             src={image}
             alt={title}
+            loading="lazy"
             className={`${styles.placeCard__image} ${
               isImageLoaded
                 ? styles.placeCard__imageLoaded
                 : styles.placeCard__imageHidden
             }`}
-            onLoad={() => setIsImageLoaded(true)}
+            onLoad={() => setLoadedImage(image)}
+            onError={() => setFailedImage(image)}
           />
         )}
-
-        {hasActions && (
+        {actions.length > 0 && (
           <div className={styles.placeCard__menuContainer} ref={menuRef}>
             <button
               type="button"
@@ -111,51 +148,29 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                 setIsMenuOpen((prev) => !prev);
               }}
               aria-label="More options"
+              aria-expanded={isMenuOpen}
             >
               <Icon name="menu" size={20} />
             </button>
 
             {isMenuOpen && (
               <div className={styles.placeCard__dropdown}>
-                {onEdit && (
+                {actions.map(({ label, handler, danger }) => (
                   <button
+                    key={label}
                     type="button"
-                    className={styles.placeCard__dropdownItem}
+                    className={`${styles.placeCard__dropdownItem} ${
+                      danger ? styles.placeCard__dropdownItem_danger : ""
+                    }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsMenuOpen(false);
-                      onEdit();
+                      handler?.();
                     }}
                   >
-                    Edit place
+                    {label}
                   </button>
-                )}
-                {onShare && (
-                  <button
-                    type="button"
-                    className={styles.placeCard__dropdownItem}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsMenuOpen(false);
-                      onShare();
-                    }}
-                  >
-                    Share with group
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    type="button"
-                    className={styles.placeCard__dropdownItemDanger}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsMenuOpen(false);
-                      onDelete();
-                    }}
-                  >
-                    {deleteButtonText}
-                  </button>
-                )}
+                ))}
               </div>
             )}
           </div>
@@ -170,28 +185,12 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
           {workingHours !== "none" && (
             <>
               <span className={styles.placeCard__separator}>•</span>
-              <span className={styles.placeCard__hours}>{formattedHours}</span>
+              <span>{formattedHours}</span>
             </>
           )}
         </div>
 
-        {addedBy ? (
-          <span className={styles.addedByTag}>Added by {addedBy}</span>
-        ) : (
-          isShared !== undefined && (
-            <div className={styles.placeCard__statusWrapper}>
-              <span
-                className={
-                  isShared
-                    ? styles.placeCard__shared
-                    : styles.placeCard__notShared
-                }
-              >
-                {renderShareStatus()}
-              </span>
-            </div>
-          )
-        )}
+        {status && <span className={styles.placeCard__status}>{status}</span>}
       </div>
     </div>
   );
