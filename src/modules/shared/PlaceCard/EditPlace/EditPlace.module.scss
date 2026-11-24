@@ -11,6 +11,11 @@
 .modal {
   @include ex.modal;
 
+  box-sizing: border-box;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
   @include m.on-tablet {
     padding-inline: v.$desktop-padding-inline;
     padding-bottom: 40px;
