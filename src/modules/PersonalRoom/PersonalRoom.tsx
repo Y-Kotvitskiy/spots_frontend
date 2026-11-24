@@ -17,6 +17,24 @@ import Loader from "@/modules/shared/Loader";
 import EditProfile from "./EditProfileModal/EditProfileModal.tsx";
 import EditPlaceModal from "../shared/PlaceCard/EditPlace/index.ts";
 import { userService } from "@/services/userService.ts";
+import { PAGE_SIZE_OPTIONS } from "../constants.ts";
+
+type PageSizeOption = (typeof PAGE_SIZE_OPTIONS)[number];
+const MIN_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
+
+const parsePageParam = (value: string | null): number => {
+  if (!value) return 1;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+};
+
+const parsePageSizeParam = (value: string | null): PageSizeOption => {
+  if (!value) return MIN_PAGE_SIZE;
+  const parsed = Number.parseInt(value, 10);
+  return PAGE_SIZE_OPTIONS.includes(parsed as PageSizeOption)
+    ? (parsed as PageSizeOption)
+    : MIN_PAGE_SIZE;
+};
 
 const PersonalRoom = () => {
 
@@ -34,10 +52,15 @@ const PersonalRoom = () => {
   // URL PARAMS & STATES
   // ==========================================
 
-  const activeTab = (searchParams.get("tab") as "my-places" | "shared-to-me") || "my-places";
+  const activeTab =
+    (searchParams.get("tab") as "my-places" | "shared-to-me") || "my-places";
   const searchQuery = searchParams.get("q") || "";
-  const searchType = (searchParams.get("searchType") as "name" | "user") || "name";
+  const searchType =
+    (searchParams.get("searchType") as "name" | "user") || "name";
   const selectedCategory = searchParams.get("category") || "all";
+
+  const currentPage = parsePageParam(searchParams.get("page"));
+  const pageSize = parsePageSizeParam(searchParams.get("perPage"));
 
   const selectedTags = useMemo(() => {
     const tagsParam = searchParams.get("tags");
@@ -49,7 +72,7 @@ const PersonalRoom = () => {
   const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
-  
+
   const imgRef = useRef<HTMLImageElement>(null);
   const [placeToEdit, setPlaceToEdit] = useState<Place | null>(null);
 
@@ -69,9 +92,13 @@ const PersonalRoom = () => {
   // QUERY PARAMS HELPER
   // ==========================================
 
-  const updateQueryParams = (updates: Record<string, string | null>) => {
+  const updateQueryParams = (
+    updates: Record<string, string | null>,
+    options?: { resetPage?: boolean }
+  ) => {
+    const shouldResetPage = options?.resetPage ?? true;
     const newParams = new URLSearchParams(searchParams);
-    
+
     Object.entries(updates).forEach(([key, value]) => {
       if (value === null || value === "" || value === "all") {
         newParams.delete(key);
@@ -80,16 +107,26 @@ const PersonalRoom = () => {
       }
     });
 
+    if (shouldResetPage) {
+      newParams.delete("page");
+    }
+
     setSearchParams(newParams, { replace: true });
   };
 
   // Close custom dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsCategoryDropdownOpen(false);
       }
-      if (tagDropdownRef.current && !tagDropdownRef.current.contains(event.target as Node)) {
+      if (
+        tagDropdownRef.current &&
+        !tagDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsTagDropdownOpen(false);
       }
     };
@@ -148,7 +185,7 @@ const PersonalRoom = () => {
       try {
         setIsLoadingMyPlaces(true);
         const userPersonalPlaces = savedPlaces.filter(
-          (place) => place.creator_id === currentUser.id,
+          (place) => place.creator_id === currentUser.id
         );
         setMyPlaces(userPersonalPlaces);
       } catch (err) {
@@ -170,10 +207,9 @@ const PersonalRoom = () => {
   }, [navigate, error]);
 
   // ==========================================
-  // FILTERING & DERIVED DATA
+  // FILTERING & PAGINATION DERIVED DATA
   // ==========================================
 
-  // Extract unique categories for filter options
   const availableCategories = useMemo(() => {
     const categoriesSet = new Set<string>();
     savedPlaces.forEach((p) => {
@@ -182,7 +218,6 @@ const PersonalRoom = () => {
     return Array.from(categoriesSet);
   }, [savedPlaces]);
 
-  // Filtered My Places
   const filteredMyPlaces = useMemo(() => {
     return myPlaces.filter((place) => {
       if (searchQuery.trim() !== "") {
@@ -194,7 +229,6 @@ const PersonalRoom = () => {
     });
   }, [myPlaces, searchQuery]);
 
-  // Filtered Shared Places
   const filteredSharedPlaces = useMemo(() => {
     return savedPlaces.filter((place) => {
       if (searchQuery.trim() !== "") {
@@ -212,9 +246,13 @@ const PersonalRoom = () => {
         return false;
       }
 
-      // Фільтрація за тегами: місце повинно мати ВСІ обрані теги
       if (selectedTags.length > 0) {
-        if (!place.tags || !selectedTags.every((tag) => place.tags?.includes(tag as keyof typeof Tag))) {
+        if (
+          !place.tags ||
+          !selectedTags.every((tag) =>
+            place.tags?.includes(tag as keyof typeof Tag)
+          )
+        ) {
           return false;
         }
       }
@@ -222,6 +260,21 @@ const PersonalRoom = () => {
       return true;
     });
   }, [savedPlaces, searchQuery, searchType, selectedCategory, selectedTags]);
+
+  const activeFilteredPlaces =
+    activeTab === "my-places" ? filteredMyPlaces : filteredSharedPlaces;
+
+  const totalItems = activeFilteredPlaces.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  // Показуємо пагінацію лише якщо елементів більше за мінімальний розмір сторінки
+  const shouldShowPagination = totalItems > MIN_PAGE_SIZE;
+
+  const paginatedPlaces = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return activeFilteredPlaces.slice(startIndex, startIndex + pageSize);
+  }, [activeFilteredPlaces, safeCurrentPage, pageSize]);
 
   // ==========================================
   // EVENT HANDLERS
@@ -261,7 +314,25 @@ const PersonalRoom = () => {
   };
 
   const handleClearAll = () => {
-    setSearchParams({ tab: activeTab }, { replace: true });
+    updateQueryParams(
+      {
+        q: null,
+        searchType: null,
+        category: null,
+        tags: null,
+      },
+      { resetPage: true }
+    );
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    const validSize = parsePageSizeParam(String(newSize));
+    updateQueryParams(
+      {
+        perPage: validSize === MIN_PAGE_SIZE ? null : String(validSize),
+      },
+      { resetPage: true }
+    );
   };
 
   const handleTagToggle = (tagKey: string) => {
@@ -269,11 +340,24 @@ const PersonalRoom = () => {
       ? selectedTags.filter((t) => t !== tagKey)
       : [...selectedTags, tagKey];
 
-    updateQueryParams({ tags: updatedTags.length > 0 ? updatedTags.join(",") : null });
+    updateQueryParams({
+      tags: updatedTags.length > 0 ? updatedTags.join(",") : null,
+    });
   };
 
-  // Labels for custom dropdown triggers
-  const selectedCategoryLabel = selectedCategory === "all" ? "All Categories" : selectedCategory;
+  const handlePageChange = (page: number) => {
+    const clampedPage = Math.max(1, Math.min(page, totalPages));
+    updateQueryParams(
+      {
+        page: clampedPage === 1 ? null : String(clampedPage),
+      },
+      { resetPage: false }
+    );
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const selectedCategoryLabel =
+    selectedCategory === "all" ? "All Categories" : selectedCategory;
   const selectedTagLabel =
     selectedTags.length === 0
       ? "All Tags"
@@ -281,8 +365,16 @@ const PersonalRoom = () => {
       ? Tag[selectedTags[0] as keyof typeof Tag] || selectedTags[0]
       : `${selectedTags.length} tags selected`;
 
-  // Перевірка чи є активні фільтри для показу кнопки Clear All
-  const hasActiveFilters = searchQuery.trim() !== "" || selectedCategory !== "all" || selectedTags.length > 0 || searchType !== "name";
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    selectedCategory !== "all" ||
+    selectedTags.length > 0 ||
+    searchType !== "name";
+
+  const isEmptyList =
+    activeTab === "my-places"
+      ? !isLoadingMyPlaces && filteredMyPlaces.length === 0
+      : savedPlaces.length === 0 || filteredSharedPlaces.length === 0;
 
   // ==========================================
   // RENDER
@@ -291,31 +383,24 @@ const PersonalRoom = () => {
   return (
     <main className={styles.PersonalRoom}>
       <div className={styles.container}>
-
         {/* User Info Section */}
-
         <div className={styles.personalInfo}>
           <div className={styles.personalInfo__top}>
             <div className={styles.personalInfo__avatarWrapper}>
-
-              {/* Патерн-заглушка */}
-
-            {(!currentUser?.avatar || !isAvatarLoaded) && (
-              <div className={styles.personalInfo__patternPlaceholder}>
-                {!currentUser?.avatar && (
-                  <Icon
-                    name="group"
-                    size={28}
-                    className={styles.personalInfo__avatarIcon}
-                  />
-                )}
-                {currentUser?.avatar && (
-                  <Loader className={styles.personalInfo__avatarLoader} />
-                )}
-              </div>
-            )}
-
-              {/* Картинка аватара */}
+              {(!currentUser?.avatar || !isAvatarLoaded) && (
+                <div className={styles.personalInfo__patternPlaceholder}>
+                  {!currentUser?.avatar && (
+                    <Icon
+                      name="group"
+                      size={28}
+                      className={styles.personalInfo__avatarIcon}
+                    />
+                  )}
+                  {currentUser?.avatar && (
+                    <Loader className={styles.personalInfo__avatarLoader} />
+                  )}
+                </div>
+              )}
 
               {currentUser?.avatar && (
                 <img
@@ -348,9 +433,7 @@ const PersonalRoom = () => {
                   {placesCount} {placesCount === 1 ? "place" : "places"}
                 </span>
                 <span className={styles.personalInfo__separator}>•</span>
-                <span>
-                  {groupsCount} groups
-                </span>
+                <span>{groupsCount} groups</span>
               </div>
             </div>
           </div>
@@ -360,56 +443,46 @@ const PersonalRoom = () => {
               className={styles.personalInfo__buttons__edit}
               onClick={() => setIsEditModalOpen(true)}
             >
-              <Icon
-                name="edit"
-                size={20}
-              />
+              <Icon name="edit" size={20} />
               <span>Edit</span>
             </button>
             <button
               className={styles.personalInfo__buttons__logout}
               onClick={handleLogout}
             >
-              <Icon
-                name="exit"
-                size={20}
-              />
-              <span>
-                Log out
-              </span>
+              <Icon name="exit" size={20} />
+              <span>Log out</span>
             </button>
           </div>
         </div>
 
         {/* Controls Header: Tabs + Search Bar on the same level */}
-
         <aside className={styles.controlsHeader}>
-
-          {/* Tabs Navigation */}
-
           <div className={styles.tabs}>
-            <div 
+            <div
               className={`${styles.tabsIndicator} ${
                 activeTab === "shared-to-me" ? styles.tabsIndicator_second : ""
-              }`} 
+              }`}
             />
             <button
               type="button"
-              className={`${styles.tab} ${activeTab === "my-places" ? styles.tab_active : ""}`}
+              className={`${styles.tab} ${
+                activeTab === "my-places" ? styles.tab_active : ""
+              }`}
               onClick={() => updateQueryParams({ tab: "my-places", q: null })}
             >
               My places
             </button>
             <button
               type="button"
-              className={`${styles.tab} ${activeTab === "shared-to-me" ? styles.tab_active : ""}`}
+              className={`${styles.tab} ${
+                activeTab === "shared-to-me" ? styles.tab_active : ""
+              }`}
               onClick={() => updateQueryParams({ tab: "shared-to-me", q: null })}
             >
               Shared to me
             </button>
           </div>
-
-          {/* Search Bar & Switcher */}
 
           <div className={styles.searchBarWrapper}>
             <input
@@ -426,22 +499,30 @@ const PersonalRoom = () => {
               onChange={(e) => updateQueryParams({ q: e.target.value })}
             />
 
-            <div className={`${styles.searchTypeSwitch} ${activeTab !== "shared-to-me" ? styles.searchTypeSwitch_hidden : ""}`}>
-              <div 
+            <div
+              className={`${styles.searchTypeSwitch} ${
+                activeTab !== "shared-to-me" ? styles.searchTypeSwitch_hidden : ""
+              }`}
+            >
+              <div
                 className={`${styles.switchIndicator} ${
                   searchType === "user" ? styles.switchIndicator_second : ""
-                }`} 
+                }`}
               />
               <button
                 type="button"
-                className={`${styles.switchBtn} ${searchType === "name" ? styles.switchBtn_active : ""}`}
+                className={`${styles.switchBtn} ${
+                  searchType === "name" ? styles.switchBtn_active : ""
+                }`}
                 onClick={() => updateQueryParams({ searchType: "name" })}
               >
                 By Place
               </button>
               <button
                 type="button"
-                className={`${styles.switchBtn} ${searchType === "user" ? styles.switchBtn_active : ""}`}
+                className={`${styles.switchBtn} ${
+                  searchType === "user" ? styles.switchBtn_active : ""
+                }`}
                 onClick={() => updateQueryParams({ searchType: "user" })}
               >
                 By User
@@ -451,13 +532,14 @@ const PersonalRoom = () => {
         </aside>
 
         {/* Separate Filters Section (Categories & Tags) for Shared to me */}
-
         {activeTab === "shared-to-me" && (
           <div className={styles.dropdownFiltersContainer}>
             <div className={styles.dropdownFilters}>
-              
               {/* Category Custom Dropdown */}
-              <div className={styles.customSelectWrapper} ref={categoryDropdownRef}>
+              <div
+                className={styles.customSelectWrapper}
+                ref={categoryDropdownRef}
+              >
                 <button
                   type="button"
                   className={styles.filterSelect}
@@ -467,14 +549,24 @@ const PersonalRoom = () => {
                   }}
                 >
                   <span>{selectedCategoryLabel}</span>
-                  <Icon name="down" size={16} className={`${styles.selectArrow} ${isCategoryDropdownOpen ? styles.selectArrow_open : ""}`} />
+                  <Icon
+                    name="down"
+                    size={16}
+                    className={`${styles.selectArrow} ${
+                      isCategoryDropdownOpen ? styles.selectArrow_open : ""
+                    }`}
+                  />
                 </button>
 
                 {isCategoryDropdownOpen && (
                   <div className={styles.customDropdownMenu}>
                     <button
                       type="button"
-                      className={`${styles.customDropdownItem} ${selectedCategory === "all" ? styles.customDropdownItem_active : ""}`}
+                      className={`${styles.customDropdownItem} ${
+                        selectedCategory === "all"
+                          ? styles.customDropdownItem_active
+                          : ""
+                      }`}
                       onClick={() => {
                         updateQueryParams({ category: "all" });
                         setIsCategoryDropdownOpen(false);
@@ -486,7 +578,11 @@ const PersonalRoom = () => {
                       <button
                         key={category}
                         type="button"
-                        className={`${styles.customDropdownItem} ${selectedCategory === category ? styles.customDropdownItem_active : ""}`}
+                        className={`${styles.customDropdownItem} ${
+                          selectedCategory === category
+                            ? styles.customDropdownItem_active
+                            : ""
+                        }`}
                         onClick={() => {
                           updateQueryParams({ category: category });
                           setIsCategoryDropdownOpen(false);
@@ -510,14 +606,24 @@ const PersonalRoom = () => {
                   }}
                 >
                   <span>{selectedTagLabel}</span>
-                  <Icon name="down" size={16} className={`${styles.selectArrow} ${isTagDropdownOpen ? styles.selectArrow_open : ""}`} />
+                  <Icon
+                    name="down"
+                    size={16}
+                    className={`${styles.selectArrow} ${
+                      isTagDropdownOpen ? styles.selectArrow_open : ""
+                    }`}
+                  />
                 </button>
 
                 {isTagDropdownOpen && (
                   <div className={styles.customDropdownMenu}>
                     <button
                       type="button"
-                      className={`${styles.customDropdownItem} ${selectedTags.length === 0 ? styles.customDropdownItem_active : ""}`}
+                      className={`${styles.customDropdownItem} ${
+                        selectedTags.length === 0
+                          ? styles.customDropdownItem_active
+                          : ""
+                      }`}
                       onClick={() => {
                         updateQueryParams({ tags: null });
                       }}
@@ -530,13 +636,17 @@ const PersonalRoom = () => {
                         <button
                           key={tagKey}
                           type="button"
-                          className={`${styles.customDropdownItem} ${isSelected ? styles.customDropdownItem_active : ""}`}
+                          className={`${styles.customDropdownItem} ${
+                            isSelected ? styles.customDropdownItem_active : ""
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleTagToggle(tagKey);
                           }}
                         >
-                          <span className={styles.checkboxIndicator}>{isSelected ? "✓ " : ""}</span>
+                          <span className={styles.checkboxIndicator}>
+                            {isSelected ? "✓ " : ""}
+                          </span>
                           {Tag[tagKey as keyof typeof Tag] || tagKey}
                         </button>
                       );
@@ -544,10 +654,8 @@ const PersonalRoom = () => {
                   </div>
                 )}
               </div>
-
             </div>
 
-            {/* Clear All Button */}
             {hasActiveFilters && (
               <button
                 type="button"
@@ -561,65 +669,25 @@ const PersonalRoom = () => {
         )}
 
         {/* Places Section */}
-
         <section className={styles.placesSection}>
-          {activeTab === "my-places" ? (
-            isLoadingMyPlaces ? (
-              <p className={styles.placesSection__empty}>
-                Loading your places...
-              </p>
-            ) : filteredMyPlaces.length === 0 ? (
-              <p className={styles.placesSection__empty}>
-                {searchQuery ? "No places match your search." : "You haven't added any places yet."}
-              </p>
-            ) : (
-              <div className={styles.placesGrid}>
-                {filteredMyPlaces.map((place) => {
-                  let placeImage = "";
-                  if (place.photos) {
-                    for (let i = 0; i < 5; i++) {
-                      if (place.photos?.[i]?.url) {
-                        placeImage = place.photos[i].url;
-                        break;
-                      }
-                    }
-                  }
-
-                  return (
-                    <PlaceCard
-                      key={`${place.id}_${placeImage}`}
-                      image={placeImage}
-                      title={place.name}
-                      category={place.categoryName}
-                      workingHours={
-                        place.opening_hours
-                          ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
-                          : "none"
-                      }
-                      isShared={0}
-                      deleteButtonText="Delete place"
-                      onEdit={() => setPlaceToEdit(place)}
-                      onShare={() => handleOpenShare(place)}
-                      onDelete={() => handleDeletePersonal(place)}
-                      onClick={() => navigate(`/places/${place.id}`)}
-                    />
-                  );
-                })}
-              </div>
-            )
+          {activeTab === "my-places" && isLoadingMyPlaces ? (
+            <p className={styles.placesSection__empty}>Loading your places...</p>
+          ) : isEmptyList ? (
+            <p className={styles.placesSection__empty}>
+              {activeTab === "my-places"
+                ? searchQuery
+                  ? "No places match your search."
+                  : "You haven't added any places yet."
+                : savedPlaces.length === 0
+                ? "No places available on the map yet."
+                : "No places match your search or filter criteria."}
+            </p>
           ) : (
-            savedPlaces.length === 0 ? (
-              <p className={styles.placesSection__empty}>
-                No places available on the map yet.
-              </p>
-            ) : filteredSharedPlaces.length === 0 ? (
-              <p className={styles.placesSection__empty}>
-                No places match your search or filter criteria.
-              </p>
-            ) : (
+            <>
               <div className={styles.placesGrid}>
-                {filteredSharedPlaces.map((place) => {
-                  const isMyPlace = currentUser?.id && place.creator_id === currentUser.id;
+                {paginatedPlaces.map((place) => {
+                  const isMyPlace =
+                    currentUser?.id && place.creator_id === currentUser.id;
                   let placeImage = "";
 
                   if (place.photos) {
@@ -642,17 +710,91 @@ const PersonalRoom = () => {
                           ? `${place.opening_hours.opens_at}\n${place.opening_hours.closes_at}`
                           : "none"
                       }
-                      addedBy={place.creator_name} 
+                      {...(activeTab === "my-places"
+                        ? { isShared: 0 }
+                        : { addedBy: place.creator_name })}
                       deleteButtonText="Delete place"
-                      onEdit={isMyPlace ? () => setPlaceToEdit(place) : undefined}
-                      onShare={isMyPlace ? () => handleOpenShare(place) : undefined}
-                      onDelete={isMyPlace ? () => handleDeletePersonal(place) : undefined}
+                      onEdit={
+                        activeTab === "my-places" || isMyPlace
+                          ? () => setPlaceToEdit(place)
+                          : undefined
+                      }
+                      onShare={
+                        activeTab === "my-places" || isMyPlace
+                          ? () => handleOpenShare(place)
+                          : undefined
+                      }
+                      onDelete={
+                        activeTab === "my-places" || isMyPlace
+                          ? () => handleDeletePersonal(place)
+                          : undefined
+                      }
                       onClick={() => navigate(`/places/${place.id}`)}
                     />
                   );
                 })}
               </div>
-            )
+
+              {shouldShowPagination && (
+                <div className={styles.paginationBar}>
+                  <div className={styles.pageSizeSelector}>
+                    <label htmlFor="page-size-select">Per page:</label>
+                    <select
+                      id="page-size-select"
+                      value={pageSize}
+                      onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                      className={styles.pageSizeSelect}
+                    >
+                      {PAGE_SIZE_OPTIONS.map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className={styles.paginationControls}>
+                      <button
+                        type="button"
+                        className={styles.paginationBtn}
+                        disabled={safeCurrentPage === 1}
+                        onClick={() => handlePageChange(safeCurrentPage - 1)}
+                      >
+                        Prev
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                          <button
+                            key={pageNumber}
+                            type="button"
+                            className={`${styles.paginationBtn} ${
+                              safeCurrentPage === pageNumber
+                                ? styles.paginationBtn_active
+                                : ""
+                            }`}
+                            onClick={() => handlePageChange(pageNumber)}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        className={styles.paginationBtn}
+                        disabled={safeCurrentPage === totalPages}
+                        onClick={() => handlePageChange(safeCurrentPage + 1)}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>
@@ -664,9 +806,9 @@ const PersonalRoom = () => {
         title="Delete place"
         message={
           <>
-            <strong>{placeToDelete?.name}</strong>
-            {" "}will be removed from the map and from all groups it was shared with.
-            <br/>
+            <strong>{placeToDelete?.name}</strong> will be removed from the map
+            and from all groups it was shared with.
+            <br />
             <p>This can’t be undone.</p>
           </>
         }
