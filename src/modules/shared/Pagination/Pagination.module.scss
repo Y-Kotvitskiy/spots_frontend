@@ -1,0 +1,112 @@
+@use "@/scss/main.scss" as *;
+@use "@/scss/mixins.scss" as m;
+@use "@/scss/variables.scss" as v;
+
+.paginationBar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  max-width: v.$desktop-max-width;
+  margin-top: 24px;
+  margin-inline: auto;
+
+  @include m.on-tablet {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 32px;
+  }
+}
+
+.pageSizeSelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  @extend %p3;
+  color: v.$grey-70-color;
+
+  @include m.on-tablet {
+    justify-content: flex-start;
+  }
+
+  label {
+    white-space: nowrap;
+  }
+}
+
+.pageSizeSelect {
+  @extend %p3;
+  height: 40px;
+  padding: 0 16px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background-color: v.$grey-0-color;
+  color: v.$grey-90-color;
+  box-shadow: v.$small-shadow;
+  cursor: pointer;
+  outline: none;
+  @include m.smooth-transition(border-color background-color);
+
+  &:hover {
+    border-color: v.$grey-20-color;
+  }
+
+  &:focus {
+    border-color: v.$grey-30-color;
+  }
+}
+
+.paginationControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  @include m.on-tablet {
+    justify-content: flex-end;
+  }
+}
+
+.paginationBtn {
+  @extend %p3;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 20px;
+  background-color: v.$grey-0-color;
+  color: v.$grey-70-color;
+  box-shadow: v.$small-shadow;
+  cursor: pointer;
+  @include m.smooth-transition(background-color color transform);
+
+  &:hover:not(:disabled) {
+    background-color: v.$grey-20-color;
+    color: v.$grey-90-color;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  &_active {
+    background-color: v.$grey-90-color;
+    color: v.$grey-0-color;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      background-color: v.$grey-90-color;
+      color: v.$grey-0-color;
+    }
+  }
+}

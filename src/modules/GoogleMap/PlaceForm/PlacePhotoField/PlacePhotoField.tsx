@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./PlacePhotoField.module.scss";
+import heic2any from "heic2any";
 
 export interface PlacePhotoFieldProps {
   label?: string;
@@ -9,6 +10,17 @@ export interface PlacePhotoFieldProps {
   className?: string;
 }
 
+const isHeicFile = (file: File): boolean => {
+  const mime = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  return (
+    mime === "image/heic" ||
+    mime === "image/heif" ||
+    name.endsWith(".heic") ||
+    name.endsWith(".heif")
+  );
+};
+
 const PlacePhotoField: React.FC<PlacePhotoFieldProps> = ({
   label,
   name,
@@ -16,22 +28,54 @@ const PlacePhotoField: React.FC<PlacePhotoFieldProps> = ({
   onChange,
 }) => {
   const [preview, setPreview] = useState<string | null>(null);
+  const [isConverting, setIsConverting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.currentTarget.files?.[0];
-    if (file) {
-      onChange(file);
-
+  // Прибираємо витік пам'яті при розмонтуванні компонента
+  useEffect(() => {
+    return () => {
       if (preview) {
         URL.revokeObjectURL(preview);
       }
+    };
+  }, [preview]);
 
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(objectUrl);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0];
+    if (!file) return;
+
+    onChange(file);
+
+    if (preview) {
+      URL.revokeObjectURL(preview);
+      setPreview(null);
     }
-  };
 
+    if (isHeicFile(file)) {
+      setIsConverting(true);
+      try {
+        const converted = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.85,
+        });
+
+        const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
+        const objectUrl = URL.createObjectURL(jpegBlob);
+        setPreview(objectUrl);
+      } catch (error) {
+        console.error("Помилка конвертації HEIC:", error);
+        // Якщо браузер усе ж підтримує HEIC нативно (наприклад, Safari)
+        setPreview(URL.createObjectURL(file));
+      } finally {
+        setIsConverting(false);
+      }
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+  };
   const handleFileClear = () => {
     onChange(null);
     if (preview) {
@@ -66,17 +110,23 @@ const PlacePhotoField: React.FC<PlacePhotoFieldProps> = ({
 
         {preview ? (
           <div className={styles.PlacePhotoField__photoContainer}>
-            <button
-              type="button"
-              onClick={handleFileClear}
-              className={styles.PlacePhotoField__clearButton}
-            ></button>
+            <>
+              <button
+                type="button"
+                onClick={handleFileClear}
+                className={styles.PlacePhotoField__clearButton}
+              ></button>
 
-            <img
-              src={preview}
-              alt="Preview"
-              className={styles.PlacePhotoField__img}
-            />
+              <img
+                src={preview}
+                alt="Preview"
+                className={styles.PlacePhotoField__img}
+              />
+            </>
+          </div>
+        ) : isConverting ? (
+          <div className={styles.PlacePhotoField__loadMessage}>
+            Конвертація HEIC...
           </div>
         ) : (
           <button

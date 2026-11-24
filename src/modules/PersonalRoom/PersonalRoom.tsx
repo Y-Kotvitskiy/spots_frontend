@@ -2,15 +2,14 @@ import styles from "./PersonalRoom.module.scss";
 
 import type { AxiosError } from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAuthSelector, useMapSelector } from "@/store/hooks";
 import { usePlaceCardActions } from "../usePlaceCardActions";
 import { authActions, mapActions } from "@/store";
 import { usePageError } from "../hooks.ts";
 
 import PlaceCard from "../shared/PlaceCard";
-import type { Place } from "@/types/index.ts";
-import { Tag } from "@/types/index.ts";
+import { Tag, type Place } from "@/types";
 import ConfirmForm from "../shared/ConfirmForm/ConfirmForm.tsx";
 import Icon from "../shared/Icon";
 import Loader from "@/modules/shared/Loader";
@@ -18,6 +17,9 @@ import EditProfile from "./EditProfileModal/EditProfileModal.tsx";
 import EditPlaceModal from "../shared/PlaceCard/EditPlace/index.ts";
 import { userService } from "@/services/userService.ts";
 import { PAGE_SIZE_OPTIONS } from "../constants.ts";
+import type { DropdownOption } from "../shared/FilterDropdown/FilterDropdown.tsx";
+import FilterDropdown from "../shared/FilterDropdown/FilterDropdown.tsx";
+import Pagination from "../shared/Pagination/Pagination.tsx";
 
 type PageSizeOption = (typeof PAGE_SIZE_OPTIONS)[number];
 const MIN_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
@@ -37,7 +39,6 @@ const parsePageSizeParam = (value: string | null): PageSizeOption => {
 };
 
 const PersonalRoom = () => {
-
   // ==========================================
   // HOOKS & SELECTORS
   // ==========================================
@@ -47,14 +48,19 @@ const PersonalRoom = () => {
   const { currentUser } = useAuthSelector();
   const [error, setError] = usePageError("");
   const [searchParams, setSearchParams] = useSearchParams();
+  const { savedPlaces } = useMapSelector();
 
   // ==========================================
   // URL PARAMS & STATES
   // ==========================================
 
-  const activeTab =
-    (searchParams.get("tab") as "my-places" | "shared-to-me") || "my-places";
-  const searchQuery = searchParams.get("q") || "";
+  const rawTab = searchParams.get("tab");
+  const activeTab = rawTab === "shared-to-me" ? "shared-to-me" : "my-places";
+
+  const urlSearchQuery = searchParams.get("q") || "";
+  const [draftSearch, setDraftSearch] = useState<string | null>(null);
+  const searchInputValue = draftSearch ?? urlSearchQuery;
+
   const searchType =
     (searchParams.get("searchType") as "name" | "user") || "name";
   const selectedCategory = searchParams.get("category") || "all";
@@ -62,34 +68,25 @@ const PersonalRoom = () => {
   const currentPage = parsePageParam(searchParams.get("page"));
   const pageSize = parsePageSizeParam(searchParams.get("perPage"));
 
-  const selectedTags = useMemo(() => {
-    const tagsParam = searchParams.get("tags");
-    return tagsParam ? tagsParam.split(",") : [];
-  }, [searchParams]);
+  const tagsParam = searchParams.get("tags");
+  const selectedTags = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
 
-  const groupsCount = 0;
-  const [myPlaces, setMyPlaces] = useState<Place[]>([]);
-  const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
-
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [loadedAvatar, setLoadedAvatar] = useState<string>();
   const [placeToEdit, setPlaceToEdit] = useState<Place | null>(null);
 
-  // States for custom dropdowns visibility & refs for outside click
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const tagDropdownRef = useRef<HTMLDivElement>(null);
-  const hasFetchedRef = useRef(false);
 
-  useEffect(() => {
-    setIsAvatarLoaded(!!imgRef.current?.complete);
-  }, [currentUser?.avatar]);
+  const isAvatarLoaded =
+    !!currentUser?.avatar && loadedAvatar === currentUser.avatar;
+  const currentUserId = currentUser?.id;
 
   // ==========================================
-  // QUERY PARAMS HELPER
+  // QUERY PARAMS & DEBOUNCED SEARCH
   // ==========================================
 
   const updateQueryParams = (
@@ -114,7 +111,30 @@ const PersonalRoom = () => {
     setSearchParams(newParams, { replace: true });
   };
 
-  // Close custom dropdowns on outside click
+  useEffect(() => {
+    if (draftSearch === null) return;
+
+    const timerId = setTimeout(() => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (draftSearch.trim() === "") next.delete("q");
+          else next.set("q", draftSearch);
+          next.delete("page");
+          return next;
+        },
+        { replace: true }
+      );
+      setDraftSearch(null);
+    }, 300);
+
+    return () => clearTimeout(timerId);
+  }, [draftSearch, setSearchParams]);
+
+  // ==========================================
+  // DROPDOWN OUTSIDE CLICK & DATA EFFECTS
+  // ==========================================
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -135,68 +155,18 @@ const PersonalRoom = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ==========================================
-  // CARD ACTIONS & SELECTORS
-  // ==========================================
-
-  const {
-    placeToDelete,
-    handleOpenShare,
-    handleDeletePersonal,
-    handleConfirmDeletePersonal,
-    handleCancelDelete,
-  } = usePlaceCardActions((deletedId) => {
-    setMyPlaces((prev) => prev.filter((p) => p.id !== deletedId));
-  });
-
-  const { savedPlaces } = useMapSelector();
-
-  // ==========================================
-  // EFFECTS (DATA FETCHING & TIMERS)
-  // ==========================================
-
   useEffect(() => {
-    if (hasFetchedRef.current) return;
-    hasFetchedRef.current = true;
-
-    let isMounted = true;
-
-    const fetchUserOnce = async () => {
-      try {
-        const userProfile = await userService.getMe();
-        if (isMounted) {
-          dispatch(authActions.updateUser(userProfile));
-        }
-      } catch (err) {
-        console.error("Failed to fetch user profile:", err);
-      }
-    };
-
-    fetchUserOnce();
-
+    let ignore = false;
+    userService
+      .getMe()
+      .then((u) => {
+        if (!ignore) dispatch(authActions.updateUser(u));
+      })
+      .catch((err) => console.error("Failed to fetch user profile:", err));
     return () => {
-      isMounted = false;
+      ignore = true;
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    const fetchMyPlaces = async () => {
-      if (!currentUser?.id) return;
-      try {
-        setIsLoadingMyPlaces(true);
-        const userPersonalPlaces = savedPlaces.filter(
-          (place) => place.creator_id === currentUser.id
-        );
-        setMyPlaces(userPersonalPlaces);
-      } catch (err) {
-        console.error("Failed to load my places:", err);
-      } finally {
-        setIsLoadingMyPlaces(false);
-      }
-    };
-
-    fetchMyPlaces();
-  }, [currentUser?.id, savedPlaces]);
 
   useEffect(() => {
     if (!error) return;
@@ -207,59 +177,72 @@ const PersonalRoom = () => {
   }, [navigate, error]);
 
   // ==========================================
+  // CARD ACTIONS
+  // ==========================================
+
+  const {
+    placeToDelete,
+    handleOpenShare,
+    handleDeletePersonal,
+    handleConfirmDeletePersonal,
+    handleCancelDelete,
+  } = usePlaceCardActions();
+
+  // ==========================================
   // FILTERING & PAGINATION DERIVED DATA
   // ==========================================
 
-  const availableCategories = useMemo(() => {
-    const categoriesSet = new Set<string>();
-    savedPlaces.forEach((p) => {
-      if (p.categoryName) categoriesSet.add(p.categoryName);
-    });
-    return Array.from(categoriesSet);
-  }, [savedPlaces]);
+  const myPlaces = currentUserId
+    ? savedPlaces.filter((p) => p.creator_id === currentUserId)
+    : [];
 
-  const filteredMyPlaces = useMemo(() => {
-    return myPlaces.filter((place) => {
-      if (searchQuery.trim() !== "") {
-        const query = searchQuery.toLowerCase();
-        const matchName = place.name?.toLowerCase().includes(query);
-        if (!matchName) return false;
+  const availableCategories = Array.from(
+    new Set(
+      savedPlaces
+        .map((p) => p.categoryName)
+        .filter((category): category is string => Boolean(category))
+    )
+  );
+
+  const filteredMyPlaces = myPlaces.filter((place) => {
+    if (urlSearchQuery.trim() !== "") {
+      const query = urlSearchQuery.toLowerCase();
+      if (!place.name?.toLowerCase().includes(query)) return false;
+    }
+    return true;
+  });
+
+  const filteredSharedPlaces = savedPlaces.filter((place) => {
+    if (currentUserId && place.creator_id === currentUserId) {
+      return false;
+    }
+
+    if (urlSearchQuery.trim() !== "") {
+      const query = urlSearchQuery.toLowerCase();
+      if (searchType === "name") {
+        if (!place.name?.toLowerCase().includes(query)) return false;
+      } else if (searchType === "user") {
+        if (!place.creator_name?.toLowerCase().includes(query)) return false;
       }
-      return true;
-    });
-  }, [myPlaces, searchQuery]);
+    }
 
-  const filteredSharedPlaces = useMemo(() => {
-    return savedPlaces.filter((place) => {
-      if (searchQuery.trim() !== "") {
-        const query = searchQuery.toLowerCase();
-        if (searchType === "name") {
-          const matchName = place.name?.toLowerCase().includes(query);
-          if (!matchName) return false;
-        } else if (searchType === "user") {
-          const matchUser = place.creator_name?.toLowerCase().includes(query);
-          if (!matchUser) return false;
-        }
-      }
+    if (selectedCategory !== "all" && place.categoryName !== selectedCategory) {
+      return false;
+    }
 
-      if (selectedCategory !== "all" && place.categoryName !== selectedCategory) {
+    if (selectedTags.length > 0) {
+      if (
+        !place.tags ||
+        !selectedTags.every((tag) =>
+          place.tags?.includes(tag as keyof typeof Tag)
+        )
+      ) {
         return false;
       }
+    }
 
-      if (selectedTags.length > 0) {
-        if (
-          !place.tags ||
-          !selectedTags.every((tag) =>
-            place.tags?.includes(tag as keyof typeof Tag)
-          )
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [savedPlaces, searchQuery, searchType, selectedCategory, selectedTags]);
+    return true;
+  });
 
   const activeFilteredPlaces =
     activeTab === "my-places" ? filteredMyPlaces : filteredSharedPlaces;
@@ -267,24 +250,19 @@ const PersonalRoom = () => {
   const totalItems = activeFilteredPlaces.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const safeCurrentPage = Math.min(currentPage, totalPages);
-
-  // Показуємо пагінацію лише якщо елементів більше за мінімальний розмір сторінки
   const shouldShowPagination = totalItems > MIN_PAGE_SIZE;
 
-  const paginatedPlaces = useMemo(() => {
-    const startIndex = (safeCurrentPage - 1) * pageSize;
-    return activeFilteredPlaces.slice(startIndex, startIndex + pageSize);
-  }, [activeFilteredPlaces, safeCurrentPage, pageSize]);
+  const startIndex = (safeCurrentPage - 1) * pageSize;
+  const paginatedPlaces = activeFilteredPlaces.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   // ==========================================
   // EVENT HANDLERS
   // ==========================================
 
   const handlePlaceUpdated = (updatedPlace: Place) => {
-    setMyPlaces((prevPlaces) =>
-      prevPlaces.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
-    );
-
     dispatch(mapActions.updatePlace(updatedPlace));
   };
 
@@ -294,8 +272,8 @@ const PersonalRoom = () => {
     try {
       await dispatch(authActions.logout()).unwrap();
     } catch (err) {
-      const error = err as AxiosError<{ message?: string }>;
-      setError(error.response?.data?.message ?? "");
+      const axiosError = err as AxiosError<{ message?: string }>;
+      setError(axiosError.response?.data?.message ?? "");
     }
   };
 
@@ -307,29 +285,20 @@ const PersonalRoom = () => {
       });
       dispatch(authActions.updateUser(updatedUser));
       setIsEditModalOpen(false);
-    } catch (error: unknown) {
-      console.error("Failed to update profile:", error);
-      throw error;
+    } catch (saveError: unknown) {
+      console.error("Failed to update profile:", saveError);
+      throw saveError;
     }
   };
 
   const handleClearAll = () => {
+    setDraftSearch(null);
     updateQueryParams(
       {
         q: null,
         searchType: null,
         category: null,
         tags: null,
-      },
-      { resetPage: true }
-    );
-  };
-
-  const handlePageSizeChange = (newSize: number) => {
-    const validSize = parsePageSizeParam(String(newSize));
-    updateQueryParams(
-      {
-        perPage: validSize === MIN_PAGE_SIZE ? null : String(validSize),
       },
       { resetPage: true }
     );
@@ -356,8 +325,41 @@ const PersonalRoom = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handlePageSizeChange = (newSize: number) => {
+    const validSize = parsePageSizeParam(String(newSize));
+    updateQueryParams(
+      {
+        perPage: validSize === MIN_PAGE_SIZE ? null : String(validSize),
+      },
+      { resetPage: true }
+    );
+  };
+
+  const categoryOptions: DropdownOption[] = [
+    { value: "all", label: "All Categories", active: selectedCategory === "all" },
+    ...availableCategories.map((category) => ({
+      value: category,
+      label: category,
+      active: selectedCategory === category,
+    })),
+  ];
+
+  const tagOptions: DropdownOption[] = [
+    { value: "", label: "All Tags", active: selectedTags.length === 0 },
+    ...Object.keys(Tag).map((tagKey) => {
+      const isSelected = selectedTags.includes(tagKey);
+      return {
+        value: tagKey,
+        label: Tag[tagKey as keyof typeof Tag] || tagKey,
+        active: isSelected,
+        checked: isSelected,
+      };
+    }),
+  ];
+
   const selectedCategoryLabel =
     selectedCategory === "all" ? "All Categories" : selectedCategory;
+
   const selectedTagLabel =
     selectedTags.length === 0
       ? "All Tags"
@@ -366,15 +368,12 @@ const PersonalRoom = () => {
       : `${selectedTags.length} tags selected`;
 
   const hasActiveFilters =
-    searchQuery.trim() !== "" ||
+    urlSearchQuery.trim() !== "" ||
     selectedCategory !== "all" ||
     selectedTags.length > 0 ||
     searchType !== "name";
 
-  const isEmptyList =
-    activeTab === "my-places"
-      ? !isLoadingMyPlaces && filteredMyPlaces.length === 0
-      : savedPlaces.length === 0 || filteredSharedPlaces.length === 0;
+  const isEmptyList = activeFilteredPlaces.length === 0;
 
   // ==========================================
   // RENDER
@@ -404,7 +403,6 @@ const PersonalRoom = () => {
 
               {currentUser?.avatar && (
                 <img
-                  ref={imgRef}
                   src={currentUser.avatar}
                   alt="User avatar"
                   className={`${styles.personalInfo__avatar} ${
@@ -412,7 +410,7 @@ const PersonalRoom = () => {
                       ? styles.personalInfo__avatarLoaded
                       : styles.personalInfo__avatarHidden
                   }`}
-                  onLoad={() => setIsAvatarLoaded(true)}
+                  onLoad={() => setLoadedAvatar(currentUser.avatar)}
                 />
               )}
             </div>
@@ -432,8 +430,6 @@ const PersonalRoom = () => {
                 <span>
                   {placesCount} {placesCount === 1 ? "place" : "places"}
                 </span>
-                <span className={styles.personalInfo__separator}>•</span>
-                <span>{groupsCount} groups</span>
               </div>
             </div>
           </div>
@@ -469,7 +465,10 @@ const PersonalRoom = () => {
               className={`${styles.tab} ${
                 activeTab === "my-places" ? styles.tab_active : ""
               }`}
-              onClick={() => updateQueryParams({ tab: "my-places", q: null })}
+              onClick={() => {
+                setDraftSearch(null);
+                updateQueryParams({ tab: "my-places", q: null });
+              }}
             >
               My places
             </button>
@@ -478,7 +477,10 @@ const PersonalRoom = () => {
               className={`${styles.tab} ${
                 activeTab === "shared-to-me" ? styles.tab_active : ""
               }`}
-              onClick={() => updateQueryParams({ tab: "shared-to-me", q: null })}
+              onClick={() => {
+                setDraftSearch(null);
+                updateQueryParams({ tab: "shared-to-me", q: null });
+              }}
             >
               Shared to me
             </button>
@@ -495,8 +497,8 @@ const PersonalRoom = () => {
                   ? "Search by place name..."
                   : "Search by creator name..."
               }
-              value={searchQuery}
-              onChange={(e) => updateQueryParams({ q: e.target.value })}
+              value={searchInputValue}
+              onChange={(e) => setDraftSearch(e.target.value)}
             />
 
             <div
@@ -535,125 +537,39 @@ const PersonalRoom = () => {
         {activeTab === "shared-to-me" && (
           <div className={styles.dropdownFiltersContainer}>
             <div className={styles.dropdownFilters}>
-              {/* Category Custom Dropdown */}
-              <div
-                className={styles.customSelectWrapper}
-                ref={categoryDropdownRef}
-              >
-                <button
-                  type="button"
-                  className={styles.filterSelect}
-                  onClick={() => {
-                    setIsCategoryDropdownOpen((prev) => !prev);
-                    setIsTagDropdownOpen(false);
-                  }}
-                >
-                  <span>{selectedCategoryLabel}</span>
-                  <Icon
-                    name="down"
-                    size={16}
-                    className={`${styles.selectArrow} ${
-                      isCategoryDropdownOpen ? styles.selectArrow_open : ""
-                    }`}
-                  />
-                </button>
+              <FilterDropdown
+                label={selectedCategoryLabel}
+                isOpen={isCategoryDropdownOpen}
+                wrapperRef={categoryDropdownRef}
+                options={categoryOptions}
+                onToggle={() => {
+                  setIsCategoryDropdownOpen((prev) => !prev);
+                  setIsTagDropdownOpen(false);
+                }}
+                onSelect={(value) => {
+                  updateQueryParams({ category: value });
+                  setIsCategoryDropdownOpen(false);
+                }}
+              />
 
-                {isCategoryDropdownOpen && (
-                  <div className={styles.customDropdownMenu}>
-                    <button
-                      type="button"
-                      className={`${styles.customDropdownItem} ${
-                        selectedCategory === "all"
-                          ? styles.customDropdownItem_active
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateQueryParams({ category: "all" });
-                        setIsCategoryDropdownOpen(false);
-                      }}
-                    >
-                      All Categories
-                    </button>
-                    {availableCategories.map((category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        className={`${styles.customDropdownItem} ${
-                          selectedCategory === category
-                            ? styles.customDropdownItem_active
-                            : ""
-                        }`}
-                        onClick={() => {
-                          updateQueryParams({ category: category });
-                          setIsCategoryDropdownOpen(false);
-                        }}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Tag Custom Dropdown (Multi-select) */}
-              <div className={styles.customSelectWrapper} ref={tagDropdownRef}>
-                <button
-                  type="button"
-                  className={styles.filterSelect}
-                  onClick={() => {
-                    setIsTagDropdownOpen((prev) => !prev);
-                    setIsCategoryDropdownOpen(false);
-                  }}
-                >
-                  <span>{selectedTagLabel}</span>
-                  <Icon
-                    name="down"
-                    size={16}
-                    className={`${styles.selectArrow} ${
-                      isTagDropdownOpen ? styles.selectArrow_open : ""
-                    }`}
-                  />
-                </button>
-
-                {isTagDropdownOpen && (
-                  <div className={styles.customDropdownMenu}>
-                    <button
-                      type="button"
-                      className={`${styles.customDropdownItem} ${
-                        selectedTags.length === 0
-                          ? styles.customDropdownItem_active
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateQueryParams({ tags: null });
-                      }}
-                    >
-                      All Tags
-                    </button>
-                    {Object.keys(Tag).map((tagKey) => {
-                      const isSelected = selectedTags.includes(tagKey);
-                      return (
-                        <button
-                          key={tagKey}
-                          type="button"
-                          className={`${styles.customDropdownItem} ${
-                            isSelected ? styles.customDropdownItem_active : ""
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleTagToggle(tagKey);
-                          }}
-                        >
-                          <span className={styles.checkboxIndicator}>
-                            {isSelected ? "✓ " : ""}
-                          </span>
-                          {Tag[tagKey as keyof typeof Tag] || tagKey}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              <FilterDropdown
+                label={selectedTagLabel}
+                isOpen={isTagDropdownOpen}
+                wrapperRef={tagDropdownRef}
+                options={tagOptions}
+                keepOpenOnSelect
+                onToggle={() => {
+                  setIsTagDropdownOpen((prev) => !prev);
+                  setIsCategoryDropdownOpen(false);
+                }}
+                onSelect={(value) => {
+                  if (value === "") {
+                    updateQueryParams({ tags: null });
+                  } else {
+                    handleTagToggle(value);
+                  }
+                }}
+              />
             </div>
 
             {hasActiveFilters && (
@@ -670,12 +586,10 @@ const PersonalRoom = () => {
 
         {/* Places Section */}
         <section className={styles.placesSection}>
-          {activeTab === "my-places" && isLoadingMyPlaces ? (
-            <p className={styles.placesSection__empty}>Loading your places...</p>
-          ) : isEmptyList ? (
+          {isEmptyList ? (
             <p className={styles.placesSection__empty}>
               {activeTab === "my-places"
-                ? searchQuery
+                ? urlSearchQuery
                   ? "No places match your search."
                   : "You haven't added any places yet."
                 : savedPlaces.length === 0
@@ -687,17 +601,11 @@ const PersonalRoom = () => {
               <div className={styles.placesGrid}>
                 {paginatedPlaces.map((place) => {
                   const isMyPlace =
-                    currentUser?.id && place.creator_id === currentUser.id;
-                  let placeImage = "";
-
-                  if (place.photos) {
-                    for (let i = 0; i < 5; i++) {
-                      if (place.photos?.[i]?.url) {
-                        placeImage = place.photos[i].url;
-                        break;
-                      }
-                    }
-                  }
+                    Boolean(currentUserId) && place.creator_id === currentUserId;
+                  const canManage = activeTab === "my-places" || isMyPlace;
+                  const placeImage =
+                    Object.values(place.photos ?? {}).find((p) => p.url)?.url ??
+                    "";
 
                   return (
                     <PlaceCard
@@ -714,20 +622,12 @@ const PersonalRoom = () => {
                         ? { isShared: 0 }
                         : { addedBy: place.creator_name })}
                       deleteButtonText="Delete place"
-                      onEdit={
-                        activeTab === "my-places" || isMyPlace
-                          ? () => setPlaceToEdit(place)
-                          : undefined
-                      }
+                      onEdit={canManage ? () => setPlaceToEdit(place) : undefined}
                       onShare={
-                        activeTab === "my-places" || isMyPlace
-                          ? () => handleOpenShare(place)
-                          : undefined
+                        canManage ? () => handleOpenShare(place) : undefined
                       }
                       onDelete={
-                        activeTab === "my-places" || isMyPlace
-                          ? () => handleDeletePersonal(place)
-                          : undefined
+                        canManage ? () => handleDeletePersonal(place) : undefined
                       }
                       onClick={() => navigate(`/places/${place.id}`)}
                     />
@@ -736,63 +636,14 @@ const PersonalRoom = () => {
               </div>
 
               {shouldShowPagination && (
-                <div className={styles.paginationBar}>
-                  <div className={styles.pageSizeSelector}>
-                    <label htmlFor="page-size-select">Per page:</label>
-                    <select
-                      id="page-size-select"
-                      value={pageSize}
-                      onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                      className={styles.pageSizeSelect}
-                    >
-                      {PAGE_SIZE_OPTIONS.map((size) => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {totalPages > 1 && (
-                    <div className={styles.paginationControls}>
-                      <button
-                        type="button"
-                        className={styles.paginationBtn}
-                        disabled={safeCurrentPage === 1}
-                        onClick={() => handlePageChange(safeCurrentPage - 1)}
-                      >
-                        Prev
-                      </button>
-
-                      {Array.from({ length: totalPages }, (_, index) => {
-                        const pageNumber = index + 1;
-                        return (
-                          <button
-                            key={pageNumber}
-                            type="button"
-                            className={`${styles.paginationBtn} ${
-                              safeCurrentPage === pageNumber
-                                ? styles.paginationBtn_active
-                                : ""
-                            }`}
-                            onClick={() => handlePageChange(pageNumber)}
-                          >
-                            {pageNumber}
-                          </button>
-                        );
-                      })}
-
-                      <button
-                        type="button"
-                        className={styles.paginationBtn}
-                        disabled={safeCurrentPage === totalPages}
-                        onClick={() => handlePageChange(safeCurrentPage + 1)}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <Pagination
+                  pageSize={pageSize}
+                  pageSizeOptions={PAGE_SIZE_OPTIONS}
+                  currentPage={safeCurrentPage}
+                  totalPages={totalPages}
+                  onPageSizeChange={handlePageSizeChange}
+                  onPageChange={handlePageChange}
+                />
               )}
             </>
           )}
@@ -809,7 +660,7 @@ const PersonalRoom = () => {
             <strong>{placeToDelete?.name}</strong> will be removed from the map
             and from all groups it was shared with.
             <br />
-            <p>This can’t be undone.</p>
+            <span>This can’t be undone.</span>
           </>
         }
         confirmText="Delete"

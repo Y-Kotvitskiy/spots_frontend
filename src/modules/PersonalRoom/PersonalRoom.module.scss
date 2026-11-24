@@ -2,27 +2,41 @@
 // IMPORTS
 // ==========================================
 
-@use "sass:list";
 @use "@/scss/main.scss" as *;
 @use "@/scss/mixins.scss" as m;
 @use "@/scss/variables.scss" as v;
-@use "@/scss/typography.scss" as t;
 
 // ==========================================
-// HELPERS / MIXINS & VARIABLES
+// VARIABLES
 // ==========================================
 
-@mixin smooth-transition($props...) {
-  @if list.length($props) == 0 {
-    $props: background-color, color, border-color, transform;
+$panel-max-width: v.$desktop-max-width;
+
+// ==========================================
+// KEYFRAMES
+// ==========================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
   }
-  transition-property: $props;
-  transition-duration: v.$animation-time;
-  transition-timing-function: ease;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-$smooth-animation: 0.5s;
-$panel-max-width: v.$desktop-max-width;
+@keyframes gridFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 // ==========================================
 // MAIN PAGE LAYOUT
@@ -32,7 +46,7 @@ $panel-max-width: v.$desktop-max-width;
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: v.$grey-40-color;
 
   &__error {
@@ -50,11 +64,14 @@ $panel-max-width: v.$desktop-max-width;
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-inline: auto;
   padding-inline: v.$offset-mobile;
   padding-top: 20px;
   padding-bottom: 120px;
   align-items: center;
+
+  > * {
+    max-width: $panel-max-width;
+  }
 
   @include m.on-tablet {
     padding-top: 140px;
@@ -79,8 +96,6 @@ $panel-max-width: v.$desktop-max-width;
   padding: 24px 20px;
   gap: 20px;
   border-radius: 30px;
-  max-width: $panel-max-width;
-  align-self: center;
   background-color: v.$grey-0-color;
   box-shadow: v.$small-shadow;
 
@@ -130,7 +145,7 @@ $panel-max-width: v.$desktop-max-width;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    @include smooth-transition(opacity);
+    @include m.smooth-transition(opacity);
   }
 
   &__avatarIcon {
@@ -155,12 +170,15 @@ $panel-max-width: v.$desktop-max-width;
     z-index: 2;
     background-color: v.$background-modal-color;
     backdrop-filter: blur(v.$blur-base);
-    padding: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    .loader__spinner {
+    &.loader {
+      padding: 0 !important;
+    }
+
+    :global(.loader__spinner) {
       width: 24px;
       height: 24px;
       border-width: 2px;
@@ -195,6 +213,29 @@ $panel-max-width: v.$desktop-max-width;
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+
+  &__EditBtn {
+    @extend %button_big;
+    display: none;
+    padding: 0;
+    border: none;
+    background: none;
+    color: v.$grey-60-color;
+    cursor: pointer;
+    @include m.smooth-transition(color);
+
+    &:hover {
+      color: v.$grey-70-color;
+    }
+
+    &:active {
+      color: v.$grey-90-color;
+    }
+
+    @include m.on-tablet {
+      display: inline-block;
+    }
   }
 
   &__stats {
@@ -243,7 +284,7 @@ $panel-max-width: v.$desktop-max-width;
       background-color: v.$grey-20-color;
       color: v.$grey-70-color;
       cursor: pointer;
-      @include smooth-transition(background-color color);
+      @include m.smooth-transition(background-color color);
 
       @include m.on-tablet {
         flex: unset;
@@ -252,7 +293,6 @@ $panel-max-width: v.$desktop-max-width;
       }
 
       &:hover {
-        background-color: v.$grey-20-color;
         color: v.$grey-90-color;
       }
     }
@@ -269,8 +309,6 @@ $panel-max-width: v.$desktop-max-width;
   gap: 16px;
   margin-top: 20px;
   width: 100%;
-  max-width: $panel-max-width;
-  align-self: center;
 
   @include m.on-tablet {
     justify-content: space-between;
@@ -327,11 +365,10 @@ $panel-max-width: v.$desktop-max-width;
   top: 4px;
   bottom: 4px;
   left: 4px;
-  width: calc(50% - 6px); 
+  width: calc(50% - 6px);
   background-color: v.$grey-0-color;
   border-radius: 26px;
   box-shadow: v.$small-shadow;
-  
   transition: transform v.$animation-time ease-in-out;
 }
 
@@ -375,14 +412,14 @@ $panel-max-width: v.$desktop-max-width;
   visibility: visible;
 
   transition:
-    max-width $smooth-animation ease-in-out,
-    max-height $smooth-animation ease-in-out,
-    margin-top $smooth-animation ease-in-out,
-    margin-left $smooth-animation ease-in-out,
-    padding-block $smooth-animation ease-in-out,
-    padding-inline $smooth-animation ease-in-out,
-    opacity $smooth-animation ease-in-out,
-    visibility $smooth-animation ease-in-out;
+    max-width v.$animation-time ease-in-out,
+    max-height v.$animation-time ease-in-out,
+    margin-top v.$animation-time ease-in-out,
+    margin-left v.$animation-time ease-in-out,
+    padding-block v.$animation-time ease-in-out,
+    padding-inline v.$animation-time ease-in-out,
+    opacity v.$animation-time ease-in-out,
+    visibility v.$animation-time ease-in-out;
 
   @include m.on-tablet {
     height: 60px;
@@ -412,8 +449,7 @@ $panel-max-width: v.$desktop-max-width;
   background-color: v.$grey-0-color;
   border-radius: 26px;
   box-shadow: v.$small-shadow;
-  
-  transition: transform $smooth-animation ease-in-out;
+  transition: transform v.$animation-time ease-in-out;
 }
 
 .switchIndicator_second {
@@ -434,36 +470,10 @@ $panel-max-width: v.$desktop-max-width;
   height: 100%;
   cursor: pointer;
   text-align: center;
-  transition: color $smooth-animation ease;
-
-  @include m.on-tablet {
-    width: auto;
-  }
+  transition: color v.$animation-time ease;
 
   &_active {
     color: v.$grey-90-color;
-  }
-}
-
-@keyframes slideInMobile {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInDesktop {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -478,7 +488,7 @@ $panel-max-width: v.$desktop-max-width;
   outline: none;
   width: 100%;
   box-shadow: v.$small-shadow;
-  @include smooth-transition(border-color);
+  @include m.smooth-transition(border-color);
 
   &:hover {
     border-color: v.$grey-20-color;
@@ -498,41 +508,18 @@ $panel-max-width: v.$desktop-max-width;
 // ==========================================
 
 .dropdownFiltersContainer {
-  max-width: $panel-max-width;
-  align-self: center;
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-top: 16px;
   width: 100%;
-  overflow: visible;
-  opacity: 1;
-  max-height: 400px;
-  visibility: visible;
-  
-  transition: max-height $smooth-animation ease-in-out,
-              opacity $smooth-animation ease-in-out,
-              margin-top $smooth-animation ease-in-out,
-              padding $smooth-animation ease-in-out,
-              transform $smooth-animation ease-in-out;
+  animation: gridFadeIn v.$animation-time ease;
 
   @include m.on-tablet {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     margin-top: 24px;
-    max-height: 200px;
-  }
-
-  &_hidden {
-    opacity: 0;
-    max-height: 0;
-    margin-top: 0;
-    padding-block: 0;
-    overflow: hidden;
-    pointer-events: none;
-    visibility: hidden;
-    transform: scale(0.95);
   }
 }
 
@@ -556,7 +543,7 @@ $panel-max-width: v.$desktop-max-width;
   cursor: pointer;
   padding: 0;
   text-align: left;
-  @include smooth-transition(color);
+  @include m.smooth-transition(color);
   white-space: nowrap;
 
   &:hover {
@@ -566,115 +553,6 @@ $panel-max-width: v.$desktop-max-width;
   @include m.on-tablet {
     text-align: right;
   }
-}
-
-.customSelectWrapper {
-  position: relative;
-  width: 100%;
-
-  @include m.on-tablet {
-    width: auto;
-    min-width: 220px;
-  }
-
-  @include m.on-desktop {
-    width: auto;
-  }
-}
-
-.filterSelect {
-  @extend %p2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 48px;
-  padding: 0 20px;
-  background-color: v.$grey-10-color;
-  border: 2px solid transparent;
-  border-radius: 30px;
-  color: v.$grey-90-color;
-  outline: none;
-  cursor: pointer;
-  width: 100%;
-  box-shadow: v.$small-shadow;
-  @include smooth-transition(border-color);
-
-  &:hover {
-    border-color: v.$grey-20-color;
-  }
-
-  &:active {
-    border-color: v.$grey-30-color;
-  }
-
-  @include m.on-tablet {
-    height: 60px;
-    width: 100%;
-    min-width: 220px;
-  }
-
-  @include m.on-desktop {
-    width: auto;
-  }
-}
-
-.selectArrow {
-  @include smooth-transition(transform);
-  color: v.$grey-90-color;
-  flex-shrink: 0;
-
-  &_open {
-    transform: rotate(180deg);
-  }
-}
-
-.customDropdownMenu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  width: 100%;
-  background-color: v.$grey-0-color;
-  border-radius: 20px;
-  box-shadow: v.$small-shadow;
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  gap: 6px;
-  z-index: 101;
-  max-height: 250px;
-  overflow-y: auto;
-  animation: fadeIn v.$animation-time ease;
-}
-
-.customDropdownItem {
-  @extend %p2;
-  background: none;
-  border: none;
-  white-space: nowrap;
-  width: 100%;
-  padding: 10px 16px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  text-align: left;
-  cursor: pointer;
-  @include smooth-transition(background-color);
-  color: v.$grey-90-color;
-
-  &:hover {
-    background-color: v.$grey-20-color;
-  }
-
-  &_active {
-    background-color: v.$grey-20-color;
-    font-weight: 500;
-  }
-}
-
-.checkboxIndicator {
-  margin-right: 6px;
-  font-weight: bold;
 }
 
 // ==========================================
@@ -687,7 +565,6 @@ $panel-max-width: v.$desktop-max-width;
   margin-top: 20px;
   gap: 16px;
   width: 100%;
-  max-width: $panel-max-width;
 
   @include m.on-tablet {
     margin-top: 24px;
@@ -701,161 +578,9 @@ $panel-max-width: v.$desktop-max-width;
 
 .placesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   justify-content: start;
   width: 100%;
   gap: 20px;
-  
   animation: gridFadeIn v.$animation-time ease-in-out;
-}
-
-@keyframes gridFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// ==========================================
-// MISC / EDIT BUTTON
-// ==========================================
-
-.personalInfo__EditBtn {
-  @extend %button_big;
-  display: none;
-  padding: 0;
-  border: none;
-  background: none;
-  color: v.$grey-60-color;
-  cursor: pointer;
-  @include smooth-transition(color);
-
-  &:hover {
-    color: v.$grey-70-color;
-  }
-
-  &:active {
-    color: v.$grey-90-color;
-  }
-
-  @include m.on-tablet {
-    display: inline-block;
-  }
-}
-
-// ==========================================
-// PAGINATION & PAGE SIZE
-// ==========================================
-
-.paginationBar {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  max-width: $panel-max-width;
-  align-self: center;
-  margin-top: 24px;
-
-  @include m.on-tablet {
-    flex-direction: row;
-    align-items: center;
-    margin-top: 32px;
-  }
-}
-
-.pageSizeSelector {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  @extend %p3;
-  color: v.$grey-70-color;
-
-  @include m.on-tablet {
-    justify-content: flex-start;
-  }
-
-  label {
-    white-space: nowrap;
-  }
-}
-
-.pageSizeSelect {
-  @extend %p3;
-  height: 40px;
-  padding: 0 16px;
-  border: 2px solid transparent;
-  border-radius: 20px;
-  background-color: v.$grey-0-color;
-  color: v.$grey-90-color;
-  box-shadow: v.$small-shadow;
-  cursor: pointer;
-  outline: none;
-  @include smooth-transition(border-color, background-color);
-
-  &:hover {
-    border-color: v.$grey-20-color;
-  }
-
-  &:focus {
-    border-color: v.$grey-30-color;
-  }
-}
-
-.paginationControls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  @include m.on-tablet {
-    justify-content: flex-end;
-  }
-}
-
-.paginationBtn {
-  @extend %p3;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 14px;
-  border: none;
-  border-radius: 20px;
-  background-color: v.$grey-0-color;
-  color: v.$grey-70-color;
-  box-shadow: v.$small-shadow;
-  cursor: pointer;
-  @include smooth-transition(background-color, color, transform);
-
-  &:hover:not(:disabled) {
-    background-color: v.$grey-20-color;
-    color: v.$grey-90-color;
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.97);
-  }
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  &_active {
-    background-color: v.$grey-90-color;
-    color: v.$grey-0-color;
-    font-weight: 500;
-
-    &:hover:not(:disabled) {
-      background-color: v.$grey-90-color;
-      color: v.$grey-0-color;
-    }
-  }
 }

@@ -13,13 +13,11 @@
   column-gap: 28px;
   align-items: start;
   justify-content: center;
-  width: 100%;
-  width: 100vw;
+  width: calc(100vw - 2 * v.$offset-mobile);
   max-width: v.$desktop-max-width;
   height: calc(100dvh - v.$header-height-phone - 40px);
   padding-top: 20px;
   padding-bottom: 40px;
-  padding-inline: 16px;
   gap: clamp(12px, 2vw, 32px);
   transform: translateX(-50%);
   pointer-events: none;
@@ -29,8 +27,8 @@
     grid-template-columns: 1fr auto auto;
     grid-auto-flow: row;
     row-gap: 32px;
+    width: calc(100vw - 2 * v.$offset-desktop);
     padding-top: 48px;
-    padding-inline: 40px;
   }
 
   @include m.on-desktop {
@@ -67,7 +65,9 @@
     border-radius: 40px;
     outline: none;
     background-color: v.$grey-0-color;
-    box-shadow: 0 12px 32px rgba(207, 191, 191, 0.18);
+    box-shadow:
+      0 2px 6px rgba(41, 34, 33, 0.08),
+      0 8px 20px rgba(41, 34, 33, 0.14);
     cursor: pointer;
     pointer-events: auto;
 
