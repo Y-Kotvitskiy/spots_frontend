@@ -350,6 +350,8 @@ $element-max-width: v.$desktop-max-width;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  max-width: $element-max-width;
+  width: 100%;
 
   @include m.on-tablet {
     gap: 16px;

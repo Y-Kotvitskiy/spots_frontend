@@ -40,7 +40,7 @@ const ModalPhotoCard: React.FC<ModalPhotoCardProps> = ({
       })}
     >
       {/* плейсхолдер */}
-      
+
       {(!photo.url || !isLoaded) && (
         <div className={styles.modal__placeholderWrapper}>
           <Placeholder text={placeName} />
@@ -114,8 +114,8 @@ const EditPlace: React.FC<EditPlaceProps> = ({
   );
   const [selectedTags, setSelectedTags] = useState<TagKey[]>(place?.tags || []);
   const [description, setDescription] = useState(place?.description || "");
-  const [address, setAddress] = useState(place?.address || "");
-  
+  const [address] = useState(place?.address || "");
+
   const [photos, setPhotos] = useState<BackendPhoto[]>(
     place?.photos ? Object.values(place.photos) : []
   );
@@ -278,8 +278,13 @@ const EditPlace: React.FC<EditPlaceProps> = ({
 
           <h3 className={styles.modal__title}>Edit place {activePage}/3</h3>
 
-          <button className={styles.modal__closeBtn} onClick={onClose} type="button" aria-label="Close modal">
-            <Icon name="close"/>
+          <button
+            className={styles.modal__closeBtn}
+            onClick={onClose}
+            type="button"
+            aria-label="Close modal"
+          >
+            <Icon name="close" />
           </button>
         </div>
 
@@ -365,17 +370,16 @@ const EditPlace: React.FC<EditPlaceProps> = ({
               </div>
 
               <div className={styles.modal__setField}>
-                <label className={styles.modal__label}>
-                  Location <span className={styles.modal__required}>*</span>
-                </label>
+                <label className={styles.modal__label}>Location</label>
                 <div className={styles.modal__inputWrapper}>
                   <input
                     type="text"
                     value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className={styles.modal__input}
+                    disabled
+                    readOnly
+                    aria-disabled="true"
+                    className={cn(styles.modal__input, styles.modal__inputDisabled)}
                     placeholder="12 Main Street, Kyiv, 04210"
-                    required
                   />
                 </div>
               </div>
@@ -398,7 +402,8 @@ const EditPlace: React.FC<EditPlaceProps> = ({
                     <button
                       type="button"
                       className={cn(styles.modal__addPhotoCard, {
-                        [styles.cardDimmed]: isPhotosActionActive && loadingPhotoId !== "adding",
+                        [styles.cardDimmed]:
+                          isPhotosActionActive && loadingPhotoId !== "adding",
                         [styles.cardLoading]: loadingPhotoId === "adding",
                       })}
                       onClick={() => fileInputRef.current?.click()}
@@ -432,8 +437,8 @@ const EditPlace: React.FC<EditPlaceProps> = ({
                 <label className={styles.modal__label}>
                   Working hours <span className={styles.modal__required}>*</span>
                 </label>
-                <div 
-                  className={styles.modal__inputWrapper} 
+                <div
+                  className={styles.modal__inputWrapper}
                   onClick={() => setIsPickerOpen(true)}
                   style={{ cursor: "pointer" }}
                 >
@@ -475,7 +480,7 @@ const EditPlace: React.FC<EditPlaceProps> = ({
         </form>
       </div>
     </div>,
-  document.body
+    document.body
   );
 };
 
