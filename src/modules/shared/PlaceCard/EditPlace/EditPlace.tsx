@@ -40,6 +40,7 @@ const ModalPhotoCard: React.FC<ModalPhotoCardProps> = ({
       })}
     >
       {/* плейсхолдер */}
+      
       {(!photo.url || !isLoaded) && (
         <div className={styles.modal__placeholderWrapper}>
           <Placeholder text={placeName} />
