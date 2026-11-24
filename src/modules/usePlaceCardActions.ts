@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { mapActions } from "@/store/index";
-import { placeService } from "@/services/placeService";
 import type { Place } from "@/types";
 
 export const usePlaceCardActions = (onPlaceDeleted?: (placeId: string) => void) => {
@@ -47,17 +46,12 @@ export const usePlaceCardActions = (onPlaceDeleted?: (placeId: string) => void) 
     setPlaceToDelete(place);
   };
 
-  // Виконується при підтвердженні видалення у модалці
   const handleConfirmDeletePersonal = async () => {
     if (!placeToDelete) return;
-    
+
     try {
-      await placeService.delete(placeToDelete.id);
-      dispatch(mapActions.removePlace(placeToDelete.id));
-      
-      if (onPlaceDeleted) {
-        onPlaceDeleted(placeToDelete.id);
-      }
+      await dispatch(mapActions.removePlace(placeToDelete.id)).unwrap();
+      onPlaceDeleted?.(placeToDelete.id);
     } catch (err) {
       console.error("Failed to delete place on server:", err);
     } finally {

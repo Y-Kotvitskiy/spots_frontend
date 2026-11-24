@@ -68,8 +68,7 @@ const PersonalRoom = () => {
   }, [searchParams]);
 
   const groupsCount = 0;
-  const [myPlaces, setMyPlaces] = useState<Place[]>([]);
-  const [isLoadingMyPlaces, setIsLoadingMyPlaces] = useState(true);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
 
@@ -139,17 +138,25 @@ const PersonalRoom = () => {
   // CARD ACTIONS & SELECTORS
   // ==========================================
 
+  const { savedPlaces } = useMapSelector();
+
+  const currentUserId = currentUser?.id;
+
+  const myPlaces = useMemo(
+    () =>
+      currentUserId
+        ? savedPlaces.filter((p) => p.creator_id === currentUserId)
+        : [],
+    [savedPlaces, currentUserId]
+  );
+
   const {
     placeToDelete,
     handleOpenShare,
     handleDeletePersonal,
     handleConfirmDeletePersonal,
     handleCancelDelete,
-  } = usePlaceCardActions((deletedId) => {
-    setMyPlaces((prev) => prev.filter((p) => p.id !== deletedId));
-  });
-
-  const { savedPlaces } = useMapSelector();
+  } = usePlaceCardActions();
 
   // ==========================================
   // EFFECTS (DATA FETCHING & TIMERS)
@@ -178,25 +185,6 @@ const PersonalRoom = () => {
       isMounted = false;
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    const fetchMyPlaces = async () => {
-      if (!currentUser?.id) return;
-      try {
-        setIsLoadingMyPlaces(true);
-        const userPersonalPlaces = savedPlaces.filter(
-          (place) => place.creator_id === currentUser.id
-        );
-        setMyPlaces(userPersonalPlaces);
-      } catch (err) {
-        console.error("Failed to load my places:", err);
-      } finally {
-        setIsLoadingMyPlaces(false);
-      }
-    };
-
-    fetchMyPlaces();
-  }, [currentUser?.id, savedPlaces]);
 
   useEffect(() => {
     if (!error) return;
@@ -281,10 +269,6 @@ const PersonalRoom = () => {
   // ==========================================
 
   const handlePlaceUpdated = (updatedPlace: Place) => {
-    setMyPlaces((prevPlaces) =>
-      prevPlaces.map((p) => (p.id === updatedPlace.id ? updatedPlace : p))
-    );
-
     dispatch(mapActions.updatePlace(updatedPlace));
   };
 
@@ -373,7 +357,7 @@ const PersonalRoom = () => {
 
   const isEmptyList =
     activeTab === "my-places"
-      ? !isLoadingMyPlaces && filteredMyPlaces.length === 0
+      ? filteredMyPlaces.length === 0
       : savedPlaces.length === 0 || filteredSharedPlaces.length === 0;
 
   // ==========================================
@@ -670,9 +654,7 @@ const PersonalRoom = () => {
 
         {/* Places Section */}
         <section className={styles.placesSection}>
-          {activeTab === "my-places" && isLoadingMyPlaces ? (
-            <p className={styles.placesSection__empty}>Loading your places...</p>
-          ) : isEmptyList ? (
+          {isEmptyList ? (
             <p className={styles.placesSection__empty}>
               {activeTab === "my-places"
                 ? searchQuery
