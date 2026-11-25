@@ -61,7 +61,7 @@ const Navigation = () => {
                   className={styles.Navigation__icon}
                   size={22}
                 />
-                <span className={styles.Navigation__text}>Personal Room</span>
+                <span className={styles.Navigation__text}>My Room</span>
               </NavLink>
             </li>
           </>

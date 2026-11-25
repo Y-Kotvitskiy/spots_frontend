@@ -141,7 +141,7 @@ const EditPlace: React.FC<EditPlaceProps> = ({
     setSelectedTags(updatedTags);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && place?.id) {
       try {
@@ -155,8 +155,13 @@ const EditPlace: React.FC<EditPlaceProps> = ({
         }
       } catch (err: unknown) {
         console.error("Failed to add photo:", err);
-        const error = err as { response?: { data?: { message?: string } } };
-        setErrorMessage(error.response?.data?.message || "Failed to add photo");
+        const error = err as {
+          message?: string;
+          response?: { data?: { message?: string } };
+        };
+        setErrorMessage(
+          error.response?.data?.message || error.message || "Failed to add photo"
+        );
       } finally {
         setLoadingPhotoId(null);
         if (e.target) e.target.value = "";

@@ -23,15 +23,21 @@
 
   &__header {
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: 28px 1fr 28px;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    
     margin-bottom: 20px;
+    padding-inline: 0;
+
+    @include m.on-tablet {
+      grid-template-columns: 40px 1fr 40px;
+    }
   }
 
   &__title {
     @extend %h3;
+    padding: 0;
     margin: 0;
     color: v.$grey-90-color;
     text-align: center;
@@ -41,10 +47,8 @@
   &__backBtn {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 4px;
+    justify-content: start;
+    padding: 0px;
     background: none;
     border: none;
     color: v.$grey-60-color;
@@ -59,9 +63,7 @@
   &__closeBtn {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
+    justify-content: end;
     padding: 0;
     background: none;
     border: none;

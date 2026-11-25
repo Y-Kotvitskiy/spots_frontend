@@ -117,24 +117,18 @@ const canvasToBlob = (
   });
 };
 
-const compressImageToMaxSize = async (
-  file: File,
-  maxBytes = MAX_FILE_SIZE_BYTES
+const encodeCanvasToMaxSize = async (
+  source: HTMLImageElement,
+  fileName: string,
+  maxBytes: number,
+  initialQuality = 0.8,
 ): Promise<File> => {
-  if (file.size <= maxBytes) {
-    return file;
-  }
-
-  const img = await loadImageElement(file);
-
   const targetMime = "image/jpeg";
-
-  const origWidth = img.naturalWidth || img.width;
-  const origHeight = img.naturalHeight || img.height;
+  const origWidth = source.naturalWidth || source.width;
+  const origHeight = source.naturalHeight || source.height;
 
   const maxInitialDim = 2560;
-  const initialRatio = Math.min(1, maxInitialDim / Math.max(origWidth, origHeight));
-  let scale = initialRatio;
+  let scale = Math.min(1, maxInitialDim / Math.max(origWidth, origHeight));
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -144,18 +138,23 @@ const compressImageToMaxSize = async (
 
   for (let pass = 0; pass < 7; pass++) {
     if (pass > 0) {
-      scale *= 0.75;
+      scale *= 0.7;
     }
 
     canvas.width = Math.max(1, Math.round(origWidth * scale));
     canvas.height = Math.max(1, Math.round(origHeight * scale));
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
 
-    for (const quality of [0.85, 0.72, 0.58, 0.45, 0.3]) {
+    const qualities =
+      pass === 0 && initialQuality !== 0.85
+        ? [initialQuality, 0.72, 0.58, 0.45, 0.3]
+        : [0.85, 0.72, 0.58, 0.45, 0.3];
+
+    for (const quality of qualities) {
       const blob = await canvasToBlob(canvas, targetMime, quality);
       if (blob.size <= maxBytes) {
-        const nextName = file.name.replace(/\.[^.]+$/, ".jpg");
+        const nextName = fileName.replace(/\.[^.]+$/, ".jpg");
         return new File([blob], nextName, { type: targetMime });
       }
     }
@@ -165,22 +164,57 @@ const compressImageToMaxSize = async (
   throw new Error(`Unable to compress image below ${maxMb} MB`);
 };
 
+const compressImageToMaxSize = async (
+  file: File,
+  maxBytes = MAX_FILE_SIZE_BYTES,
+): Promise<File> => {
+  if (file.size <= maxBytes) {
+    return file;
+  }
+
+  const img = await loadImageElement(file);
+  return encodeCanvasToMaxSize(img, file.name, maxBytes, 0.85);
+};
+
 export const normalizePhotoFile = async (
   file: File,
-  maxBytes = MAX_FILE_SIZE_BYTES
+  maxBytes = MAX_FILE_SIZE_BYTES,
 ): Promise<File> => {
   let workingFile = file;
+  let wasConvertedFromHeic = false;
 
   if (isHeicFile(workingFile)) {
-    const converted = await heic2any({
-      blob: workingFile,
-      toType: "image/jpeg",
-      quality: 0.85,
-    });
+    try {
+      const converted = await heic2any({
+        blob: workingFile,
+        toType: "image/jpeg",
+        quality: 0.85,
+      });
 
-    const blob = Array.isArray(converted) ? converted[0] : converted;
-    const jpgName = workingFile.name.replace(/\.(heic|heif)$/i, ".jpg");
-    workingFile = new File([blob], jpgName, { type: "image/jpeg" });
+      const blob = Array.isArray(converted) ? converted[0] : converted;
+      if (!blob || blob.size === 0) {
+        throw new Error("Empty blob returned from heic2any");
+      }
+
+      const jpgName = workingFile.name.replace(/\.(heic|heif)$/i, ".jpg");
+      workingFile = new File([blob], jpgName, { type: "image/jpeg" });
+      wasConvertedFromHeic = true;
+    } catch (heicErr) {
+      console.error("[normalizePhotoFile] heic2any failed:", {
+        name: file.name,
+        size: file.size,
+        heicErr,
+      });
+      throw new Error(
+        "This HEIC image couldn't be converted in the browser. Please convert it to JPG/PNG and try again.",
+        { cause: heicErr },
+      );
+    }
+  }
+
+  if (wasConvertedFromHeic) {
+    const img = await loadImageElement(workingFile);
+    return encodeCanvasToMaxSize(img, workingFile.name, maxBytes, 0.8);
   }
 
   if (workingFile.size > maxBytes) {

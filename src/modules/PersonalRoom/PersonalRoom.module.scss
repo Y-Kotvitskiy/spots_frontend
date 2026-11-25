@@ -334,6 +334,7 @@ $panel-max-width: v.$desktop-max-width;
   width: 100%;
   max-width: 320px;
   flex-shrink: 0;
+  background-color: v.$grey-0-color-menu;
 
   @include m.on-tablet {
     width: 320px;
@@ -403,6 +404,7 @@ $panel-max-width: v.$desktop-max-width;
   gap: 4px;
   flex-shrink: 0;
   overflow: hidden;
+  background-color: v.$grey-0-color-menu;
 
   width: 100%;
   max-width: 250px;
