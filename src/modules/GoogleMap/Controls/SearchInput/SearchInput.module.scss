@@ -28,6 +28,9 @@
     border: none;
     border-radius: 40px;
     background: v.$grey-10-color;
+    box-shadow:
+      0 2px 6px rgba(41, 34, 33, 0.08),
+      0 8px 20px rgba(41, 34, 33, 0.14);
     cursor: pointer;
     pointer-events: auto;
 

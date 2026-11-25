@@ -34,7 +34,6 @@ const MapMarker: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
-        console.log("Нажат Esc на карте!");
         if (mapMode !== MapMode.Show || selectedCoords) {
           dispatch(mapActions.setMapMode(MapMode.Show));
           dispatch(mapActions.clearSelectedCoord());

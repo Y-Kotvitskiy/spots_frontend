@@ -42,6 +42,15 @@
     @include m.hover(transform, scale(v.$text-hover-transform));
   }
 
+  &__loadMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 186px;
+    border: none;
+    background-color: v.$grey-20-color;
+  }
+
   &__clearButton {
     display: block;
     z-index: 10;

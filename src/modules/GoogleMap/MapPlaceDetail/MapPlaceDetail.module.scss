@@ -14,7 +14,7 @@
   row-gap: 20px;
   align-items: center;
   justify-content: space-between;
-  width: calc(100vw - 32px);
+  width: calc(100vw - 2 * v.$offset-mobile);
   max-width: v.$desktop-max-width;
   height: fit-content;
   padding-inline: 16px;
@@ -22,12 +22,15 @@
   transform: translateX(-50%);
   border-radius: 32px;
   background-color: v.$grey-0-color;
+  box-shadow:
+    0 2px 6px rgba(41, 34, 33, 0.08),
+    0 8px 20px rgba(41, 34, 33, 0.14);
 
   @include m.on-tablet {
     bottom: 32px;
     grid-template-columns: 1fr auto minmax(20px, 120px);
     column-gap: 28px;
-    width: calc(100vw - 80px);
+    width: calc(100vw - 2 * v.$offset-desktop);
     height: 164px;
     padding-inline: 20px;
     padding-block: 0;
