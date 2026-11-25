@@ -184,7 +184,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       console.error("Failed to delete photo:", err);
       const error = err as { response?: { data?: { message?: string } } };
       setErrorMessage(error.response?.data?.message || "Failed to delete photo");
-    } finally {
+    } finally { 
       setLoadingPhotoId(null);
     }
   };
