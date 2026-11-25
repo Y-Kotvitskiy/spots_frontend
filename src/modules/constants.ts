@@ -9,5 +9,5 @@ export const OPENS_AT = "09:00";
 
 export const CLOSES_AT = "18:00";
 
-export const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB -> Bigger = Compress Image
+export const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1 MB -> Bigger = Compress Image
 export const PAGE_SIZE_OPTIONS = [6, 12, 24] as const; // Count Element on Page
