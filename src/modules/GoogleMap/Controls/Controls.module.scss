@@ -158,14 +158,12 @@
     }
 
     &Play {
-      display: flex;
-      padding-bottom: 0.15em;
-      padding-left: 0.15em;
-      font-size: 28px;
-      line-height: 100%;
+      display: inline-block;
+      height: 28px;
+      object-fit: contain;
 
       @include m.on-tablet {
-        font-size: 32px;
+        height: 32px;
       }
     }
 

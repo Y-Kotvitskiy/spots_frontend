@@ -8,8 +8,24 @@ import { useAppDispatch, useMapSelector } from "@/store/hooks";
 import { mapActions } from "@/store";
 import { useMap } from "@vis.gl/react-google-maps";
 import MapFilter from "./MapFilter";
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useSelectPlace } from "../GoogleMap.hooks";
+
+const Triangle: React.FC<{ className: string }> = ({ className }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <polygon
+      points="7,4 19,12 7,20"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 const Controls: React.FC = () => {
   const { mapMode, filters, categories } = useMapSelector();
@@ -90,7 +106,7 @@ const Controls: React.FC = () => {
       >
         {isAddingMode ? (
           <>
-            <span className={styles.Controls__addButtonPlay}>&#9655;</span>
+            <Triangle className={styles.Controls__addButtonPlay} />
             <span className={styles.Controls__addButtonText}>Save</span>
           </>
         ) : (
